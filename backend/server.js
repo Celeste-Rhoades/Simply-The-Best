@@ -8,12 +8,10 @@ dotenv.config();
 const app = express();
 app.use(express.json()); //allows express to read json on req.body
 
-app.use(express.json()); // allows to accept JSON in req.body
-
 app.use("/api/recommendation", recommendationRoutes);
 
+connectDB();
 // Server listen
 app.listen(5288, () => {
-  connectDB();
   console.log("Server started on port 5288");
 });
