@@ -11,6 +11,24 @@ export const getRecommendation = async (req, res) => {
   }
 };
 
+export const getRecommendationsGroupedByCategory = async (req, res) => {
+  try {
+    const recommendations = await Recommend.find({});
+
+    const grouped = recommendations.reduce((acc, rec) => {
+      const category = rec.category.toLowerCase();
+      if (!acc[category]) acc[category] = [];
+      acc[category].push(rec);
+      return acc;
+    }, {});
+
+    res.status(200).json({ success: true, data: grouped });
+  } catch (error) {
+    console.error("Error grouping recommendations:", error.message);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
 export const createRecommendation = async (req, res) => {
   const recommendation = req.body;
 
