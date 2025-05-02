@@ -16,5 +16,5 @@ app.use("/api/recommendation", recommendationRoutes);
 connectDB();
 // Server listen
 app.listen(PORT, () => {
-  console.log("Server started on port 5288");
+  console.log(`Server started on ${PORT}`);
 });

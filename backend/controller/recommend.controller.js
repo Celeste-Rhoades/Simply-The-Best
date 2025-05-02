@@ -85,15 +85,13 @@ export const deleteRecommendation = async (req, res) => {
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res
-      .status(400)
+      .status(404)
       .json({ success: false, message: "Invalid recommendation ID" });
   }
   try {
     await Recommend.findByIdAndDelete(id);
     res.status(200).json({ success: true, message: "Recommendation Deleted" });
   } catch (error) {
-    res
-      .status(404)
-      .json({ success: false, message: "Recommendation not found" });
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
