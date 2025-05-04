@@ -1,23 +1,16 @@
-// import { useState } from "react";
-import { BrowserRouter, Route, Routes, Link } from "react-router-dom";
-import FormDropDown from "../src/Components/FormDropDown";
-import NavBar from "../src/Components/NavBar";
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import SignInPage from "./pages/auth/SignInPage"
+import SignUpPage from "./pages/auth/SignUpPage"
 
-function App() {
+const App = () => {
   return (
-    <>
-      <BrowserRouter>
-        {/* <Routes> */}
-        {/* <Route> */}
-        <div>
-          <NavBar />
-        </div>
-        <FormDropDown />
-        {/* </Route> */}
-        {/* </Routes> */}
-      </BrowserRouter>
-    </>
-  );
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<SignInPage />} />
+        <Route path="/sign-up" element={<SignUpPage />} />
+      </Routes>
+    </BrowserRouter>
+  )
 }
 
-export default App;
+export default App
