@@ -18,7 +18,7 @@ const FormContainer = (props) => {
         <div className="flex flex-col items-center mx-2 my-8">
           <img
             src={logo1}
-            className="w-16 mb-7"
+            className="w-20 mb-7"
           />
           <div className="text-3xl text-lighTeal ">
            Simply the Best
