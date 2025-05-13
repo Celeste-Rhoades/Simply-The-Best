@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { connectMongoDB } from "./db/connectMongoDB.js";
 import recommendationRoutes from "./routes/recommendation.route.js";
 import authRoutes from "./routes/auth.routes.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -12,6 +13,9 @@ const PORT = process.env.PORT || 5288;
 
 app.use(express.json()); //allows express to read json on req.body
 app.use(express.urlencoded({ extended: true }));
+
+app.use(cookieParser());
+
 app.use("/api/auth", authRoutes);
 app.use("/api/recommendation", recommendationRoutes);
 
