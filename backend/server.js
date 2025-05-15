@@ -1,9 +1,12 @@
 import express from "express";
 import dotenv from "dotenv";
-import { connectMongoDB } from "./db/connectMongoDB.js";
+import cookieParser from "cookie-parser";
+
 import recommendationRoutes from "./routes/recommendation.route.js";
 import authRoutes from "./routes/auth.routes.js";
-import cookieParser from "cookie-parser";
+import userRoutes from "./routes/user.routes.js";
+
+import { connectMongoDB } from "./db/connectMongoDB.js";
 
 dotenv.config();
 
@@ -17,6 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/recommendation", recommendationRoutes);
 
 connectMongoDB();
