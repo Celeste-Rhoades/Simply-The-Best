@@ -49,6 +49,9 @@ export const createRecommendation = async (req, res) => {
     return res.status(400).json({ success: false, message: "Invalid rating" });
   }
 
+  // Add user association
+  recommendation.user = req.user._id;
+
   const newRecommendation = new Recommend(recommendation);
 
   try {

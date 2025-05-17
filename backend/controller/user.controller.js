@@ -1,5 +1,6 @@
 import User from "../models/user.model.js";
 import Notification from "../models/notification.model.js";
+import Recommend from "../models/Recommend.model.js";
 
 import bcrypt from "bcryptjs";
 
@@ -133,6 +134,18 @@ export const updateUser = async (req, res) => {
     return res.status(200).json(user);
   } catch (error) {
     console.log("Error in updateUser: ", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+export const getUserRecommendations = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const user = await User.findOne({ username });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const recommendations = await Recommend.find({ user: user._id });
+    res.status(200).json({ success: true, data: recommendations });
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };

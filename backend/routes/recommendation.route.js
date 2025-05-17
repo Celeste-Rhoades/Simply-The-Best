@@ -1,4 +1,5 @@
 import express from "express";
+import { protectRoute } from "../middleware/protectRoute.js";
 import Recommend from "../models/Recommend.model.js";
 import {
   createRecommendation,
@@ -14,7 +15,8 @@ const router = express.Router();
 router.get("/", getRecommendation);
 router.get("/grouped", getRecommendationsGroupedByCategory);
 // Route to create a recommendation
-router.post("/", createRecommendation);
+router.post("/", protectRoute, createRecommendation);
+//
 //update recommendation
 router.put("/:id", updateRecommendation);
 //delete recommendations
