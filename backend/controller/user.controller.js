@@ -1,5 +1,5 @@
-import User from "../models/user.model.js";
-import Notification from "../models/notification.model.js";
+import User from "../models/User.model.js";
+import Notification from "../models/Notification.model.js";
 import Recommend from "../models/Recommend.model.js";
 
 import bcrypt from "bcryptjs";

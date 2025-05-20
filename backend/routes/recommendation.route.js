@@ -1,6 +1,6 @@
 import express from "express";
 import { protectRoute } from "../middleware/protectRoute.js";
-import Recommend from "../models/Recommend.model.js";
+
 import {
   createRecommendation,
   deleteRecommendation,
