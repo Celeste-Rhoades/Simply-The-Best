@@ -20,11 +20,11 @@ export const signup = async (req, res) => {
     if (password.length < 12) {
       return res
         .status(400)
-        .json({ error: "Password must be at least 6 characters long" });
+        .json({ error: "Password must be at least 12 characters long" });
     }
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-
+    // check this logic
     const newUser = new User({
       fullName,
       username,
@@ -44,7 +44,7 @@ export const signup = async (req, res) => {
         following: newUser.following,
       });
     } else {
-      res.status(400).json({ error: "Invalid user data" });
+      res.status(500).json({ error: "Internal Server Error" });
     }
   } catch (error) {
     console.log("Error in signup controller", error.message);
