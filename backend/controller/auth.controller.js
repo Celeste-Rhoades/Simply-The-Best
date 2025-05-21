@@ -17,7 +17,7 @@ export const signup = async (req, res) => {
     if (existingEmail) {
       return res.status(400).json({ error: "Email is already taken" });
     }
-    if (password.length < 6) {
+    if (password.length < 12) {
       return res
         .status(400)
         .json({ error: "Password must be at least 6 characters long" });
@@ -42,8 +42,6 @@ export const signup = async (req, res) => {
         email: newUser.email,
         followers: newUser.followers,
         following: newUser.following,
-        profileImg: newUser.profileImg,
-        coverImg: newUser.coverImg,
       });
     } else {
       res.status(400).json({ error: "Invalid user data" });
@@ -74,8 +72,6 @@ export const login = async (req, res) => {
       email: user.email,
       followers: user.followers,
       following: user.following,
-      profileImg: user.profileImg,
-      coverImg: user.coverImg,
     });
   } catch (error) {
     console.log("Error in login controller", error.message);
