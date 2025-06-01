@@ -1,3 +1,4 @@
+import {Link} from "react-router-dom"
 import AuthForm from "./AuthForm";
 import FormContainer from "./FormContainer";
 
@@ -18,7 +19,7 @@ const SignInPage = () => {
       ]}
       submitButtonLabel="sign in"
     />
-
+  <Link to="/sign-up" className="text-[#006895] underline text-sm">Create an account</Link>
     </FormContainer>
   </div>
 };
