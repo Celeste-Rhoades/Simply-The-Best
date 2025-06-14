@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 import recommendationRoutes from "./routes/recommendation.route.js";
 import authRoutes from "./routes/auth.routes.js";
@@ -14,6 +15,7 @@ const app = express();
 
 const PORT = process.env.PORT || 5288;
 
+app.use(cors({ origin: "*", credentials: true }));
 app.use(express.json()); //allows express to read json on req.body
 app.use(express.urlencoded({ extended: true }));
 
