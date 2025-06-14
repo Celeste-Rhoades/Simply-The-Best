@@ -12,6 +12,7 @@ const Field = (props) => {
         value={value}
         onChange={onChange}
         className="w-64 px-2 py-1 border rounded-lg bg-slate-50 border-slate-200 focus:outline-lightTeal"
+        autoComplete={type === "password" ? "current-password" : undefined}
       />
     </div>
   );

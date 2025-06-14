@@ -14,7 +14,7 @@ const AuthForm = (props) => {
 const handleSubmit = async(e) => {
 e.preventDefault()
 console.log(values)
-const response = await fetch("http://localhost:5288/api/auth/login", {
+const response = await fetch("/api/auth/login", {
   method: 'POST',
   body: JSON.stringify(values),
   headers: {
