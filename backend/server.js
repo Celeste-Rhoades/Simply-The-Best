@@ -15,7 +15,7 @@ const app = express();
 
 const PORT = process.env.PORT || 5288;
 
-app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(express.json()); //allows express to read json on req.body
 app.use(express.urlencoded({ extended: true }));
 
