@@ -62,8 +62,7 @@ export const followUnfollowUser = async (req, res) => {
   }
 };
 export const updateUser = async (req, res) => {
-  const { fullName, email, username, currentPassword, newPassword, bio, link } =
-    req.body;
+  const { email, username, currentPassword, newPassword, bio, link } = req.body;
   // let { profileImg, coverImg } = req.body;
 
   const userId = req.user._id;
@@ -118,7 +117,6 @@ export const updateUser = async (req, res) => {
     //   coverImg = uploadedResponse.secure_url;
     // }
 
-    user.fullName = fullName || user.fullName;
     user.email = email || user.email;
     user.username = username || user.username;
     user.bio = bio || user.bio;
