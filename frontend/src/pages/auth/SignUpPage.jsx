@@ -13,6 +13,11 @@ const SignUpPage = () => {
           type: "text",
         },
         {
+          label: "email",
+          type: "text",
+
+        },
+        {
           label: "password",
           type: "password",
         },
@@ -22,6 +27,9 @@ const SignUpPage = () => {
         },
       ]}
       submitButtonLabel="create account"
+      onSubmit={(values) => {
+        console.log(values)
+      }}
     />
      <Link to="/" className="text-[#006895] underline text-sm">Sign in</Link>
     </FormContainer>

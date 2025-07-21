@@ -2,7 +2,7 @@ import { useState } from "react";
 import Field from "./Field";
 
 const AuthForm = (props) => {
-  const { fields, submitButtonLabel } = props;
+  const { fields, submitButtonLabel, onSubmit } = props;
   const [values, setValues] = useState(() => {
     const initialState = {};
     for (let field of fields) {
@@ -11,23 +11,25 @@ const AuthForm = (props) => {
     return initialState;
   });
 
-const handleSubmit = async(e) => {
-e.preventDefault()
-console.log(values)
-const response = await fetch("/api/auth/login", {
-  method: 'POST',
-  body: JSON.stringify(values),
-  headers: {
-    "Content-Type": "application/json"
-  },
-  credentials:"include"
+// const handleSubmit = async(e) => {
+// e.preventDefault()
+// console.log(values)
+// const response = await fetch("/api/auth/login", {
+//   method: 'POST',
+//   body: JSON.stringify(values),
+//   headers: {
+//     "Content-Type": "application/json"
+//   },
+//   credentials:"include"
 
-})
-console.log(response)
+// })
+// console.log(response)
 
-}
+// }
   return (
-    <form className="p-4 m-4 bg-white border rounded-lg border-slate-200" onSubmit={handleSubmit}
+    <form className="p-4 m-4 bg-white border rounded-lg border-slate-200" onSubmit={(values) => {
+
+    }}
     >
       {fields.map((field) => (
         <Field 
