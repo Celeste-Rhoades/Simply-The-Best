@@ -10,25 +10,13 @@ const AuthForm = (props) => {
     }
     return initialState;
   });
-
-// const handleSubmit = async(e) => {
-// e.preventDefault()
-// console.log(values)
-// const response = await fetch("/api/auth/login", {
-//   method: 'POST',
-//   body: JSON.stringify(values),
-//   headers: {
-//     "Content-Type": "application/json"
-//   },
-//   credentials:"include"
-
-// })
-// console.log(response)
-
-// }
+const [loading, setLoading] = useState(false)
   return (
-    <form className="p-4 m-4 bg-white border rounded-lg border-slate-200" onSubmit={(values) => {
-
+    <form className="p-4 m-4 bg-white border rounded-lg border-slate-200" onSubmit={async (e) => {
+      e.preventDefault()
+      setLoading(true)
+     await onSubmit(values)
+      setLoading(false)
     }}
     >
       {fields.map((field) => (
@@ -42,8 +30,13 @@ const AuthForm = (props) => {
           }}
         />
       ))}
-      <button className="w-full py-2 mt-4 text-white rounded-lg bg-lighTeal" type="submit">
+      <button className="w-full py-2 mt-4 text-white rounded-lg bg-lighTeal relative" type="submit">
         {submitButtonLabel}
+        {loading && 
+        <div className="absolute top-0 right-4 flex items-center h-full ">
+        <i className="text-xl fa-solid fa-spinner text-[#dfcd3] animate-spin "></i>
+        </div>
+        }
       </button>
     </form>
   );
