@@ -1,11 +1,13 @@
 import { useState} from 'react'
-import {Link} from 'react-router-dom'
+import {Link, useNavigate} from 'react-router-dom'
 import AuthForm from "./AuthForm";
 import FormContainer from "./FormContainer";
-import { createUser } from "../../services/user"
+import * as userService from "services/user"
 
 const SignUpPage = () => {
   const [error, setError] = useState('')
+  const navigate = useNavigate()
+
   return <div className="flex items-center justify-center">
     <FormContainer>
     <div className='text-pink-600'>{error}</div>
@@ -40,14 +42,19 @@ const SignUpPage = () => {
       return
      }
 
-    const response = await createUser({
+    const response = await userService.createUser({
       username: values.username,
       email: values.email,
       password: values.password
     })
     if( response.status === 201) {
       setError('')
-      console.log('User created')
+    //  navigate user to sign in page
+    navigate('/', {
+      state: {
+        accountCreated: true
+      }
+    })
     } else {
       const data = await response.json()
       setError(data.error)

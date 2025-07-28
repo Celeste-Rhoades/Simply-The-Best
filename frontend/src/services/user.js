@@ -8,3 +8,9 @@ apiFetch("POST", "/api/auth/signup", {
     password,
 });
 
+export const createSession= ({username, password}) => 
+    apiFetch('POST',"/api/auth/login",
+    {
+    username,
+    password,
+})
