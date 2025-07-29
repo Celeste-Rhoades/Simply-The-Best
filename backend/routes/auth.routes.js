@@ -10,7 +10,7 @@ import { getUserRecommendations } from "../controller/user.controller.js";
 
 const router = express.Router();
 
-router.get("/myProfile", protectRoute, getprofile);
+router.get("/myProfile", protectRoute, getProfile);
 router.get("/:username/recommendations", protectRoute, getUserRecommendations);
 
 router.post("/signup", signup);
