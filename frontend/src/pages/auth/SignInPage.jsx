@@ -34,10 +34,10 @@ const SignInPage = () => {
           username:values.username, 
           password: values.password})
 
-        if(response.status === 200){
-          console.log('Sign in successful')
-          setError('')
-        } else {
+          if(response.status === 200){
+            console.log('Sign in successful')
+            setError('')
+          } else {
           const data = await response.json()
           setError(data.error)
         }
