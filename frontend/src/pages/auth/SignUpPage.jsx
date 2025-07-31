@@ -3,12 +3,15 @@ import {Link, useNavigate} from 'react-router-dom'
 import AuthForm from "./AuthForm";
 import FormContainer from "./FormContainer";
 import * as userService from "services/user"
+import RedirectToRecommendationIfSignedIn from 'shared-components/RedirectToRecommendIfSignedIn';
 
 const SignUpPage = () => {
   const [error, setError] = useState('')
   const navigate = useNavigate()
 
   return <div className="flex items-center justify-center">
+    <RedirectToRecommendationIfSignedIn>
+
     <FormContainer>
     <div className='text-pink-600'>{error}</div>
     <AuthForm 
@@ -64,6 +67,7 @@ const SignUpPage = () => {
     />
      <Link to="/" className="text-[#006895] underline text-sm">Sign in</Link>
     </FormContainer>
+    </RedirectToRecommendationIfSignedIn>
  
   </div>
 };

@@ -1,18 +1,22 @@
-import { useContext, useEffect } from "react";
-import SessionContext from "contexts/sessionContext";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import apiFetch from "services/apiFetch";
 
-const RedirectToRecommendIfSignedIn = props => {
-  const { username } = useContext(SessionContext);
+const RedirectToRecommendationIfSignedIn = (props) => {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (username !== null) {
-      navigate("/recommend");
+useEffect(() => {
+  const checkAuth = async () => {
+    const response = await apiFetch("GET", "/api/recommendation");
+    if (response.ok) {
+      navigate("/recommendation");
     }
-  }, [username, navigate]);
+   
+  };
+  checkAuth();
+}, [navigate]);
 
   return props.children;
 };
 
-export default RedirectToRecommendIfSignedIn;
+export default RedirectToRecommendationIfSignedIn;
