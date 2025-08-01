@@ -1,4 +1,4 @@
-import NavBar from "./NavBar";
+import NavBar from "../shared-components/NavBar";
 
 const FormDropDown = () => {
   return (
