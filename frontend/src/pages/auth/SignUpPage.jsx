@@ -9,7 +9,7 @@ const SignUpPage = () => {
   const [error, setError] = useState('')
   const navigate = useNavigate()
 
-  return <div className="flex items-center justify-center">
+  return <div className="flex items-center justify-center font-raleway">
     <RedirectToRecommendationIfSignedIn>
 
     <FormContainer>

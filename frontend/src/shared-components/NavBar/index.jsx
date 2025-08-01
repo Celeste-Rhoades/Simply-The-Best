@@ -3,7 +3,7 @@ import logo1 from "../../images/logo.png";
 import apiFetch from "services/apiFetch";
 
 const NavBar = () => {
-  const [username, setUsername] = useState(null); // null = loading, "" = guest
+  const [username, setUsername] = useState(null); 
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -25,15 +25,16 @@ const NavBar = () => {
           <div className="">
             <img className="m-4 w-20 rounded-md" src={logo1} />
           </div>
-          <div className="text-4xl text-white">Simply The Best</div>
-          <div className="m-2 text-white">
+          <div className="text-5xl text-white font-manrope">Simply The Best</div>
+          <div className="m-2 text-white font-raleway">
             <button>
+              <i className="fa-solid fa-user m-4"></i>
               {username === null
                 ? "Loading..."
                 : username
                 ? username
                 : "Guest"}
-            </button>
+           </button>
             <button className="m-10">Sign up</button>
           </div>
         </div>

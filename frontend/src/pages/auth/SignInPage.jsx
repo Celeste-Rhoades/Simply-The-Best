@@ -11,7 +11,7 @@ const SignInPage = () => {
   const location = useLocation();
 
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex items-center justify-center font-raleway">
       <RedirectToRecommendationIfSignedIn key={authCheckKey}>
         <FormContainer>
           <div className='text-pink-600'>{error}</div>

@@ -7,3 +7,17 @@
     --color-seaFoam: #8ec1b8;
     --color-lightTanGray: #f6f5f2;
   }
+
+  @theme {
+    --font-manrope: "manrope", "sans-serif";
+    --font-raleway: "raleway", "sans-serif"
+  }
+  @font-face {
+    font-family: manrope;
+    src: url("./fonts/Manrope/static/Manrope-Light.ttf");
+  }
+
+  @font-face {
+    font-family: raleway;
+    src: url("./fonts/Raleway/static/Raleway-Light.ttf");
+  }
