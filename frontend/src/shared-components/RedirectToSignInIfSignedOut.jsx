@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import apiFetch from "services/apiFetch";
 
-const RedirectToSignedInIfSignedOut = (props) => {
+const RedirectToSignedInIfSignedOut = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -14,7 +14,7 @@ const RedirectToSignedInIfSignedOut = (props) => {
       logout()
   }, [navigate]);
 
-  return props.children;
+  return null
 };
 
 export default RedirectToSignedInIfSignedOut;
