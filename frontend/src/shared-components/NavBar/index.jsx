@@ -27,17 +27,17 @@ const NavBar = () => {
   return (
     <nav>
       <div
-        className="flex justify-center bg-lighTeal"
+        className="bg-lighTeal flex justify-center"
         onMouseLeave={() => setUserOpenMenu(false)}
       >
-        <div className="max-w-5xl w-full flex items-center px-4 py-2">
-          <div className="w-1/4 flex justify-start">
+        <div className="flex w-full max-w-5xl items-center px-4 py-2">
+          <div className="flex w-1/4 justify-start">
             <img className="m-2 w-20 rounded-md" src={logo1} />
           </div>
-          <div className="flex-1 md:text-5xl text-white font-manrope text-center text-3xl">
+          <div className="font-manrope flex-1 text-center text-white lg:text-5xl">
             Simply The Best
           </div>
-          <div className="w-1/4 flex justify-end text-white font-raleway md:text-xl">
+          <div className="font-raleway flex w-1/4 justify-end text-white md:text-xl">
             <div className="relative min-w-44">
               <button
                 type="button"
@@ -45,16 +45,26 @@ const NavBar = () => {
                 onClick={() => setUserOpenMenu(true)}
               >
                 <i className="fa-solid fa-user m-1"></i>
-                <span className="ml-2">
+                <span className="ml-2 max-w-[8rem] break-words whitespace-normal">
                   {username === null
                     ? "Loading..."
                     : username
-                    ? username
-                    : "Guest"}
+                      ? username
+                      : "Guest"}
                 </span>
               </button>
               {userOpenMenu && (
-                <div className="absolute bottom-[-44px] rounded-md shadow-md left-0 bg-lightTanGray text-stone-800 text-lg px-10 py-4 flex flex-col">
+                <div className="bg-lightTanGray absolute bottom-[-88px] left-0 flex flex-col rounded-md px-10 py-4 text-lg text-stone-800 shadow-md">
+                  <button
+                    className="hover:text-cerulean mb-2 text-left"
+                    onClick={() => {
+                      setUserOpenMenu(false);
+                      navigate("/recommendation");
+                    }}
+                  >
+                    <i className="fa-solid fa-house mr-2"></i>
+                    Home
+                  </button>
                   <button
                     className="hover:text-cerulean mb-2 text-left"
                     onClick={() => {
@@ -62,7 +72,7 @@ const NavBar = () => {
                       navigate("/my-profile");
                     }}
                   >
-                    <i className="mr-2 fa-solid fa-user"></i>
+                    <i className="fa-solid fa-user mr-2"></i>
                     Profile
                   </button>
                   {showSignOut ? (
@@ -72,7 +82,7 @@ const NavBar = () => {
                       className="hover:text-cerulean text-left"
                       onClick={() => setShowSignOut(true)}
                     >
-                      <i className="mr-2 fa-solid fa-arrow-right-from-bracket"></i>
+                      <i className="fa-solid fa-arrow-right-from-bracket mr-2"></i>
                       Sign out
                     </button>
                   )}

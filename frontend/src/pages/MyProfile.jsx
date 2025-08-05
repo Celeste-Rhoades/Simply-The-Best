@@ -1,8 +1,11 @@
 import React from 'react'
+import NavBar from 'shared-components/NavBar'
 
 const MyProfile = () => {
   return (
-    <div>MyProfile</div>
+    <div>
+      <NavBar />
+    </div>
   )
 }
 
