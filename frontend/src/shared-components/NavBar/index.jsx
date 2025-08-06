@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import logo1 from "../../images/logo.png";
 import RedirectToSignInIfSignedOut from "shared-components/RedirectToSignInIfSignedOut";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import apiFetch from "services/apiFetch";
 
 const NavBar = () => {
@@ -18,77 +18,79 @@ const NavBar = () => {
         const data = await response.json();
         setUsername(data.username);
       } else {
-        setUsername("");
+        setUsername(""); // Not authenticated
       }
     };
     fetchProfile();
   }, []);
 
+  if (username === undefined) {
+    return null;
+  }
+
   return (
-    <nav>
-      <div
-        className="bg-lighTeal flex justify-center"
-        onMouseLeave={() => setUserOpenMenu(false)}
-      >
-        <div className="flex w-full max-w-5xl items-center px-4 py-2">
-          <div className="flex w-1/4 justify-start">
-            <img className="m-2 w-20 rounded-md" src={logo1} />
-          </div>
-          <div className="font-manrope flex-1 text-center text-white lg:text-5xl">
+    <nav
+      className="bg-lighTeal flex justify-center"
+      onMouseLeave={() => setUserOpenMenu(false)}
+    >
+      <div className="flex w-full max-w-5xl items-center justify-between px-8 py-2">
+        <Link to="/">
+          <div className="font-manrope flex flex-col items-center text-2xl text-white">
+            <img className="w-44" src={logo1} />
             Simply The Best
           </div>
-          <div className="font-raleway flex w-1/4 justify-end text-white md:text-xl">
-            <div className="relative min-w-44">
-              <button
-                type="button"
-                className="flex items-center"
-                onClick={() => setUserOpenMenu(true)}
-              >
-                <i className="fa-solid fa-user m-1"></i>
-                <span className="ml-2 max-w-[8rem] break-words whitespace-normal">
-                  {username === null
-                    ? "Loading..."
-                    : username
-                      ? username
-                      : "Guest"}
-                </span>
-              </button>
-              {userOpenMenu && (
-                <div className="bg-lightTanGray absolute bottom-[-88px] left-0 flex flex-col rounded-md px-10 py-4 text-lg text-stone-800 shadow-md">
+        </Link>
+        <div className="font-raleway ml-auto hidden text-white sm:flex">
+          <div className="relative min-w-44">
+            <button
+              type="button"
+              className="flex items-center"
+              onClick={() => setUserOpenMenu(true)}
+            >
+              <i className="fa-solid fa-user m-1"></i>
+              <span className="">
+                {username === null
+                  ? "Loading..."
+                  : username
+                    ? username
+                    : "Guest"}
+              </span>
+            </button>
+            {userOpenMenu && (
+              <div className="bg-lightTanGray absolute bottom-[-88px] left-0 flex flex-col rounded-md px-10 py-4 text-lg text-stone-800 shadow-md">
+                <button
+                  className="hover:text-cerulean mb-2 text-left"
+                  onClick={() => {
+                    setUserOpenMenu(false);
+                    navigate("/recommendation");
+                  }}
+                >
+                  <i className="fa-solid fa-house mr-2"></i>
+                  Home
+                </button>
+                <button
+                  className="hover:text-cerulean mb-2 text-left"
+                  onClick={() => {
+                    setUserOpenMenu(false);
+                    navigate("/my-profile");
+                  }}
+                >
+                  <i className="fa-solid fa-user mr-2"></i>
+                  Profile
+                </button>
+                {showSignOut ? (
+                  <RedirectToSignInIfSignedOut />
+                ) : (
                   <button
-                    className="hover:text-cerulean mb-2 text-left"
-                    onClick={() => {
-                      setUserOpenMenu(false);
-                      navigate("/recommendation");
-                    }}
+                    className="hover:text-cerulean text-left"
+                    onClick={() => setShowSignOut(true)}
                   >
-                    <i className="fa-solid fa-house mr-2"></i>
-                    Home
+                    <i className="fa-solid fa-arrow-right-from-bracket mr-2"></i>
+                    Sign out
                   </button>
-                  <button
-                    className="hover:text-cerulean mb-2 text-left"
-                    onClick={() => {
-                      setUserOpenMenu(false);
-                      navigate("/my-profile");
-                    }}
-                  >
-                    <i className="fa-solid fa-user mr-2"></i>
-                    Profile
-                  </button>
-                  {showSignOut ? (
-                    <RedirectToSignInIfSignedOut />
-                  ) : (
-                    <button
-                      className="hover:text-cerulean text-left"
-                      onClick={() => setShowSignOut(true)}
-                    >
-                      <i className="fa-solid fa-arrow-right-from-bracket mr-2"></i>
-                      Sign out
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
