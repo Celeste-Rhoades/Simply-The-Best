@@ -33,18 +33,24 @@ const NavBar = () => {
       className="bg-lighTeal flex justify-center"
       onMouseLeave={() => setUserOpenMenu(false)}
     >
-      <div className="flex w-full max-w-5xl items-center justify-between px-8 py-2">
-        <Link to="/">
-          <div className="font-manrope flex flex-col items-center text-2xl text-white">
-            <img className="w-44" src={logo1} />
-            Simply The Best
-          </div>
-        </Link>
-        <div className="font-raleway ml-auto hidden text-white sm:flex">
+      <div className="relative flex w-full max-w-5xl items-center px-6 py-2">
+        <div className="font-playfair flex flex-1 items-center text-xl text-white">
+          <img
+            className="h-38 w-38 object-contain"
+            alt="starfish"
+            src={logo1}
+          />
+        </div>
+
+        <h1 className="font-manrope pointer-events-none text-center text-xl whitespace-nowrap text-white select-none lg:text-4xl xl:text-5xl">
+          Simply The Best
+        </h1>
+
+        <div className="font-raleway hidden flex-1 justify-end text-white sm:flex">
           <div className="relative min-w-44">
             <button
               type="button"
-              className="flex items-center"
+              className="flex items-center text-lg"
               onClick={() => setUserOpenMenu(true)}
             >
               <i className="fa-solid fa-user m-1"></i>
