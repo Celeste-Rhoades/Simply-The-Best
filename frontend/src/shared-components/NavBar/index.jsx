@@ -24,6 +24,12 @@ const NavBar = () => {
     fetchProfile();
   }, []);
 
+  useEffect(() => {
+    if (username === "") {
+      navigate("/");
+    }
+  }, [username, navigate]);
+
   if (username === undefined) {
     return null;
   }
@@ -34,24 +40,26 @@ const NavBar = () => {
       onMouseLeave={() => setUserOpenMenu(false)}
     >
       <div className="relative flex w-full max-w-5xl items-center px-6 py-2">
-        <div className="font-playfair flex flex-1 items-center text-xl text-white">
-          <img
-            className="h-38 w-38 object-contain"
-            alt="starfish"
-            src={logo1}
-          />
+        <div className="font-playfair flex items-center text-xl text-white md:flex-1">
+          <Link to="/">
+            <img
+              className="h-28 w-28 object-contain md:h-38 md:w-38"
+              alt="starfish"
+              src={logo1}
+            />
+          </Link>
         </div>
-
-        <h1 className="font-manrope pointer-events-none text-center text-xl whitespace-nowrap text-white select-none lg:text-4xl xl:text-5xl">
-          Simply The Best
-        </h1>
-
-        <div className="font-raleway hidden flex-1 justify-end text-white sm:flex">
+        <Link to="/">
+          <h1 className="font-manrope pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-2xl whitespace-nowrap text-white select-none md:relative md:top-auto md:left-auto md:flex-none md:translate-x-0 md:translate-y-0 md:text-xl lg:text-4xl xl:text-5xl">
+            Simply The Best
+          </h1>
+        </Link>
+        <div className="font-raleway hidden flex-1 justify-end text-white md:flex">
           <div className="relative min-w-44">
             <button
               type="button"
               className="flex items-center text-lg"
-              onClick={() => setUserOpenMenu(true)}
+              onClick={() => setUserOpenMenu(!userOpenMenu)}
             >
               <i className="fa-solid fa-user m-1"></i>
               <span className="">
@@ -62,10 +70,11 @@ const NavBar = () => {
                     : "Guest"}
               </span>
             </button>
+
             {userOpenMenu && (
-              <div className="bg-lightTanGray absolute bottom-[-88px] left-0 flex flex-col rounded-md px-10 py-4 text-lg text-stone-800 shadow-md">
+              <div className="bg-lightTanGray absolute top-8 right-0 flex min-w-48 flex-col rounded-md px-6 py-4 text-lg text-stone-800 shadow-md">
                 <button
-                  className="hover:text-cerulean mb-2 text-left"
+                  className="hover:text-cerulean mb-2 py-1 text-left"
                   onClick={() => {
                     setUserOpenMenu(false);
                     navigate("/recommendation");
@@ -75,7 +84,7 @@ const NavBar = () => {
                   Home
                 </button>
                 <button
-                  className="hover:text-cerulean mb-2 text-left"
+                  className="hover:text-cerulean mb-2 py-1 text-left"
                   onClick={() => {
                     setUserOpenMenu(false);
                     navigate("/my-profile");
@@ -88,7 +97,67 @@ const NavBar = () => {
                   <RedirectToSignInIfSignedOut />
                 ) : (
                   <button
-                    className="hover:text-cerulean text-left"
+                    className="hover:text-cerulean py-1 text-left"
+                    onClick={() => setShowSignOut(true)}
+                  >
+                    <i className="fa-solid fa-arrow-right-from-bracket mr-2"></i>
+                    Sign out
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* hamburger menu */}
+        <div className="font-raleway flex flex-1 justify-end text-white md:hidden">
+          <div className="relative">
+            <button
+              type="button"
+              className="flex h-8 w-8 flex-col items-center justify-center space-y-1"
+              onClick={() => setUserOpenMenu(!userOpenMenu)}
+            >
+              <span className="h-0.5 w-6 bg-white transition-all duration-300"></span>
+              <span className="h-0.5 w-6 bg-white transition-all duration-300"></span>
+              <span className="h-0.5 w-6 bg-white transition-all duration-300"></span>
+            </button>
+            {userOpenMenu && (
+              <div className="bg-lightTanGray absolute top-12 right-0 flex min-w-48 flex-col rounded-md px-6 py-4 text-lg text-stone-800 shadow-md">
+                <div className="mb-3 border-b border-stone-300 pb-2">
+                  <span className="text-sm text-stone-600">Signed in as:</span>
+                  <div className="font-semibold">
+                    {username === null
+                      ? "Loading..."
+                      : username
+                        ? username
+                        : "Guest"}
+                  </div>
+                </div>
+                <button
+                  className="hover:text-cerulean mb-2 py-1 text-left"
+                  onClick={() => {
+                    setUserOpenMenu(false);
+                    navigate("/recommendation");
+                  }}
+                >
+                  <i className="fa-solid fa-house mr-2"></i>
+                  Home
+                </button>
+                <button
+                  className="hover:text-cerulean mb-2 py-1 text-left"
+                  onClick={() => {
+                    setUserOpenMenu(false);
+                    navigate("/my-profile");
+                  }}
+                >
+                  <i className="fa-solid fa-user mr-2"></i>
+                  Profile
+                </button>
+                {showSignOut ? (
+                  <RedirectToSignInIfSignedOut />
+                ) : (
+                  <button
+                    className="hover:text-cerulean py-1 text-left"
                     onClick={() => setShowSignOut(true)}
                   >
                     <i className="fa-solid fa-arrow-right-from-bracket mr-2"></i>

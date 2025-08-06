@@ -1,12 +1,14 @@
-import React from 'react'
-import NavBar from 'shared-components/NavBar'
+import React from "react";
+import NavBar from "shared-components/NavBar";
 
 const RecommendHome = () => {
   return (
-    <div>
+    <div className="bg-lightTanGray">
       <NavBar />
-    </div>
-  )
-}
 
-export default RecommendHome
+      <div className="bg-cerulean mx-8 mt-20">I am a box</div>
+    </div>
+  );
+};
+
+export default RecommendHome;
