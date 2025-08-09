@@ -21,7 +21,7 @@ export const getUserProfile = async (req, res) => {
 export const searchUsers = async (req, res) => {
   try {
     const searchTerm = req.query.search;
-
+    // console.log("Search endpoint hit with term:", req.query.search);
     if (!searchTerm || searchTerm.trim().length < 1) {
       return res.json({ success: true, data: [] });
     }
@@ -43,6 +43,7 @@ export const searchUsers = async (req, res) => {
 export const followUnfollowUser = async (req, res) => {
   try {
     const { id } = req.params;
+    // console.log("Follow endpoint hit for user:", req.params.id);
     const userToModify = await User.findById(id);
     const currentUser = await User.findById(req.user._id);
 
