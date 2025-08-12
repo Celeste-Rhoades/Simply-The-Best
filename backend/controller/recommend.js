@@ -1,4 +1,4 @@
-import Recommend from "../models/Recommend.model.js";
+import Recommend from "../models/Recommend.js";
 import mongoose, { createConnection } from "mongoose";
 
 export const getRecommendation = async (req, res) => {

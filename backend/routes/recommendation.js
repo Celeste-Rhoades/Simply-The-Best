@@ -7,7 +7,7 @@ import {
   getRecommendation,
   updateRecommendation,
   getRecommendationsGroupedByCategory,
-} from "../controller/recommend.controller.js";
+} from "../controller/recommend.js";
 
 const router = express.Router();
 

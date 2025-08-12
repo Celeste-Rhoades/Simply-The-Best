@@ -3,9 +3,9 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
-import recommendationRoutes from "./routes/recommendation.route.js";
-import authRoutes from "./routes/auth.routes.js";
-import userRoutes from "./routes/user.routes.js";
+import recommendationRoutes from "./routes/recommendation.js";
+import authRoutes from "./routes/auth.js";
+import userRoutes from "./routes/user.js";
 
 import { connectMongoDB } from "./db/connectMongoDB.js";
 
