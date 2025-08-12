@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import logo1 from "../../images/logo.png";
-import RedirectToSignInIfSignedOut from "shared-components/RedirectToSignInIfSignedOut";
+// import RedirectToSignInIfSignedOut from "shared-components/RedirectToSignInIfSignedOut";
 import { useNavigate, Link } from "react-router-dom";
 import apiFetch from "services/apiFetch";
 
@@ -10,6 +10,14 @@ const NavBar = () => {
   const [username, setUsername] = useState(null);
 
   const navigate = useNavigate();
+
+  const logout = async () => {
+    const response = await apiFetch("POST", "/api/auth/logout");
+
+    if (response.ok) {
+      navigate("/");
+    }
+  }
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -23,12 +31,6 @@ const NavBar = () => {
     };
     fetchProfile();
   }, []);
-
-  useEffect(() => {
-    if (username === "") {
-      navigate("/");
-    }
-  }, [username, navigate]);
 
   if (username === undefined) {
     return null;
@@ -93,17 +95,13 @@ const NavBar = () => {
                   <i className="fa-solid fa-user mr-2"></i>
                   Profile
                 </button>
-                {showSignOut ? (
-                  <RedirectToSignInIfSignedOut />
-                ) : (
-                  <button
-                    className="hover:text-cerulean py-1 text-left"
-                    onClick={() => setShowSignOut(true)}
-                  >
-                    <i className="fa-solid fa-arrow-right-from-bracket mr-2"></i>
-                    Sign out
-                  </button>
-                )}
+                <button
+                  className="hover:text-cerulean py-1 text-left"
+                  onClick={() => logout()}
+                >
+                  <i className="fa-solid fa-arrow-right-from-bracket mr-2"></i>
+                  Sign out
+                </button>
               </div>
             )}
           </div>
@@ -153,17 +151,13 @@ const NavBar = () => {
                   <i className="fa-solid fa-user mr-2"></i>
                   Profile
                 </button>
-                {showSignOut ? (
-                  <RedirectToSignInIfSignedOut />
-                ) : (
-                  <button
-                    className="hover:text-cerulean py-1 text-left"
-                    onClick={() => setShowSignOut(true)}
-                  >
-                    <i className="fa-solid fa-arrow-right-from-bracket mr-2"></i>
-                    Sign out
-                  </button>
-                )}
+                <button
+                  className="hover:text-cerulean py-1 text-left"
+                  onClick={() => logout()}
+                >
+                  <i className="fa-solid fa-arrow-right-from-bracket mr-2"></i>
+                  Sign out
+                </button>
               </div>
             )}
           </div>
