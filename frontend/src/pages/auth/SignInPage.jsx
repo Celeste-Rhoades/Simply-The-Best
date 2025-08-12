@@ -1,49 +1,47 @@
 import { useState } from 'react';
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import AuthForm from "./AuthForm";
 import FormContainer from "./FormContainer";
 import * as userService from "services/user";
-import RedirectToRecommendationIfSignedIn from 'shared-components/RedirectToRecommendIfSignedIn';
 
 const SignInPage = () => {
+  const navigate = useNavigate()
+
   const [error, setError] = useState('');
-  const [authCheckKey, setAuthCheckKey] = useState(0); 
   const location = useLocation();
 
   return (
     <div className="flex items-center justify-center font-raleway">
-      <RedirectToRecommendationIfSignedIn key={authCheckKey}>
-        <FormContainer>
-          <div className='text-pink-600'>{error}</div>
-          {location.state?.accountCreated && (
-            <div className='p-4 mb-8 mt-2 bg-lighTeal/80 border rounded-lg border-cerulean/60 text-white'>
-              Account created successfully. Please sign in.
-            </div>
-          )}
-          <AuthForm
-            fields={[
-              { label: "username", type: "text" },
-              { label: "password", type: "password" },
-            ]}
-            submitButtonLabel="sign in"
-            onSubmit={async (values) => {
-              const response = await userService.createSession({
-                username: values.username,
-                password: values.password
-              });
+      <FormContainer>
+        <div className='text-pink-600'>{error}</div>
+        {location.state?.accountCreated && (
+          <div className='p-4 mb-8 mt-2 bg-lighTeal/80 border rounded-lg border-cerulean/60 text-white'>
+            Account created successfully. Please sign in.
+          </div>
+        )}
+        <AuthForm
+          fields={[
+            { label: "username", type: "text" },
+            { label: "password", type: "password" },
+          ]}
+          submitButtonLabel="sign in"
+          onSubmit={async (values) => {
+            const response = await userService.createSession({
+              username: values.username,
+              password: values.password
+            });
 
-              if (response.status === 200) {
-                setError('');
-                setAuthCheckKey(k => k + 1); // <-- force remount to re-check auth
-              } else {
-                const data = await response.json();
-                setError(data.error);
-              }
-            }}
-          />
-          <Link to="/sign-up" className="text-[#006895] underline text-sm">Create an account</Link>
-        </FormContainer>
-      </RedirectToRecommendationIfSignedIn>
+            if (response.status === 200) {
+              setError('');
+              navigate("/recommendation")
+            } else {
+              const data = await response.json();
+              setError(data.error);
+            }
+          }}
+        />
+        <Link to="/sign-up" className="text-[#006895] underline text-sm">Create an account</Link>
+      </FormContainer>
     </div>
   );
 };

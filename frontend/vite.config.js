@@ -9,6 +9,11 @@ const env = loadEnv("development", "./")
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [tailwindcss(), react(), jsconfigPaths()],
+  resolve: {
+    alias: {
+      "@": "/src"
+    },
+  },
   server: {
     port: 3000,
     proxy: {
@@ -16,5 +21,5 @@ export default defineConfig({
         target: env.VITE_BACKEND_URL,
       },
     }
-  }
+  },
 });
