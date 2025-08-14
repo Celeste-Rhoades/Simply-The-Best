@@ -1,7 +1,6 @@
-import { useState, React } from "react";
 import NavBar from "shared-components/NavBar";
 
-const MyProfile = () => {
+const MyRecommendations = () => {
   return (
     <div className="bg-lightTanGray h-screen">
       <NavBar />
@@ -15,4 +14,4 @@ const MyProfile = () => {
   );
 };
 
-export default MyProfile;
+export default MyRecommendations;

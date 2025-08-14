@@ -1,10 +1,13 @@
 import { Routes, Route } from "react-router-dom";
+
+import routes from "@/routes"
+import GuestRoutes from "./middlewares/GuestRoutes"
+import ProtectedRoutes from "./middlewares/ProtectedRoutes"
+
 import SignInPage from "./pages/auth/SignInPage";
 import SignUpPage from "./pages/auth/SignUpPage";
 import RecommendHome from "./pages/RecommendHome";
-import MyProfile from "./pages/MyProfile";
-import GuestRoutes from "./middlewares/GuestRoutes"
-import ProtectedRoutes from "./middlewares/ProtectedRoutes"
+import MyRecommendations from "./pages/MyRecommendations";
 
 const App = () => {
   return (
@@ -12,13 +15,13 @@ const App = () => {
       <Routes>
 
         <Route element={<GuestRoutes />}>
-          <Route path="/" element={<SignInPage />} />
-          <Route path="/sign-up" element={<SignUpPage />} />
+          <Route path={routes.signIn} element={<SignInPage />} />
+          <Route path={routes.signUp} element={<SignUpPage />} />
         </Route>
 
         <Route element={<ProtectedRoutes />}>
-          <Route path="/recommendation" element={<RecommendHome />} />
-          <Route path="/my-profile" element={<MyProfile />} />
+          <Route path={routes.recommendations} element={<RecommendHome />} />
+          <Route path={routes.myRecommendations} element={<MyRecommendations />} />
         </Route>
 
       </Routes>
