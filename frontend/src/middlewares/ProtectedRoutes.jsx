@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import { Outlet, useNavigate } from "react-router-dom";
 
+import routes from "@/routes"
 import apiFetch from "@/services/apiFetch";
 
 const ProtectedRoutes = () => {
@@ -10,7 +11,7 @@ const ProtectedRoutes = () => {
     const fetchProfile = async () => {
       const response = await apiFetch("GET", "/api/auth/myProfile");
       if (!response.ok) {
-        navigate("/")
+        navigate(routes.signIn)
       }
     };
 

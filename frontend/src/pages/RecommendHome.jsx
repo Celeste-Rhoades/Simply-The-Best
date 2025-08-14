@@ -1,4 +1,3 @@
-import React from "react";
 import NavBar from "shared-components/NavBar";
 
 const RecommendHome = () => {

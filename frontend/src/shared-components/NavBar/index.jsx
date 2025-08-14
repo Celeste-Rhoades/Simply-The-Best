@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
-import logo1 from "../../images/logo.png";
-// import RedirectToSignInIfSignedOut from "shared-components/RedirectToSignInIfSignedOut";
 import { useNavigate, Link } from "react-router-dom";
+
+import routes from "@/routes"
 import apiFetch from "services/apiFetch";
+
+import logo1 from "../../images/logo.png";
 
 const NavBar = () => {
   const [userOpenMenu, setUserOpenMenu] = useState(false);
-  const [showSignOut, setShowSignOut] = useState(false);
   const [username, setUsername] = useState(null);
 
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const NavBar = () => {
     const response = await apiFetch("POST", "/api/auth/logout");
 
     if (response.ok) {
-      navigate("/");
+      navigate(routes.signIn);
     }
   }
 
@@ -29,6 +30,7 @@ const NavBar = () => {
         setUsername(""); // Not authenticated
       }
     };
+
     fetchProfile();
   }, []);
 
@@ -74,12 +76,12 @@ const NavBar = () => {
             </button>
 
             {userOpenMenu && (
-              <div className="bg-lightTanGray absolute top-8 right-0 flex min-w-48 flex-col rounded-md px-6 py-4 text-lg text-stone-800 shadow-md">
+              <div className="bg-lightTanGray absolute top-8 right-0 flex min-w-65 flex-col rounded-md px-6 py-4 text-lg text-stone-800 shadow-md">
                 <button
                   className="hover:text-cerulean mb-2 py-1 text-left"
                   onClick={() => {
                     setUserOpenMenu(false);
-                    navigate("/recommendation");
+                    navigate(routes.recommendations);
                   }}
                 >
                   <i className="fa-solid fa-house mr-2"></i>
@@ -89,11 +91,11 @@ const NavBar = () => {
                   className="hover:text-cerulean mb-2 py-1 text-left"
                   onClick={() => {
                     setUserOpenMenu(false);
-                    navigate("/my-profile");
+                    navigate(routes.myRecommendations);
                   }}
                 >
                   <i className="fa-solid fa-user mr-2"></i>
-                  Profile
+                  My Recommendations
                 </button>
                 <button
                   className="hover:text-cerulean py-1 text-left"
@@ -135,7 +137,7 @@ const NavBar = () => {
                   className="hover:text-cerulean mb-2 py-1 text-left"
                   onClick={() => {
                     setUserOpenMenu(false);
-                    navigate("/recommendation");
+                    navigate(routes.recommendations);
                   }}
                 >
                   <i className="fa-solid fa-house mr-2"></i>
@@ -145,7 +147,7 @@ const NavBar = () => {
                   className="hover:text-cerulean mb-2 py-1 text-left"
                   onClick={() => {
                     setUserOpenMenu(false);
-                    navigate("/my-profile");
+                    navigate(routes.myRecommendations);
                   }}
                 >
                   <i className="fa-solid fa-user mr-2"></i>
