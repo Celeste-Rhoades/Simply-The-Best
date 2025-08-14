@@ -11,13 +11,14 @@ const recommendSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    description: {
-      type: String,
-    },
     rating: {
       type: Number,
       required: true,
     },
+    description: {
+      type: String,
+    },
+
     category: {
       type: String,
       enum: [
@@ -43,7 +44,7 @@ const recommendSchema = new mongoose.Schema(
         "Home",
         "Pets",
       ],
-      required: true, // fixed typo
+      required: true,
     },
   },
   {
