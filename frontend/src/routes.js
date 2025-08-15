@@ -3,6 +3,6 @@ const routes = {
   signUp: "/sign-up",
   recommendations: "/recommendations",
   myRecommendations: "/my-recommendations",
-}
+};
 
-export default routes
+export default routes;
