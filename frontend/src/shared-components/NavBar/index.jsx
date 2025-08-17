@@ -1,24 +1,24 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
-import routes from "@/routes"
+import routes from "@/routes";
 import apiFetch from "services/apiFetch";
 
 import logo1 from "../../images/logo.png";
 
+// ...existing imports...
+
 const NavBar = () => {
   const [userOpenMenu, setUserOpenMenu] = useState(false);
   const [username, setUsername] = useState(null);
-
   const navigate = useNavigate();
 
   const logout = async () => {
     const response = await apiFetch("POST", "/api/auth/logout");
-
     if (response.ok) {
       navigate(routes.signIn);
     }
-  }
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -30,7 +30,6 @@ const NavBar = () => {
         setUsername(""); // Not authenticated
       }
     };
-
     fetchProfile();
   }, []);
 
@@ -151,7 +150,7 @@ const NavBar = () => {
                   }}
                 >
                   <i className="fa-solid fa-user mr-2"></i>
-                  Profile
+                  My Recommendations
                 </button>
                 <button
                   className="hover:text-cerulean py-1 text-left"

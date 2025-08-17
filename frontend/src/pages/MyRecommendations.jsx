@@ -1,6 +1,6 @@
 import { useState } from "react";
 import NavBar from "shared-components/NavBar";
-import RecommedAddModal from "./RecommedAddModal";
+import RecommendAddModal from "./RecommendAddModal";
 
 const MyRecommendations = () => {
   const [showForm, setShowForm] = useState(false);
@@ -14,9 +14,12 @@ const MyRecommendations = () => {
         >
           Add recommendation
         </button>
-        {showForm && <RecommedAddModal onClose={() => setShowForm(false)} />}
+        {showForm && (
+          <div className="bg-opacity-40 fixed inset-0 z-50 flex items-center justify-center bg-black">
+            <RecommendAddModal onClose={() => setShowForm(false)} />
+          </div>
+        )}
       </div>
-      <div className="bg-cerulean m-12 rounded-md">I am a box</div>
     </div>
   );
 };
