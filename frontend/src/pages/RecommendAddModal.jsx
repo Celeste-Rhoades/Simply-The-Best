@@ -1,17 +1,18 @@
 import { useState } from "react";
 import { CATEGORY_OPTIONS } from "../services/category";
+import apiFetch from "../services/apiFetch";
 
-const RecommendAddModal = (props) => {
-  const { onClose } = props;
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-
+const RecommendAddModal = ({ onClose }) => {
   const [form, setForm] = useState({
     title: "",
-    category: "",
-    description: "",
     rating: "",
+    description: "",
+    category: "",
   });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,6 +21,7 @@ const RecommendAddModal = (props) => {
       [name]: name === "rating" ? Number(value) : value,
     }));
   };
+
   const handleStarClick = (star) => {
     setForm((prev) => ({
       ...prev,
@@ -27,21 +29,34 @@ const RecommendAddModal = (props) => {
     }));
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+    if (!form.title.trim()) newErrors.title = "Title is required";
+    if (!form.rating || form.rating < 1 || form.rating > 5)
+      newErrors.rating = "Rating must be between 1 and 5";
+    if (!form.category.trim()) newErrors.category = "Please select category";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
+    setSubmitError("");
     setLoading(true);
     setSuccess(false);
     try {
-      const res = await fetch("/api/recommendations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+      const res = await apiFetch("POST", "/api/recommendation", form);
       if (res.ok) {
         setSuccess(true);
-        setForm({ title: "", category: "", description: "", rating: 1 });
+        setForm({ title: "", rating: "", description: "", category: "" });
+        setErrors({});
+        setTimeout(() => onClose(), 1500); // Auto-close modal after 1.5s
+      } else {
+        setSubmitError("Failed to save recommendation. Please try again.");
       }
     } catch (err) {
+      setSubmitError("Failed to save recommendation. Please try again.");
       console.log(err);
     } finally {
       setLoading(false);
@@ -49,38 +64,27 @@ const RecommendAddModal = (props) => {
   };
 
   return (
-    <div className="bg-opacity-40 fixed inset-0 z-50 flex items-center justify-center bg-black">
-      <form onSubmit={handleSubmit}>
-        <input
-          name="title"
-          value={form.title}
-          onChange={handleChange}
-          placeholder="Title"
-          className="w-full rounded border p-2"
-          required
-        />
-        <select
-          name="category"
-          value={form.category}
-          onChange={handleChange}
-          className="w-full rounded border p-2"
-          required
-        >
-          <option value="">Select Category</option>
-          {CATEGORY_OPTIONS.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
-        <textarea
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          placeholder="Description"
-          className="w-full rounded border p-2"
-          required
-        />
+    <div className="bg-opacity-40 bg-lightTanGray fixed inset-0 z-50 flex items-center justify-center">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-md space-y-4 rounded bg-white p-6 shadow"
+      >
+        {/* Title */}
+        <div>
+          <input
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            placeholder="Title"
+            className="w-full rounded border p-2"
+            required
+          />
+          {errors.title && (
+            <p className="mt-1 text-sm text-red-500">{errors.title}</p>
+          )}
+        </div>
+
+        {/* Rating */}
         <div>
           <label className="mb-1 block font-medium">Rating</label>
           <div className="flex space-x-1">
@@ -104,7 +108,51 @@ const RecommendAddModal = (props) => {
               </button>
             ))}
           </div>
+          {errors.rating && (
+            <p className="mt-1 text-sm text-red-500">{errors.rating}</p>
+          )}
         </div>
+
+        {/* Description */}
+        <div>
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            placeholder="Description"
+            className="w-full rounded border p-2"
+          />
+        </div>
+
+        {/* Category */}
+        <div>
+          <select
+            name="category"
+            value={form.category}
+            onChange={handleChange}
+            className="w-full rounded border p-2"
+            required
+          >
+            <option value="">Select Category</option>
+            {CATEGORY_OPTIONS.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+          {errors.category && (
+            <p className="mt-1 text-sm text-red-500">{errors.category}</p>
+          )}
+        </div>
+
+        {/* API error message */}
+        {submitError && (
+          <div className="mb-2 rounded bg-red-100 px-3 py-2 text-sm text-red-700">
+            {submitError}
+          </div>
+        )}
+
+        {/* Buttons */}
         <div className="flex items-center justify-between">
           <button
             type="submit"
