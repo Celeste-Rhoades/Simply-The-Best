@@ -71,7 +71,11 @@ const RecommendAddModal = ({ onClose }) => {
       >
         {/* Title */}
         <div>
+          <label htmlFor="title" className="mb-1 block font-medium">
+            Title
+          </label>
           <input
+            id="title"
             name="title"
             value={form.title}
             onChange={handleChange}
@@ -115,7 +119,11 @@ const RecommendAddModal = ({ onClose }) => {
 
         {/* Description */}
         <div>
+          <label htmlFor="description" className="mb-1 block font-medium">
+            Description
+          </label>
           <textarea
+            id="description"
             name="description"
             value={form.description}
             onChange={handleChange}
@@ -126,7 +134,11 @@ const RecommendAddModal = ({ onClose }) => {
 
         {/* Category */}
         <div>
+          <label htmlFor="category" className="mb-1 block font-medium">
+            Category
+          </label>
           <select
+            id="category"
             name="category"
             value={form.category}
             onChange={handleChange}
