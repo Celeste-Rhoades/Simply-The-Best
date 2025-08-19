@@ -64,128 +64,127 @@ const RecommendAddModal = ({ onClose }) => {
   };
 
   return (
-    <div className="bg-opacity-40 bg-lightTanGray fixed inset-0 z-50 flex items-center justify-center">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md space-y-4 rounded bg-white p-6 shadow"
-      >
-        {/* Title */}
-        <div>
-          <label htmlFor="title" className="mb-1 block font-medium">
-            Title
-          </label>
-          <input
-            id="title"
-            name="title"
-            value={form.title}
-            onChange={handleChange}
-            placeholder="Title"
-            className="w-full rounded border p-2"
-            required
-          />
-          {errors.title && (
-            <p className="mt-1 text-sm text-red-500">{errors.title}</p>
-          )}
-        </div>
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 rounded bg-white p-6 shadow"
+    >
+      {/* Title */}
+      <div>
+        <label htmlFor="title" className="mb-1 block font-medium">
+          Title
+        </label>
+        <input
+          id="title"
+          name="title"
+          value={form.title}
+          onChange={handleChange}
+          placeholder="Title"
+          className="w-full rounded border p-2"
+          required
+          data-autofocus
+        />
+        {errors.title && (
+          <p className="mt-1 text-sm text-red-500">{errors.title}</p>
+        )}
+      </div>
 
-        {/* Rating */}
-        <div>
-          <label className="mb-1 block font-medium">Rating</label>
-          <div className="flex space-x-1">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <button
-                type="button"
-                key={star}
-                onClick={() => handleStarClick(star)}
-                className="focus:outline-none"
-                aria-label={`Rate ${star} star${star > 1 ? "s" : ""}`}
+      {/* Rating */}
+      <div>
+        <label className="mb-1 block font-medium">Rating</label>
+        <div className="flex space-x-1">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              type="button"
+              key={star}
+              onClick={() => handleStarClick(star)}
+              className="focus:outline-none"
+              aria-label={`Rate ${star} star${star > 1 ? "s" : ""}`}
+            >
+              <span
+                className={
+                  star <= form.rating
+                    ? "text-2xl text-yellow-400"
+                    : "text-2xl text-gray-300"
+                }
               >
-                <span
-                  className={
-                    star <= form.rating
-                      ? "text-2xl text-yellow-400"
-                      : "text-2xl text-gray-300"
-                  }
-                >
-                  ★
-                </span>
-              </button>
-            ))}
-          </div>
-          {errors.rating && (
-            <p className="mt-1 text-sm text-red-500">{errors.rating}</p>
-          )}
+                ★
+              </span>
+            </button>
+          ))}
         </div>
-
-        {/* Description */}
-        <div>
-          <label htmlFor="description" className="mb-1 block font-medium">
-            Description
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            placeholder="Description"
-            className="w-full rounded border p-2"
-          />
-        </div>
-
-        {/* Category */}
-        <div>
-          <label htmlFor="category" className="mb-1 block font-medium">
-            Category
-          </label>
-          <select
-            id="category"
-            name="category"
-            value={form.category}
-            onChange={handleChange}
-            className="w-full rounded border p-2"
-            required
-          >
-            <option value="">Select Category</option>
-            {CATEGORY_OPTIONS.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-          {errors.category && (
-            <p className="mt-1 text-sm text-red-500">{errors.category}</p>
-          )}
-        </div>
-
-        {/* API error message */}
-        {submitError && (
-          <div className="mb-2 rounded bg-red-100 px-3 py-2 text-sm text-red-700">
-            {submitError}
-          </div>
+        {errors.rating && (
+          <p className="mt-1 text-sm text-red-500">{errors.rating}</p>
         )}
+      </div>
 
-        {/* Buttons */}
-        <div className="flex items-center justify-between">
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-cerulean rounded px-4 py-2 text-white"
-          >
-            {loading ? "Submitting..." : "Add Recommendation"}
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded bg-gray-300 px-4 py-2 text-gray-700"
-          >
-            Cancel
-          </button>
-        </div>
-        {success && (
-          <div className="mt-2 text-green-600">Recommendation added!</div>
+      {/* Description */}
+      <div>
+        <label htmlFor="description" className="mb-1 block font-medium">
+          Description
+        </label>
+        <textarea
+          id="description"
+          name="description"
+          value={form.description}
+          onChange={handleChange}
+          placeholder="Description"
+          className="w-full rounded border p-2"
+        />
+      </div>
+
+      {/* Category */}
+      <div>
+        <label htmlFor="category" className="mb-1 block font-medium">
+          Category
+        </label>
+        <select
+          id="category"
+          name="category"
+          value={form.category}
+          onChange={handleChange}
+          className="w-full rounded border p-2"
+          required
+        >
+          <option value="">Select Category</option>
+          {CATEGORY_OPTIONS.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+        {errors.category && (
+          <p className="mt-1 text-sm text-red-500">{errors.category}</p>
         )}
-      </form>
-    </div>
+      </div>
+
+      {/* API error message */}
+      {submitError && (
+        <div className="mb-2 rounded bg-red-100 px-3 py-2 text-sm text-red-700">
+          {submitError}
+        </div>
+      )}
+
+      {/* Buttons */}
+      <div className="flex items-center justify-between">
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-cerulean rounded px-4 py-2 text-white"
+        >
+          {loading ? "Submitting..." : "Add Recommendation"}
+        </button>
+        <button
+          type="button"
+          onClick={onClose}
+          className="rounded bg-gray-300 px-4 py-2 text-gray-700"
+        >
+          Cancel
+        </button>
+      </div>
+      {success && (
+        <div className="mt-2 text-green-600">Recommendation added!</div>
+      )}
+    </form>
   );
 };
 
