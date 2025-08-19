@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { Dialog, DialogPanel } from "@headlessui/react"
+
 import NavBar from "shared-components/NavBar";
 import RecommendAddModal from "./RecommendAddModal";
 
 const MyRecommendations = () => {
   const [showForm, setShowForm] = useState(false);
+
   return (
     <div className="bg-lightTanGray h-screen">
       <NavBar />
@@ -14,11 +17,16 @@ const MyRecommendations = () => {
         >
           Add recommendation
         </button>
-        {showForm && (
-          <div className="bg-opacity-40 fixed inset-0 z-50 flex items-center justify-center bg-black">
+        <Dialog
+          open={showForm}
+          onClose={() => setShowForm(false)}
+          transition
+          className="bg-black/60 fixed inset-0 z-50 flex items-center justify-center transition duration-300 data-closed:opacity-0"
+        >
+          <DialogPanel transition className="w-full max-w-md transition duration-300 data-closed:opacity-0 data-closed:scale-75">
             <RecommendAddModal onClose={() => setShowForm(false)} />
-          </div>
-        )}
+          </DialogPanel>
+        </Dialog>
       </div>
     </div>
   );
