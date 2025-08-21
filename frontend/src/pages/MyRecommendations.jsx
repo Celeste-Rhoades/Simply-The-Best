@@ -12,8 +12,6 @@ const MyRecommendations = () => {
   const [errors, setErrors] = useState("");
 
   const fetchGroupRecs = async () => {
-    setIsLoading(true);
-    setErrors("");
     setErrors("");
     try {
       const res = await apiFetch("GET", "/api/recommendations/grouped");
@@ -30,9 +28,7 @@ const MyRecommendations = () => {
     }
   };
   useEffect(() => {
-    const fetchRecommendations = async () => {
-      fetchGroupRecs();
-    };
+    fetchGroupRecs();
   }, []);
 
   return (
