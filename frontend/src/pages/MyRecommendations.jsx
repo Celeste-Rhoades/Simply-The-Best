@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
-import apiFetch from "services/apiFetch";
 
+import apiFetch from "services/apiFetch";
 import NavBar from "shared-components/NavBar";
 import RecommendAddModal from "./RecommendAddModal";
 
