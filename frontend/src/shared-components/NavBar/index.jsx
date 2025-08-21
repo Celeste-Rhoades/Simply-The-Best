@@ -1,16 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
 import routes from "@/routes";
 import apiFetch from "services/apiFetch";
+import { AppContext } from "@/App"
 
 import logo1 from "../../images/logo.png";
 
-// ...existing imports...
-
 const NavBar = () => {
+  const appContextData = useContext(AppContext)
+  const username = appContextData.username
+
   const [userOpenMenu, setUserOpenMenu] = useState(false);
-  const [username, setUsername] = useState(null);
   const navigate = useNavigate();
 
   const logout = async () => {
@@ -19,23 +20,6 @@ const NavBar = () => {
       navigate(routes.signIn);
     }
   };
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      const response = await apiFetch("GET", "/api/auth/myProfile");
-      if (response.ok) {
-        const data = await response.json();
-        setUsername(data.username);
-      } else {
-        setUsername(""); // Not authenticated
-      }
-    };
-    fetchProfile();
-  }, []);
-
-  if (username === undefined) {
-    return null;
-  }
 
   return (
     <nav

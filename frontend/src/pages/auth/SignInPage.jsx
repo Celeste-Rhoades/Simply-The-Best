@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import AuthForm from "./AuthForm";
 import FormContainer from "./FormContainer";
 import * as userService from "services/user";
+import routes from "@/routes"
 
 const SignInPage = () => {
   const navigate = useNavigate()
@@ -33,7 +34,7 @@ const SignInPage = () => {
 
             if (response.status === 200) {
               setError('');
-              navigate("/recommendation")
+              navigate(routes.recommendations)
             } else {
               const data = await response.json();
               setError(data.error);
