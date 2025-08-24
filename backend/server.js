@@ -22,7 +22,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/recommendation", recommendationRoutes);
+app.use("/api/recommendations", recommendationRoutes);
 app.use((_, res) => {
   res.status(404).send("Sorry, the requested page could not be found.");
 });
