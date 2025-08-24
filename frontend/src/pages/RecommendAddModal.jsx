@@ -46,7 +46,7 @@ const RecommendAddModal = ({ onClose }) => {
     setLoading(true);
     setSuccess(false);
     try {
-      const res = await apiFetch("POST", "/api/recommendation", form);
+      const res = await apiFetch("POST", "/api/recommendations", form);
       if (res.ok) {
         setSuccess(true);
         setForm({ title: "", rating: "", description: "", category: "" });
