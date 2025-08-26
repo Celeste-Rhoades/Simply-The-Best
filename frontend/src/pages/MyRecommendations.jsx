@@ -13,7 +13,7 @@ const MyRecommendations = () => {
   const [carouselIndex, setCarouselIndex] = useState({});
 
   const fetchGroupRecs = async () => {
-    setIsLoading(true); // <-- Start loading
+    setIsLoading(true);
     setErrors("");
     try {
       const res = await apiFetch("GET", "/api/recommendations/grouped");
@@ -26,7 +26,7 @@ const MyRecommendations = () => {
     } catch {
       setErrors("Network error. Please try again.");
     } finally {
-      setIsLoading(false); // <-- End loading
+      setIsLoading(false);
     }
   };
 
@@ -52,16 +52,18 @@ const MyRecommendations = () => {
       (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
     );
   };
+
   return (
-    <div className="bg-lightTanGray h-screen">
+    <div className="h-screen">
       <NavBar />
       <div className="mx-8 mt-4 flex justify-end">
         <button
-          className="bg-darkBlue rounded-md px-4 py-2 text-white shadow-lg"
+          className="bg-darkBlue font-raleway rounded-md px-4 py-2 text-white shadow-lg"
           onClick={() => setShowForm(true)}
         >
           Add recommendation
         </button>
+
         <Dialog
           open={showForm}
           onClose={() => setShowForm(false)}
@@ -78,7 +80,7 @@ const MyRecommendations = () => {
       </div>
       <div className="mx-8 mt-8">
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
+          <div className="font-manrope flex items-center justify-center py-12">
             <p className="text-lg text-gray-600">Loading recommendations...</p>
           </div>
         ) : errors ? (
@@ -93,12 +95,12 @@ const MyRecommendations = () => {
           </div>
         ) : Object.keys(showRec).length === 0 ? (
           <div className="py-12 text-center">
-            <p className="text-lg text-gray-600">
+            <p className="font-rale text-lg text-gray-600">
               No recommendations yet. Add your first one!
             </p>
           </div>
         ) : (
-          <div>
+          <div className="font-manrope">
             {Object.keys(showRec)
               .sort((a, b) => {
                 // Put "better than all the rest" first
@@ -108,16 +110,15 @@ const MyRecommendations = () => {
                 // Then sort alphabetically
                 return a.localeCompare(b);
               })
-
               .map((category) => (
                 <div key={category} className="mb-8">
-                  <h2 className="mb-4 text-2xl font-bold">
+                  <h2 className="mb-4 pb-4 text-2xl font-bold">
                     {toTitleCase(category)}
                   </h2>
-                  <div>
-                    {/* Carousel left arrow */}
+                  <div className="relative flex items-center">
+                    {/* Left arrow - outside seaFoam */}
                     <button
-                      className=""
+                      className="z-10 mr-4 p-2"
                       onClick={() =>
                         updateCarouselIndex(
                           category,
@@ -127,27 +128,82 @@ const MyRecommendations = () => {
                       disabled={(carouselIndex[category] || 0) === 0}
                       aria-label="Previous"
                     >
-                      <i className="fa-solid fa-circle-chevron-left text-cerulean m-4 text-5xl hover:text-cyan-500"></i>
+                      <i className="fa-solid fa-circle-chevron-left text-cerulean text-5xl hover:text-cyan-500"></i>
                     </button>
-                    {/* Carousel right arrow */}
+
+                    {/* SeaFoam container - no arrows inside */}
+                    <div className="bg-seaFoam flex h-72 flex-grow items-center overflow-hidden rounded-xl shadow">
+                      <div
+                        className="flex flex-nowrap transition-transform duration-300"
+                        style={{
+                          transform: `translateX(-${(carouselIndex[category] || 0) * 256}px)`,
+                        }}
+                      >
+                        {showRec[category].map((recommendation) => (
+                          <div
+                            key={recommendation._id}
+                            className="mx-2 w-60 flex-shrink-0"
+                          >
+                            <div className="flex h-60 w-60 flex-col overflow-hidden rounded-lg bg-white shadow-lg">
+                              {/* Header section with title and stars */}
+                              <div className="bg-lightTanGray p-3 text-center">
+                                <h3 className="font-manrope mb-2 line-clamp-2 text-sm font-bold">
+                                  {recommendation.title}
+                                </h3>
+                                <div className="flex justify-center gap-1">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <span
+                                      key={star}
+                                      className={
+                                        star <= recommendation.rating
+                                          ? "text-lg text-cyan-400"
+                                          : "text-lg text-gray-300"
+                                      }
+                                    >
+                                      ★
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Description section */}
+                              <div className="m-2 flex flex-grow items-center justify-center bg-gray-800 p-3 text-white">
+                                <p className="line-clamp-4 text-center text-sm">
+                                  {recommendation.description || "Description"}
+                                </p>
+                              </div>
+
+                              {/* Footer section */}
+                              <div className="bg-lightTanGray p-2 text-center">
+                                <span className="text-xs text-gray-600">
+                                  Recommended
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Right arrow - outside seaFoam */}
                     <button
-                      className=""
+                      className="z-10 ml-4 p-2"
                       onClick={() =>
                         updateCarouselIndex(
                           category,
                           Math.min(
                             (carouselIndex[category] || 0) + 1,
-                            (showRec[category]?.length || 0) - 2,
+                            (showRec[category]?.length || 0) - 1,
                           ),
                         )
                       }
                       disabled={
                         (carouselIndex[category] || 0) >=
-                        (showRec[category]?.length || 0) - 2
+                        (showRec[category]?.length || 0) - 1
                       }
                       aria-label="Next"
                     >
-                      <i className="fa-solid fa-circle-chevron-right text-cerulean m-4 text-5xl hover:text-cyan-500"></i>
+                      <i className="fa-solid fa-circle-chevron-right text-cerulean text-5xl hover:text-cyan-500"></i>
                     </button>
                   </div>
                 </div>
