@@ -4,6 +4,7 @@ import { Dialog, DialogPanel } from "@headlessui/react";
 import apiFetch from "services/apiFetch";
 import NavBar from "shared-components/NavBar";
 import RecommendAddModal from "./RecommendAddModal";
+// import beach2 from "../images/beach2.png";
 
 const MyRecommendations = () => {
   const [showForm, setShowForm] = useState(false);
@@ -54,7 +55,15 @@ const MyRecommendations = () => {
   };
 
   return (
-    <div className="h-screen">
+    <div
+      className="relative min-h-screen w-full"
+      // style={{
+      //   backgroundImage: `url(${beach2})`,
+      //   backgroundSize: "cover",
+      //   backgroundRepeat: "no-repeat",
+      //   backgroundPosition: "center",
+      // }}
+    >
       <NavBar />
       <div className="mx-8 mt-4 flex justify-end">
         <button
@@ -100,7 +109,7 @@ const MyRecommendations = () => {
             </p>
           </div>
         ) : (
-          <div className="font-manrope">
+          <div className="font-raleway">
             {Object.keys(showRec)
               .sort((a, b) => {
                 // Put "better than all the rest" first
@@ -112,7 +121,7 @@ const MyRecommendations = () => {
               })
               .map((category) => (
                 <div key={category} className="mb-8">
-                  <h2 className="mb-4 pb-4 text-2xl font-bold">
+                  <h2 className="font-boldRaleway mb-4 pb-4 text-2xl">
                     {toTitleCase(category)}
                   </h2>
                   <div className="relative flex items-center">
@@ -128,11 +137,11 @@ const MyRecommendations = () => {
                       disabled={(carouselIndex[category] || 0) === 0}
                       aria-label="Previous"
                     >
-                      <i className="fa-solid fa-circle-chevron-left text-cerulean text-5xl hover:text-cyan-500"></i>
+                      <i className="fa-solid fa-circle-chevron-left text-darkBlue text-5xl hover:text-cyan-500"></i>
                     </button>
 
-                    {/* SeaFoam container - no arrows inside */}
-                    <div className="bg-seaFoam flex h-72 flex-grow items-center overflow-hidden rounded-xl shadow">
+                    {/*  container  */}
+                    <div className="bg-cerulean flex h-72 flex-grow items-center overflow-hidden rounded-xl p-4 shadow">
                       <div
                         className="flex flex-nowrap transition-transform duration-300"
                         style={{
@@ -144,11 +153,11 @@ const MyRecommendations = () => {
                             key={recommendation._id}
                             className="mx-2 w-60 flex-shrink-0"
                           >
-                            <div className="flex h-60 w-60 flex-col overflow-hidden rounded-lg bg-white shadow-lg">
+                            <div className="font flex h-60 w-60 flex-col overflow-hidden rounded-lg bg-white shadow-lg">
                               {/* Header section with title and stars */}
                               <div className="bg-lightTanGray p-3 text-center">
-                                <h3 className="font-manrope mb-2 line-clamp-2 text-sm font-bold">
-                                  {recommendation.title}
+                                <h3 className="font-boldManrope mb-2 line-clamp-2 text-sm font-bold">
+                                  {toTitleCase(recommendation.title)}
                                 </h3>
                                 <div className="flex justify-center gap-1">
                                   {[1, 2, 3, 4, 5].map((star) => (
@@ -156,7 +165,7 @@ const MyRecommendations = () => {
                                       key={star}
                                       className={
                                         star <= recommendation.rating
-                                          ? "text-lg text-cyan-400"
+                                          ? "text-lighTeal text-lg"
                                           : "text-lg text-gray-300"
                                       }
                                     >
@@ -203,7 +212,7 @@ const MyRecommendations = () => {
                       }
                       aria-label="Next"
                     >
-                      <i className="fa-solid fa-circle-chevron-right text-cerulean text-5xl hover:text-cyan-500"></i>
+                      <i className="fa-solid fa-circle-chevron-right text-darkBlue text-5xl hover:text-cyan-500"></i>
                     </button>
                   </div>
                 </div>
