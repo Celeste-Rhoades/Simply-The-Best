@@ -3,13 +3,13 @@ import { useNavigate, Link } from "react-router-dom";
 
 import routes from "@/routes";
 import apiFetch from "services/apiFetch";
-import { AppContext } from "@/App"
+import { AppContext } from "@/App";
 
 import logo1 from "../../images/logo.png";
 
 const NavBar = () => {
-  const appContextData = useContext(AppContext)
-  const username = appContextData.username
+  const appContextData = useContext(AppContext);
+  const username = appContextData.username;
 
   const [userOpenMenu, setUserOpenMenu] = useState(false);
   const navigate = useNavigate();

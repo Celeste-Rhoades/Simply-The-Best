@@ -1,22 +1,22 @@
-import { useState } from 'react';
+import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import AuthForm from "./AuthForm";
 import FormContainer from "./FormContainer";
 import * as userService from "services/user";
-import routes from "@/routes"
+import routes from "@/routes";
 
 const SignInPage = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const location = useLocation();
 
   return (
-    <div className="flex items-center justify-center font-raleway">
+    <div className="font-raleway flex items-center justify-center">
       <FormContainer>
-        <div className='text-pink-600'>{error}</div>
+        <div className="text-pink-600">{error}</div>
         {location.state?.accountCreated && (
-          <div className='p-4 mb-8 mt-2 bg-lighTeal/80 border rounded-lg border-cerulean/60 text-white'>
+          <div className="bg-lighTeal/80 border-cerulean/60 mt-2 mb-8 rounded-lg border p-4 text-white">
             Account created successfully. Please sign in.
           </div>
         )}
@@ -29,19 +29,21 @@ const SignInPage = () => {
           onSubmit={async (values) => {
             const response = await userService.createSession({
               username: values.username,
-              password: values.password
+              password: values.password,
             });
 
             if (response.status === 200) {
-              setError('');
-              navigate(routes.recommendations)
+              setError("");
+              navigate(routes.recommendations);
             } else {
               const data = await response.json();
               setError(data.error);
             }
           }}
         />
-        <Link to="/sign-up" className="text-[#006895] underline text-sm">Create an account</Link>
+        <Link to="/sign-up" className="text-sm text-[#006895] underline">
+          Create an account
+        </Link>
       </FormContainer>
     </div>
   );

@@ -11,7 +11,7 @@ const RecommendHome = () => {
       <NavBar />
       <div className="mx-8 mt-4 flex justify-end">
         <button
-          className="bg-darkBlue rounded-md px-4 py-2 text-white shadow-lg"
+          className="bg-perfectTeal rounded-md px-4 py-2 text-white shadow-lg"
           onClick={() => setShowForm(true)}
         >
           Add recommendation

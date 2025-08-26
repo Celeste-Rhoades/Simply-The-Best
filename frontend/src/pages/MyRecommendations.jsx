@@ -67,7 +67,7 @@ const MyRecommendations = () => {
       <NavBar />
       <div className="mx-8 mt-4 flex justify-end">
         <button
-          className="bg-darkBlue font-raleway rounded-md px-4 py-2 text-white shadow-lg"
+          className="bg-coral font-raleway rounded-md px-4 py-2 text-white shadow-lg"
           onClick={() => setShowForm(true)}
         >
           Add recommendation
@@ -137,7 +137,7 @@ const MyRecommendations = () => {
                       disabled={(carouselIndex[category] || 0) === 0}
                       aria-label="Previous"
                     >
-                      <i className="fa-solid fa-circle-chevron-left text-darkBlue text-5xl hover:text-cyan-500"></i>
+                      <i className="fa-solid fa-circle-chevron-left text-coral hover:text-lightblue text-5xl"></i>
                     </button>
 
                     {/*  container  */}
@@ -194,7 +194,7 @@ const MyRecommendations = () => {
                       </div>
                     </div>
 
-                    {/* Right arrow - outside seaFoam */}
+                    {/* Right arrow - outside  */}
                     <button
                       className="z-10 ml-4 p-2"
                       onClick={() =>
@@ -212,7 +212,7 @@ const MyRecommendations = () => {
                       }
                       aria-label="Next"
                     >
-                      <i className="fa-solid fa-circle-chevron-right text-darkBlue text-5xl hover:text-cyan-500"></i>
+                      <i className="fa-solid fa-circle-chevron-right text-coral hover:text-hotCoralPink text-5xl"></i>
                     </button>
                   </div>
                 </div>

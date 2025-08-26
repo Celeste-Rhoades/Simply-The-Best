@@ -169,7 +169,7 @@ const RecommendAddModal = ({ onClose }) => {
         <button
           type="submit"
           disabled={loading}
-          className="bg-cerulean rounded px-4 py-2 text-white"
+          className="bg-perfectTeal rounded px-4 py-2 text-white"
         >
           {loading ? "Submitting..." : "Add Recommendation"}
         </button>

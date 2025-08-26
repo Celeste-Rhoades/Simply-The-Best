@@ -10,19 +10,21 @@ const AuthForm = (props) => {
     }
     return initialState;
   });
-const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   return (
-    <form className="p-4 m-4 bg-white border rounded-lg border-slate-200" onSubmit={async (e) => {
-      e.preventDefault()
-      setLoading(true)
-     await onSubmit(values)
-      setLoading(false)
-    }}
+    <form
+      className="m-4 rounded-lg border border-slate-200 bg-white p-4"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        await onSubmit(values);
+        setLoading(false);
+      }}
     >
       {fields.map((field) => (
-        <Field 
+        <Field
           key={field.label}
-          label={field.label} 
+          label={field.label}
           type={field.type}
           value={values[field.label]}
           onChange={(e) => {
@@ -30,13 +32,16 @@ const [loading, setLoading] = useState(false)
           }}
         />
       ))}
-      <button className="w-full py-2 mt-4 text-white rounded-lg bg-lighTeal relative" type="submit">
+      <button
+        className="bg-cerulean relative mt-4 w-full rounded-lg py-2 text-white"
+        type="submit"
+      >
         {submitButtonLabel}
-        {loading && 
-        <div className="absolute top-0 right-4 flex items-center h-full ">
-        <i className="text-xl fa-solid fa-spinner text-[#dfcd3] animate-spin "></i>
-        </div>
-        }
+        {loading && (
+          <div className="absolute top-0 right-4 flex h-full items-center">
+            <i className="fa-solid fa-spinner animate-spin text-xl text-[#dfcd3]"></i>
+          </div>
+        )}
       </button>
     </form>
   );
