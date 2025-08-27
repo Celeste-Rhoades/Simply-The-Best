@@ -7,6 +7,9 @@ import {
   getRecommendation,
   updateRecommendation,
   getRecommendationsGroupedByCategory,
+  getPendingRecommendations,
+  approveRecommendation,
+  rejectRecommendation,
 } from "../controller/recommend.js";
 
 const router = express.Router();
@@ -21,5 +24,9 @@ router.post("/", protectRoute, createRecommendation);
 router.put("/:id", updateRecommendation);
 //delete recommendations
 router.delete("/:id", deleteRecommendation);
+//accepting and declining recommendation
+router.get("/pending", protectRoute, getPendingRecommendations);
+router.put("/:id/approve", protectRoute, approveRecommendation);
+router.put("/:id/reject", protectRoute, rejectRecommendation);
 
 export default router;

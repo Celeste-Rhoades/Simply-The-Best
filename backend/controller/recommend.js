@@ -13,7 +13,14 @@ export const getRecommendation = async (req, res) => {
 
 export const getRecommendationsGroupedByCategory = async (req, res) => {
   try {
-    const recommendations = await Recommend.find({});
+    const recommendations = await Recommend.find({
+      $or: [
+        { user: req.user._id, status: "approved" },
+        { recommendedTo: req.user._id, status: "approved" },
+      ],
+    })
+      .populate("user", "username")
+      .populate("recommendedTo", "username");
 
     const grouped = recommendations.reduce((acc, rec) => {
       const category = rec.category.toLowerCase();
@@ -94,6 +101,60 @@ export const deleteRecommendation = async (req, res) => {
   try {
     await Recommend.findByIdAndDelete(id);
     res.status(200).json({ success: true, message: "Recommendation Deleted" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+export const getPendingRecommendations = async (req, res) => {
+  try {
+    const pendingRecs = await Recommend.find({
+      recommendedTo: req.user._id,
+      status: "pending",
+    }).populate("user", "username");
+
+    res.status(200).json({ success: true, data: pendingRecs });
+  } catch (error) {
+    console.error("Error fetching pending recommendations:", error.message);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+export const approveRecommendation = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const recommendation = await Recommend.findOneAndUpdate(
+      { _id: id, recommendedTo: req.user._id },
+      { status: "approved" },
+      { new: true }
+    );
+
+    if (!recommendation) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Recommendation not found" });
+    }
+
+    res.status(200).json({ success: true, data: recommendation });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+export const rejectRecommendation = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const recommendation = await Recommend.findOneAndUpdate(
+      { _id: id, recommendedTo: req.user._id },
+      { status: "rejected" },
+      { new: true }
+    );
+
+    if (!recommendation) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Recommendation not found" });
+    }
+
+    res.status(200).json({ success: true, data: recommendation });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server Error" });
   }
