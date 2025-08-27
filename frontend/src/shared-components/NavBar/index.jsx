@@ -23,7 +23,7 @@ const NavBar = () => {
 
   return (
     <nav
-      className="bg-lighTeal flex justify-center"
+      className="bg-laguna flex justify-center"
       onMouseLeave={() => setUserOpenMenu(false)}
     >
       <div className="relative flex w-full max-w-5xl items-center px-6 py-2">

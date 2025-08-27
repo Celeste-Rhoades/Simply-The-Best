@@ -12,6 +12,7 @@ const MyRecommendations = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [errors, setErrors] = useState("");
   const [carouselIndex, setCarouselIndex] = useState({});
+  const [pendingCount, setPendingCount] = useState(0);
 
   const fetchGroupRecs = async () => {
     setIsLoading(true);
@@ -34,16 +35,18 @@ const MyRecommendations = () => {
   const handleModalClose = () => {
     setShowForm(false);
     fetchGroupRecs();
+    fetchPendingCount();
   };
 
   useEffect(() => {
     fetchGroupRecs();
+    fetchPendingCount();
   }, []);
 
-  const updateCarouselIndex = (categoryName, newIdx) => {
+  const updateCarouselIndex = (category, newIdx) => {
     setCarouselIndex((prev) => ({
       ...prev,
-      [categoryName]: newIdx,
+      [category]: newIdx,
     }));
   };
 
@@ -52,6 +55,18 @@ const MyRecommendations = () => {
       /\w\S*/g,
       (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
     );
+  };
+
+  const fetchPendingCount = async () => {
+    try {
+      const res = await apiFetch("GET", "/api/recommendations/pending");
+      if (res.ok) {
+        const data = await res.json();
+        setPendingCount(data.data.length);
+      }
+    } catch (error) {
+      console.log("Error fetching pending count:", error);
+    }
   };
 
   return (
@@ -72,7 +87,9 @@ const MyRecommendations = () => {
         >
           Add recommendation
         </button>
-
+        <button className="mr-2 rounded bg-orange-500 px-4 py-2 text-white">
+          Pending ({pendingCount})
+        </button>
         <Dialog
           open={showForm}
           onClose={() => setShowForm(false)}
@@ -137,7 +154,7 @@ const MyRecommendations = () => {
                       disabled={(carouselIndex[category] || 0) === 0}
                       aria-label="Previous"
                     >
-                      <i className="fa-solid fa-circle-chevron-left text-coral hover:text-lightblue text-5xl"></i>
+                      <i className="fa-solid fa-circle-chevron-left text-coral hover:text-lightOrange text-5xl"></i>
                     </button>
 
                     {/*  container  */}
@@ -212,7 +229,7 @@ const MyRecommendations = () => {
                       }
                       aria-label="Next"
                     >
-                      <i className="fa-solid fa-circle-chevron-right text-coral hover:text-hotCoralPink text-5xl"></i>
+                      <i className="fa-solid fa-circle-chevron-right text-coral hover:text-lightOrange text-5xl"></i>
                     </button>
                   </div>
                 </div>
