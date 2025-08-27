@@ -10,16 +10,19 @@ import {
   getPendingRecommendations,
   approveRecommendation,
   rejectRecommendation,
+  getUsers,
 } from "../controller/recommend.js";
 
 const router = express.Router();
 
 // route to get all recomendations
 router.get("/", getRecommendation);
-router.get("/grouped", getRecommendationsGroupedByCategory);
+router.get("/grouped", protectRoute, getRecommendationsGroupedByCategory);
 // Route to create a recommendation
 router.post("/", protectRoute, createRecommendation);
-//
+//get users
+router.get("/users", protectRoute, getUsers);
+
 //update recommendation
 router.put("/:id", updateRecommendation);
 //delete recommendations

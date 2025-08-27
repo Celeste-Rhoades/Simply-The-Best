@@ -1,4 +1,5 @@
 import Recommend from "../models/Recommend.js";
+import User from "../models/User.js";
 import mongoose, { createConnection } from "mongoose";
 
 export const getRecommendation = async (req, res) => {
@@ -10,17 +11,11 @@ export const getRecommendation = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
-
 export const getRecommendationsGroupedByCategory = async (req, res) => {
   try {
     const recommendations = await Recommend.find({
-      $or: [
-        { user: req.user._id, status: "approved" },
-        { recommendedTo: req.user._id, status: "approved" },
-      ],
-    })
-      .populate("user", "username")
-      .populate("recommendedTo", "username");
+      user: req.user._id,
+    }).populate("user", "username");
 
     const grouped = recommendations.reduce((acc, rec) => {
       const category = rec.category.toLowerCase();
@@ -156,6 +151,15 @@ export const rejectRecommendation = async (req, res) => {
 
     res.status(200).json({ success: true, data: recommendation });
   } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+export const getUsers = async (req, res) => {
+  try {
+    const users = await User.find({}, "username");
+    res.status(200).json({ success: true, data: users });
+  } catch (error) {
+    console.error("Error fetching users:", error.message);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
