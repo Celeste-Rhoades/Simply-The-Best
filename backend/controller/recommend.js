@@ -14,7 +14,13 @@ export const getRecommendation = async (req, res) => {
 export const getRecommendationsGroupedByCategory = async (req, res) => {
   try {
     const recommendations = await Recommend.find({
-      user: req.user._id,
+      $or: [
+        { user: req.user._id }, // Recommendations you created
+        {
+          recommendedTo: req.user._id, // Recommendations made to you
+          status: "approved", // Only show approved ones
+        },
+      ],
     }).populate("user", "username");
 
     const grouped = recommendations.reduce((acc, rec) => {
