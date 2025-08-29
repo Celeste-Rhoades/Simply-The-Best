@@ -237,7 +237,11 @@ const PendingRecommendations = () => {
 
                       {/* Recommender info - center */}
                       <span className="text-xs text-gray-600">
-                        By {recommendation.user?.username}
+                        By{" "}
+                        {recommendation.user?.username
+                          ?.charAt(0)
+                          .toUpperCase() +
+                          recommendation.user?.username?.slice(1)}
                       </span>
 
                       {/* Accept button - right */}

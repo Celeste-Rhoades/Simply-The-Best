@@ -130,7 +130,9 @@ const RecommendHome = () => {
               <div key={userId} className="mb-8">
                 {/* Friend's Username Header */}
                 <h2 className="font-boldRaleway mb-4 pb-4 text-2xl">
-                  {userdata.username}'s Recommendations
+                  {userdata.username?.charAt(0).toUpperCase() +
+                    userdata.username?.slice(1)}
+                  's Recommendations
                 </h2>
 
                 {/* Carousel Container */}
@@ -206,8 +208,8 @@ const RecommendHome = () => {
                               {/* Original recommender info - centered */}
                               <span className="absolute left-1/2 -translate-x-1/2 transform text-xs text-gray-600">
                                 {recommendation.originalRecommendedBy
-                                  ? `Originally by ${recommendation.originalRecommendedBy.username}`
-                                  : `By ${recommendation.user.username}`}
+                                  ? `Originally by ${recommendation.originalRecommendedBy.username?.charAt(0).toUpperCase() + recommendation.originalRecommendedBy.username?.slice(1)}`
+                                  : `By ${recommendation.user.username?.charAt(0).toUpperCase() + recommendation.user.username?.slice(1)}`}
                               </span>
                             </div>
                           </div>

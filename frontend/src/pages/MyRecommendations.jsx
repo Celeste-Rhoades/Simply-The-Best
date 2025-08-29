@@ -163,7 +163,7 @@ const MyRecommendations = () => {
 
       <div className="mx-8 mt-4 flex justify-end">
         <button
-          className="bg-coral font-raleway mx-4 rounded-md px-4 py-2 text-white shadow-lg transition-colors hover:bg-red-500"
+          className="bg-coral font-raleway hover:bg-hotCoralPink mx-4 rounded-md px-4 py-2 text-white shadow-lg transition-colors"
           onClick={() => setShowForm(true)}
         >
           Add recommendation
@@ -171,15 +171,15 @@ const MyRecommendations = () => {
 
         {/* New Create & Share button */}
         <button
-          className="font-raleway mx-4 rounded-md bg-green-500 px-4 py-2 text-white shadow-lg transition-colors hover:bg-green-600"
+          className="font-raleway bg-tangerine hover:bg-brightSalmon mx-4 rounded-md px-4 py-2 text-white shadow-lg transition-colors"
           onClick={() => setShowCreateShareModal(true)}
         >
-          Share with Friends
+          Recommend to Friends
         </button>
 
         <button
           onClick={() => navigate(routes.pendingRecommendations)}
-          className="mr-2 rounded bg-orange-500 px-4 py-2 text-white transition-colors hover:bg-orange-600"
+          className="bg-summerTeal hover:bg-lighTeal mr-2 rounded px-4 py-2 text-white transition-colors"
         >
           Pending ({pendingCount})
         </button>
@@ -307,12 +307,11 @@ const MyRecommendations = () => {
                                 >
                                   <i className="fa-solid fa-trash text-sm"></i>
                                 </button>
-
                                 <span className="absolute left-1/2 -translate-x-1/2 transform text-xs text-gray-600">
                                   {recommendation.user &&
                                   recommendation.user._id === currentUserId
                                     ? "Recommended: Self"
-                                    : `Recommended by ${recommendation.user?.username || "Unknown"}`}
+                                    : `Recommended by ${recommendation.user?.username?.charAt(0).toUpperCase() + recommendation.user?.username?.slice(1) || "Unknown"}`}
                                 </span>
 
                                 <button
@@ -322,7 +321,7 @@ const MyRecommendations = () => {
                                   className="text-blue-500 transition-colors hover:text-blue-600"
                                   aria-label="Recommend to friend"
                                 >
-                                  <i className="fa-solid fa-paper-plane text-sm"></i>
+                                  <i className="fa-solid fa-share-from-square"></i>
                                 </button>
                               </div>
                             </div>
