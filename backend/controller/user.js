@@ -17,6 +17,29 @@ export const getUserProfile = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const searchUsers = async (req, res) => {
+  try {
+    const searchTerm = req.query.search;
+
+    if (!searchTerm || searchTerm.trim().length < 1) {
+      return res.json({ success: true, data: [] });
+    }
+
+    const users = await User.find({
+      username: { $regex: searchTerm, $options: "i" },
+      _id: { $ne: req.user._id },
+    })
+      .select("username _id")
+      .limit(10);
+
+    res.json({ success: true, data: users });
+  } catch (error) {
+    console.log("Error in searchUsers:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export const followUnfollowUser = async (req, res) => {
   try {
     const { id } = req.params;
