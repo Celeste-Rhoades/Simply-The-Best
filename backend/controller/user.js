@@ -40,51 +40,86 @@ export const searchUsers = async (req, res) => {
   }
 };
 
-export const followUnfollowUser = async (req, res) => {
+export const sendFriendRequest = async (req, res) => {
   try {
     const { id } = req.params;
-    // console.log("Follow endpoint hit for user:", req.params.id);
     const userToModify = await User.findById(id);
     const currentUser = await User.findById(req.user._id);
 
+    // Check if you're trying to friend yourself
     if (id === req.user._id.toString()) {
       return res
         .status(400)
-        .json({ error: "You can't follow/unfollow yourself" });
+        .json({ error: "You can't send a friend request to yourself" });
     }
 
     if (!userToModify || !currentUser)
       return res.status(400).json({ error: "User not found" });
 
-    const isFollowing = currentUser.following.includes(id);
+    // Check if friend request already sent
+    if (currentUser.sentRequests.includes(id))
+      return res.status(400).json({ error: "Friend request already sent" });
 
-    if (isFollowing) {
-      // Unfollow the user
-      await User.findByIdAndUpdate(id, { $pull: { followers: req.user._id } });
-      await User.findByIdAndUpdate(req.user._id, { $pull: { following: id } });
+    // Check if already friends
+    if (currentUser.following.includes(id))
+      return res
+        .status(400)
+        .json({ error: "You are already friends with this user" });
 
-      res.status(200).json({ message: "User unfollowed successfully" });
-    } else {
-      // Follow the user
-      await User.findByIdAndUpdate(id, { $push: { followers: req.user._id } });
-      await User.findByIdAndUpdate(req.user._id, { $push: { following: id } });
+    // Add to request arrays
+    currentUser.sentRequests.push(id);
+    userToModify.pendingRequests.push(req.user._id);
 
-      //   Send notification to the user
-      const newNotification = new Notification({
-        type: "follow",
-        from: req.user._id,
-        to: userToModify._id,
-      });
+    // Save both users
+    await currentUser.save();
+    await userToModify.save();
 
-      await newNotification.save();
-
-      res.status(200).json({ message: "User followed successfully" });
-    }
+    // Return success response
+    res.status(200).json({ message: "Friend request sent successfully" });
   } catch (error) {
-    console.log("Error in followUnfollowUser: ", error.message);
+    console.log("Error in sendFriendRequest: ", error.message);
     res.status(500).json({ error: error.message });
   }
 };
+
+export const accceptFriendRequest = async (res, req) => {
+  try {
+    const { id } = req.params.id;
+
+    const currentUser = await User.findById(req.user._id);
+    const requestingUser = await User.findById(id);
+
+    if (!currentUser || !requestingUser) {
+      return res.status(400).json({ error: "User not found" });
+    }
+    if (!currentUser.pendingRequests.includes(id)) {
+      return res
+        .status(400)
+        .json({ error: "No friend request found from this user" });
+    }
+    // Remove the request from pending arrays
+    currentUser.pendingRequests = currentUser.pendingRequests.filter(
+      requestId => requestId.toString() !== id
+    );
+    requestingUser.sentRequests = requestingUser.sentRequests.filter(
+      requestId => requestId.toString() !== req.user._id.toString()
+    );
+    // Add both users to each other's friends lists
+    currentUser.following.push(id);
+    requestingUser.following.push(req.user._id);
+
+    // Save both user documents
+    await currentUser.save();
+    await requestingUser.save();
+
+    // Return success response
+    res.status(200).json({ message: "Friend request accepted successfully" });
+  } catch (error) {
+    console.log("Error in acceptFriendRequest: ", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export const updateUser = async (req, res) => {
   const { email, username, currentPassword, newPassword, bio, link } = req.body;
   // let { profileImg, coverImg } = req.body;
