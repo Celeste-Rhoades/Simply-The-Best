@@ -32,6 +32,20 @@ const userSchema = new mongoose.Schema(
         default: [],
       },
     ],
+    pendingRequests: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: [],
+      },
+    ],
+    sentRequests: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: [],
+      },
+    ],
 
     bio: {
       type: String,
