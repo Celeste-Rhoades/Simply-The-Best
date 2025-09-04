@@ -21,11 +21,15 @@ export const getUserProfile = async (req, res) => {
 export const searchUsers = async (req, res) => {
   try {
     const searchTerm = req.query.search;
-    // console.log("Search endpoint hit with term:", req.query.search);
+
     if (!searchTerm || searchTerm.trim().length < 1) {
       return res.json({ success: true, data: [] });
     }
 
+    // Get the current user's data to check relationships
+    const currentUser = await User.findById(req.user._id);
+
+    // Find users matching the search term
     const users = await User.find({
       username: { $regex: searchTerm, $options: "i" },
       _id: { $ne: req.user._id },
@@ -33,7 +37,20 @@ export const searchUsers = async (req, res) => {
       .select("username _id")
       .limit(10);
 
-    res.json({ success: true, data: users });
+    // Add friendship status to each user
+    const usersWithStatus = users.map(user => {
+      const isFriend = currentUser.following.includes(user._id);
+      const isPendingRequest = currentUser.sentRequests.includes(user._id);
+
+      return {
+        _id: user._id,
+        username: user.username,
+        isFriend: isFriend,
+        isPendingRequest: isPendingRequest,
+      };
+    });
+
+    res.json({ success: true, data: usersWithStatus });
   } catch (error) {
     console.log("Error in searchUsers:", error.message);
     res.status(500).json({ error: error.message });
