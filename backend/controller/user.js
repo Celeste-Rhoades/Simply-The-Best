@@ -26,10 +26,10 @@ export const searchUsers = async (req, res) => {
       return res.json({ success: true, data: [] });
     }
 
-    // Get the current user's data to check relationships
+    // Get current user with their relationship arrays
     const currentUser = await User.findById(req.user._id);
 
-    // Find users matching the search term
+    // Find users matching search term
     const users = await User.find({
       username: { $regex: searchTerm, $options: "i" },
       _id: { $ne: req.user._id },
@@ -39,8 +39,15 @@ export const searchUsers = async (req, res) => {
 
     // Add friendship status to each user
     const usersWithStatus = users.map(user => {
-      const isFriend = currentUser.following.includes(user._id);
-      const isPendingRequest = currentUser.sentRequests.includes(user._id);
+      // Check if this user is in your following array (you're friends)
+      const isFriend = currentUser.following.some(
+        friendId => friendId.toString() === user._id.toString()
+      );
+
+      // Check if you already sent them a request
+      const isPendingRequest = currentUser.sentRequests.some(
+        requestId => requestId.toString() === user._id.toString()
+      );
 
       return {
         _id: user._id,
