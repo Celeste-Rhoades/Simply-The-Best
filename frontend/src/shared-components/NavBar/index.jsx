@@ -95,16 +95,7 @@ const NavBar = () => {
                   <i className="fa-solid fa-user mr-2"></i>
                   My Recommendations
                 </button>
-                <button
-                  className="hover:text-cerulean mb-2 py-1 text-left"
-                  onClick={() => {
-                    setUserOpenMenu(false);
-                    navigate(routes.friendRequests);
-                  }}
-                >
-                  <i className="fa-solid fa-user-group mr-2"></i>
-                  Friend Requests
-                </button>
+
                 <button
                   className="hover:text-cerulean py-1 text-left"
                   onClick={() => logout()}
@@ -171,16 +162,7 @@ const NavBar = () => {
                   <i className="fa-solid fa-magnifying-glass mr-2"></i>
                   Search Users
                 </button>
-                <button
-                  className="hover:text-cerulean mb-2 py-1 text-left"
-                  onClick={() => {
-                    setUserOpenMenu(false);
-                    navigate(routes.friendRequests);
-                  }}
-                >
-                  <i className="fa-solid fa-user-group mr-2"></i>
-                  Friend Requests
-                </button>
+
                 <button
                   className="hover:text-cerulean py-1 text-left"
                   onClick={() => logout()}

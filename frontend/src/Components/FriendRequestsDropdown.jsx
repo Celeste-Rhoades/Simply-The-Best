@@ -5,12 +5,27 @@ import routes from "../routes";
 
 const FriendRequestsDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { pendingCount } = useFriendRequests();
+  const {
+    pendingRequests,
+    pendingCount,
+    isLoading,
+    acceptRequest,
+    declineRequest,
+    processing,
+  } = useFriendRequests();
   const navigate = useNavigate();
 
   const handleViewAll = () => {
     setIsOpen(false);
     navigate(routes.friendRequests);
+  };
+
+  const handleAccept = async (userId) => {
+    await acceptRequest(userId);
+  };
+
+  const handleDecline = async (userId) => {
+    await declineRequest(userId);
   };
 
   return (
@@ -31,28 +46,69 @@ const FriendRequestsDropdown = () => {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-full right-0 z-50 mt-2 w-80 rounded-lg border border-gray-200 bg-white shadow-lg">
+        <div className="absolute top-full right-0 z-50 mt-2 w-96 rounded-lg border border-gray-200 bg-white shadow-lg">
           <div className="border-b border-gray-100 p-4">
             <h3 className="font-semibold text-gray-900">Friend Requests</h3>
           </div>
 
-          <div className="p-4">
-            {pendingCount === 0 ? (
-              <p className="py-4 text-center text-gray-600">
+          <div className="max-h-80 overflow-y-auto">
+            {isLoading ? (
+              <div className="p-4 text-center text-gray-600">
+                Loading requests...
+              </div>
+            ) : pendingRequests.length === 0 ? (
+              <div className="p-4 text-center text-gray-600">
                 No pending friend requests
-              </p>
+              </div>
             ) : (
-              <div className="space-y-2">
-                <p className="text-sm text-gray-600">
-                  You have {pendingCount} pending friend request
-                  {pendingCount !== 1 ? "s" : ""}
-                </p>
-                <button
-                  onClick={handleViewAll}
-                  className="bg-cerulean w-full rounded-lg px-4 py-2 text-white hover:bg-blue-600"
-                >
-                  View All Requests
-                </button>
+              <div className="p-2">
+                {pendingRequests.slice(0, 3).map((request) => (
+                  <div
+                    key={request._id}
+                    className="flex items-center justify-between rounded-lg p-3 hover:bg-gray-50"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-300">
+                        <i className="fa-solid fa-user text-sm text-gray-600"></i>
+                      </div>
+                      <span className="text-sm font-medium text-gray-900">
+                        {request.username}
+                      </span>
+                    </div>
+
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleAccept(request._id)}
+                        disabled={processing[request._id]}
+                        className="rounded bg-green-500 px-3 py-1 text-xs text-white hover:bg-green-600 disabled:opacity-50"
+                      >
+                        {processing[request._id] === "accepting"
+                          ? "Accepting..."
+                          : "Accept"}
+                      </button>
+                      <button
+                        onClick={() => handleDecline(request._id)}
+                        disabled={processing[request._id]}
+                        className="rounded bg-gray-500 px-3 py-1 text-xs text-white hover:bg-gray-600 disabled:opacity-50"
+                      >
+                        {processing[request._id] === "declining"
+                          ? "Declining..."
+                          : "Decline"}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                {pendingRequests.length > 3 && (
+                  <div className="border-t border-gray-100 p-3">
+                    <button
+                      onClick={handleViewAll}
+                      className="text-cerulean w-full text-center text-sm hover:text-blue-600"
+                    >
+                      View all {pendingRequests.length} requests
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
