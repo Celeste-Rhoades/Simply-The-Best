@@ -26,12 +26,12 @@ const NavBar = () => {
 
   return (
     <nav
-      className="bg-laguna flex justify-center"
+      className="bg-laguna relative z-40 flex justify-center"
       onMouseLeave={() => setUserOpenMenu(false)}
     >
-      <div className="relative flex w-full max-w-5xl items-center px-6 py-2">
-        {/* Logo */}
-        <div className="font-playfair flex items-center text-xl text-white md:flex-1">
+      <div className="relative flex w-full max-w-7xl items-center px-6 py-2">
+        {/* Left Section - Logo */}
+        <div className="font-playfair flex flex-1 items-center text-xl text-white">
           <Link to="/">
             <img
               className="h-28 w-28 object-contain md:h-38 md:w-38"
@@ -41,29 +41,25 @@ const NavBar = () => {
           </Link>
         </div>
 
-        {/* Title */}
-        <Link to="/">
-          <h1 className="font-manrope pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-2xl whitespace-nowrap text-white select-none md:relative md:top-auto md:left-auto md:flex-none md:translate-x-0 md:translate-y-0 md:text-xl lg:text-4xl xl:text-5xl">
-            Simply The Best
-          </h1>
-        </Link>
+        {/* Center Section - Title */}
+        <div className="flex flex-1 justify-center">
+          <Link to="/">
+            <h1 className="font-manrope text-center text-2xl whitespace-nowrap text-white select-none md:text-xl lg:text-4xl xl:text-5xl">
+              Simply The Best
+            </h1>
+          </Link>
+        </div>
 
-        {/* Desktop Navigation */}
-        <div className="font-raleway hidden flex-1 items-center justify-end space-x-4 text-white md:flex">
-          {/* Search Bar */}
-          <SearchBar />
-
-          {/* Friend Requests Notification */}
-          <FriendRequestsDropdown />
-
-          {/* User Menu */}
-          <div className="relative min-w-44">
+        {/* Right Section - Navigation */}
+        <div className="font-raleway hidden flex-1 items-center justify-end space-x-6 text-white md:flex">
+          {/* User Menu - First */}
+          <div className="relative">
             <button
               type="button"
-              className="flex items-center text-lg"
+              className="hover:bg-opacity-10 flex items-center rounded-lg px-4 py-2 text-lg transition-colors"
               onClick={() => setUserOpenMenu(!userOpenMenu)}
             >
-              <i className="fa-solid fa-user m-1"></i>
+              <i className="fa-solid fa-user mr-3"></i>
               <span>
                 {username === null
                   ? "Loading..."
@@ -106,11 +102,21 @@ const NavBar = () => {
               </div>
             )}
           </div>
+
+          {/* Friend Requests Notification - Second */}
+          <FriendRequestsDropdown />
+
+          {/* Search Bar - Third */}
+          <SearchBar />
         </div>
 
         {/* Mobile hamburger menu */}
-        <div className="font-raleway flex flex-1 justify-end text-white md:hidden">
-          <div className="relative">
+        <div className="font-raleway flex flex-1 items-center justify-end space-x-4 text-white md:hidden">
+          {/* Mobile Friend Requests Notification */}
+          <FriendRequestsDropdown />
+
+          {/* Mobile Hamburger Menu */}
+          <div className="relative z-50">
             <button
               type="button"
               className="flex h-8 w-8 flex-col items-center justify-center space-y-1"
@@ -121,7 +127,7 @@ const NavBar = () => {
               <span className="h-0.5 w-6 bg-white transition-all duration-300"></span>
             </button>
             {userOpenMenu && (
-              <div className="bg-lightTanGray absolute top-12 right-0 flex min-w-48 flex-col rounded-md px-6 py-4 text-lg text-stone-800 shadow-md">
+              <div className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex min-w-48 flex-col rounded-md px-6 py-4 text-lg text-stone-800 shadow-md">
                 <div className="mb-3 border-b border-stone-300 pb-2">
                   <span className="text-sm text-stone-600">Signed in as:</span>
                   <div className="font-semibold">
@@ -132,6 +138,21 @@ const NavBar = () => {
                         : "Guest"}
                   </div>
                 </div>
+
+                {/* Mobile Search Section */}
+                <div className="mb-3 border-b border-stone-300 pb-3">
+                  <button
+                    className="hover:text-cerulean mb-2 w-full py-1 text-left"
+                    onClick={() => {
+                      setUserOpenMenu(false);
+                      navigate(routes.userSearch);
+                    }}
+                  >
+                    <i className="fa-solid fa-magnifying-glass mr-2"></i>
+                    Search Users
+                  </button>
+                </div>
+
                 <button
                   className="hover:text-cerulean mb-2 py-1 text-left"
                   onClick={() => {
@@ -151,16 +172,6 @@ const NavBar = () => {
                 >
                   <i className="fa-solid fa-user mr-2"></i>
                   My Recommendations
-                </button>
-                <button
-                  className="hover:text-cerulean mb-2 py-1 text-left"
-                  onClick={() => {
-                    setUserOpenMenu(false);
-                    navigate(routes.userSearch);
-                  }}
-                >
-                  <i className="fa-solid fa-magnifying-glass mr-2"></i>
-                  Search Users
                 </button>
 
                 <button

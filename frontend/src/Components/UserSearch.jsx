@@ -1,12 +1,28 @@
-import { useState, useEffect, useCallback } from "react";
-import apiFetch from "services/apiFetch";
+import { useState, useEffect, useCallback, useContext } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import apiFetch from "../services/apiFetch";
+import { AppContext } from "../App";
+import routes from "../routes";
+import logo1 from "../images/logo.png";
 
 const UserSearch = () => {
+  const { username, setUsername } = useContext(AppContext);
+  const [userOpenMenu, setUserOpenMenu] = useState(false);
+  const navigate = useNavigate();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchError, setSearchError] = useState("");
   const [requestStatus, setRequestStatus] = useState({});
+
+  const logout = async () => {
+    const response = await apiFetch("POST", "/api/auth/logout");
+    if (response.ok) {
+      setUsername(null);
+      navigate(routes.signIn);
+    }
+  };
 
   const handleSearch = useCallback(async () => {
     if (searchTerm.length < 2) {
@@ -59,7 +75,7 @@ const UserSearch = () => {
 
       const res = await apiFetch(
         "POST",
-        `/api/users/friend-request/send/${userId}`,
+        `/api/users/friendRequest/send/${userId}`,
       );
 
       if (res.ok) {
@@ -67,6 +83,12 @@ const UserSearch = () => {
           ...prev,
           [userId]: "sent",
         }));
+
+        setSearchResults((prevResults) =>
+          prevResults.map((user) =>
+            user._id === userId ? { ...user, isPendingRequest: true } : user,
+          ),
+        );
       } else {
         const errorData = await res.json();
         setRequestStatus((prev) => ({
@@ -85,89 +107,173 @@ const UserSearch = () => {
   }, []);
 
   return (
-    <>
-      {/* Search Input Section */}
-      <div className="m-4 flex justify-end p-1">
-        <div className="relative">
+    <div className="bg-lightTanGray min-h-screen">
+      {/* Mobile Navbar */}
+      <nav className="bg-laguna relative z-40 flex justify-center">
+        <div className="relative grid w-full max-w-5xl grid-cols-3 items-center px-6 py-2">
+          {/* Left Section - Logo */}
+          <div className="font-playfair flex items-center justify-start text-xl text-white">
+            <Link to="/">
+              <img
+                className="h-28 w-28 object-contain md:h-38 md:w-38"
+                alt="starfish"
+                src={logo1}
+              />
+            </Link>
+          </div>
+
+          {/* Center Section - Title */}
+          <div className="flex justify-center">
+            <Link to="/">
+              <h1 className="font-manrope text-center text-2xl whitespace-nowrap text-white select-none md:text-xl lg:text-4xl xl:text-5xl">
+                Simply The Best
+              </h1>
+            </Link>
+          </div>
+
+          {/* Right Section - Mobile Menu */}
+          <div className="font-raleway flex items-center justify-end text-white">
+            <div className="relative z-50">
+              <button
+                type="button"
+                className="flex h-8 w-8 flex-col items-center justify-center space-y-1"
+                onClick={() => setUserOpenMenu(!userOpenMenu)}
+              >
+                <span className="h-0.5 w-6 bg-white transition-all duration-300"></span>
+                <span className="h-0.5 w-6 bg-white transition-all duration-300"></span>
+                <span className="h-0.5 w-6 bg-white transition-all duration-300"></span>
+              </button>
+              {userOpenMenu && (
+                <div className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex min-w-48 flex-col rounded-md px-6 py-4 text-lg text-stone-800 shadow-md">
+                  <div className="mb-3 border-b border-stone-300 pb-2">
+                    <span className="text-sm text-stone-600">
+                      Signed in as:
+                    </span>
+                    <div className="font-semibold">
+                      {username === null
+                        ? "Loading..."
+                        : username
+                          ? username
+                          : "Guest"}
+                    </div>
+                  </div>
+
+                  <button
+                    className="hover:text-cerulean mb-2 py-1 text-left"
+                    onClick={() => {
+                      setUserOpenMenu(false);
+                      navigate(routes.recommendations);
+                    }}
+                  >
+                    <i className="fa-solid fa-house mr-2"></i>
+                    Home
+                  </button>
+                  <button
+                    className="hover:text-cerulean mb-2 py-1 text-left"
+                    onClick={() => {
+                      setUserOpenMenu(false);
+                      navigate(routes.myRecommendations);
+                    }}
+                  >
+                    <i className="fa-solid fa-user mr-2"></i>
+                    My Recommendations
+                  </button>
+
+                  <button
+                    className="hover:text-cerulean py-1 text-left"
+                    onClick={() => logout()}
+                  >
+                    <i className="fa-solid fa-arrow-right-from-bracket mr-2"></i>
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Search Content */}
+      <div className="p-4">
+        {/* Simple Search Input */}
+        <div className="relative mx-auto mb-6 max-w-md">
           <input
-            id="user-search"
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            onFocus={() => setUserOpenMenu(false)}
             placeholder="Search for users by username"
-            className="m-2 w-66 rounded-xl border border-slate-400 pl-8 shadow"
-            aria-label="Search for users"
-            name="userSearch"
+            className="focus:border-cerulean w-full rounded-lg border border-gray-300 bg-white px-4 py-3 pl-12 text-gray-900 placeholder-gray-500 focus:outline-none"
           />
-          <i className="fa-solid fa-magnifying-glass absolute top-1/2 left-4 -translate-y-1/2 transform text-gray-400"></i>
+          <i className="fa-solid fa-magnifying-glass absolute top-1/2 left-4 -translate-y-1/2 text-gray-400"></i>
         </div>
-        <button className="bg-hotCoralPink rounded-lg px-2 shadow">
-          Submit
-        </button>
-      </div>
 
-      {/* Results */}
-      <div className="mx-4 mt-2">
+        {/* Loading */}
         {isLoading && (
           <div className="py-4 text-center">
-            <p className="text-gray-600">Searching for users...</p>
+            <p className="text-gray-600">Searching...</p>
           </div>
         )}
 
+        {/* Error */}
         {searchError && (
           <div className="py-4 text-center">
-            <p className="text-hotCoralPink">{searchError}</p>
+            <p className="text-red-600">{searchError}</p>
           </div>
         )}
+
+        {/* Results */}
+        {searchResults.length > 0 && (
+          <div className="mx-auto max-w-md space-y-3">
+            {searchResults.map((user) => (
+              <div
+                key={user._id}
+                className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3"
+              >
+                <span className="font-medium text-gray-900">
+                  {user.username}
+                </span>
+
+                {user.isFriend ? (
+                  <span className="rounded bg-green-100 px-3 py-1 text-sm text-green-700">
+                    Friends
+                  </span>
+                ) : user.isPendingRequest ||
+                  requestStatus[user._id] === "sent" ? (
+                  <span className="rounded bg-yellow-100 px-3 py-1 text-sm text-yellow-700">
+                    Request Sent
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => sendFriendRequest(user._id)}
+                    disabled={requestStatus[user._id] === "loading"}
+                    className={`rounded px-3 py-1 text-sm font-medium ${
+                      requestStatus[user._id] === "loading"
+                        ? "cursor-not-allowed bg-gray-400 text-white"
+                        : "bg-hotCoralPink text-white hover:bg-pink-600"
+                    }`}
+                  >
+                    {requestStatus[user._id] === "loading"
+                      ? "Sending..."
+                      : "Add Friend"}
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* No results */}
         {searchResults.length === 0 &&
           !isLoading &&
           !searchError &&
           searchTerm.trim() && (
             <div className="py-4 text-center">
-              <p className="text-cerulean">
-                No users found matching your search
-              </p>
+              <p className="text-gray-600">No users found</p>
             </div>
           )}
-        {searchResults.length > 0 && (
-          <div className="space-y-3">
-            {searchResults.map((user) => (
-              <div
-                key={user._id}
-                className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
-              >
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {user.username}
-                  </h3>
-                </div>
-                <div className="ml-4"></div>
-                <button
-                  onClick={() => sendFriendRequest(user._id)}
-                  disabled={
-                    requestStatus[user._id] === "loading" ||
-                    requestStatus[user._id] === "sent"
-                  }
-                  className={`rounded-lg px-4 py-2 font-medium transition-colors ${
-                    requestStatus[user._id] === "loading"
-                      ? "cursor-not-allowed bg-gray-400 text-white"
-                      : requestStatus[user._id] === "sent"
-                        ? "cursor-not-allowed bg-green-500 text-white"
-                        : "bg-hotCoralPink text-white hover:bg-pink-600"
-                  }`}
-                >
-                  {requestStatus[user._id] === "loading"
-                    ? "Sending..."
-                    : requestStatus[user._id] === "sent"
-                      ? "Request Sent"
-                      : "Add Friend"}
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
-    </>
+    </div>
   );
 };
 

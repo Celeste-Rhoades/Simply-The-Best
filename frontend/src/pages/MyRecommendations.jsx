@@ -4,7 +4,6 @@ import { Dialog, DialogPanel } from "@headlessui/react";
 import apiFetch from "services/apiFetch";
 import NavBar from "shared-components/NavBar";
 import RecommendAddModal from "./RecommendAddModal";
-// import beach2 from "../images/beach2.png";
 
 const MyRecommendations = () => {
   const [showForm, setShowForm] = useState(false);
@@ -13,6 +12,7 @@ const MyRecommendations = () => {
   const [errors, setErrors] = useState("");
   const [carouselIndex, setCarouselIndex] = useState({});
   const [pendingCount, setPendingCount] = useState(0);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   const fetchGroupRecs = async () => {
     setIsLoading(true);
@@ -32,6 +32,35 @@ const MyRecommendations = () => {
     }
   };
 
+  const fetchCurrentUser = async () => {
+    try {
+      const res = await apiFetch("GET", "/api/auth/myProfile");
+      if (res.ok) {
+        const data = await res.json();
+        setCurrentUserId(data._id);
+      }
+    } catch (error) {
+      console.log("Error fetching current user:", error);
+    }
+  };
+
+  const handleDeleteRecommendation = async (recommendationId) => {
+    try {
+      const res = await apiFetch(
+        "DELETE",
+        `/api/recommendations/${recommendationId}`,
+      );
+      if (res.ok) {
+        fetchGroupRecs(); // Refresh the recommendations
+      } else {
+        setErrors("Failed to delete recommendation.");
+      }
+    } catch (error) {
+      console.error("Error deleting recommendation:", error);
+      setErrors("Network error. Please try again.");
+    }
+  };
+
   const handleModalClose = () => {
     setShowForm(false);
     fetchGroupRecs();
@@ -41,6 +70,7 @@ const MyRecommendations = () => {
   useEffect(() => {
     fetchGroupRecs();
     fetchPendingCount();
+    fetchCurrentUser();
   }, []);
 
   const updateCarouselIndex = (category, newIdx) => {
@@ -70,15 +100,7 @@ const MyRecommendations = () => {
   };
 
   return (
-    <div
-      className="relative min-h-screen w-full"
-      // style={{
-      //   backgroundImage: `url(${beach2})`,
-      //   backgroundSize: "cover",
-      //   backgroundRepeat: "no-repeat",
-      //   backgroundPosition: "center",
-      // }}
-    >
+    <div className="relative min-h-screen w-full">
       <NavBar />
       <div className="mx-8 mt-4 flex justify-end">
         <button
@@ -199,10 +221,24 @@ const MyRecommendations = () => {
                                 </p>
                               </div>
 
-                              {/* Footer section */}
-                              <div className="bg-lightTanGray p-2 text-center">
-                                <span className="text-xs text-gray-600">
-                                  Recommended
+                              {/* Footer section with recommender and delete button */}
+                              <div className="bg-lightTanGray relative flex items-center p-2">
+                                <button
+                                  onClick={() =>
+                                    handleDeleteRecommendation(
+                                      recommendation._id,
+                                    )
+                                  }
+                                  className="text-hotCoralPink transition-colors hover:text-pink-600"
+                                  aria-label="Delete recommendation"
+                                >
+                                  <i className="fa-solid fa-trash m-3 text-sm"></i>
+                                </button>
+                                <span className="absolute left-1/2 -translate-x-1/2 transform text-xs text-gray-600">
+                                  {recommendation.user &&
+                                  recommendation.user._id === currentUserId
+                                    ? "Recommended: Self"
+                                    : `Recommended by ${recommendation.user?.username || "Unknown"}`}
                                 </span>
                               </div>
                             </div>
