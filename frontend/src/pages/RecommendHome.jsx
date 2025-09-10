@@ -7,7 +7,7 @@ import RecommendAddModal from "./RecommendAddModal";
 const RecommendHome = () => {
   const [showForm, setShowForm] = useState(false);
   return (
-    <div className="bg-lightTanGray">
+    <div className="bg-lightTanGray h-screen">
       <NavBar />
       <div className="mx-8 mt-4 flex justify-end">
         <button

@@ -142,7 +142,7 @@ const MyRecommendations = () => {
                     {toTitleCase(category)}
                   </h2>
                   <div className="relative flex items-center">
-                    {/* Left arrow - outside seaFoam */}
+                    {/* Left arrow  */}
                     <button
                       className="z-10 mr-4 p-2"
                       onClick={() =>
