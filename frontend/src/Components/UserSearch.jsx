@@ -63,11 +63,20 @@ const UserSearch = () => {
             aria-label="Search for users"
             name="userSearch"
           />
+
           <i className="fa-solid fa-magnifying-glass absolute top-1/2 left-4 -translate-y-1/2 transform text-gray-400"></i>
         </div>
+
         <button className="bg-hotCoralPink rounded-lg px-2 shadow">
           Submit
         </button>
+        <div className="mx-4 mt-2">
+          {isLoading && (
+            <div className="py-4 text-center">
+              <p className="text-gray-600">Searching for users...</p>
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
