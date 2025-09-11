@@ -13,13 +13,14 @@ import UserSearch from "Components/UserSearch";
 
 export const AppContext = createContext({
   username: null,
+  setUsername: null,
 });
 
 const App = () => {
   const [username, setUsername] = useState(null);
 
   return (
-    <AppContext value={{ username }}>
+    <AppContext value={{ username, setUsername }}>
       <Routes>
         <Route element={<GuestRoutes />}>
           <Route path={routes.signIn} element={<SignInPage />} />

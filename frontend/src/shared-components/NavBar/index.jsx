@@ -8,8 +8,7 @@ import { AppContext } from "@/App";
 import logo1 from "../../images/logo.png";
 
 const NavBar = () => {
-  const appContextData = useContext(AppContext);
-  const username = appContextData.username;
+  const { username, setUsername } = useContext(AppContext);
 
   const [userOpenMenu, setUserOpenMenu] = useState(false);
   const navigate = useNavigate();
@@ -17,6 +16,7 @@ const NavBar = () => {
   const logout = async () => {
     const response = await apiFetch("POST", "/api/auth/logout");
     if (response.ok) {
+      setUsername(null)
       navigate(routes.signIn);
     }
   };
