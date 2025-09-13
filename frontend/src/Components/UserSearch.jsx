@@ -6,6 +6,7 @@ const UserSearch = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchError, setSearchError] = useState("");
+  const [requestStatus, setRequestStatus] = useState({});
 
   const handleSearch = useCallback(async () => {
     if (searchTerm.length < 2) {
@@ -49,8 +50,43 @@ const UserSearch = () => {
     return () => clearTimeout(timeoutId);
   }, [searchTerm, handleSearch]);
 
+  const sendFriendRequest = useCallback(async (userId) => {
+    try {
+      setRequestStatus((prev) => ({
+        ...prev,
+        [userId]: "loading",
+      }));
+
+      const res = await apiFetch(
+        "POST",
+        `/api/users/friend-request/send/${userId}`,
+      );
+
+      if (res.ok) {
+        setRequestStatus((prev) => ({
+          ...prev,
+          [userId]: "sent",
+        }));
+      } else {
+        const errorData = await res.json();
+        setRequestStatus((prev) => ({
+          ...prev,
+          [userId]: "error",
+        }));
+        console.error("Friend request failed:", errorData.error);
+      }
+    } catch (error) {
+      setRequestStatus((prev) => ({
+        ...prev,
+        [userId]: "error",
+      }));
+      console.error("Network error sending friend request:", error);
+    }
+  }, []);
+
   return (
     <>
+      {/* Search Input Section */}
       <div className="m-4 flex justify-end p-1">
         <div className="relative">
           <input
@@ -63,20 +99,73 @@ const UserSearch = () => {
             aria-label="Search for users"
             name="userSearch"
           />
-
           <i className="fa-solid fa-magnifying-glass absolute top-1/2 left-4 -translate-y-1/2 transform text-gray-400"></i>
         </div>
-
         <button className="bg-hotCoralPink rounded-lg px-2 shadow">
           Submit
         </button>
-        <div className="mx-4 mt-2">
-          {isLoading && (
+      </div>
+
+      {/* Results */}
+      <div className="mx-4 mt-2">
+        {isLoading && (
+          <div className="py-4 text-center">
+            <p className="text-gray-600">Searching for users...</p>
+          </div>
+        )}
+
+        {searchError && (
+          <div className="py-4 text-center">
+            <p className="text-hotCoralPink">{searchError}</p>
+          </div>
+        )}
+        {searchResults.length === 0 &&
+          !isLoading &&
+          !searchError &&
+          searchTerm.trim() && (
             <div className="py-4 text-center">
-              <p className="text-gray-600">Searching for users...</p>
+              <p className="text-cerulean">
+                No users found matching your search
+              </p>
             </div>
           )}
-        </div>
+        {searchResults.length > 0 && (
+          <div className="space-y-3">
+            {searchResults.map((user) => (
+              <div
+                key={user._id}
+                className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+              >
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {user.username}
+                  </h3>
+                </div>
+                <div className="ml-4"></div>
+                <button
+                  onClick={() => sendFriendRequest(user._id)}
+                  disabled={
+                    requestStatus[user._id] === "loading" ||
+                    requestStatus[user._id] === "sent"
+                  }
+                  className={`rounded-lg px-4 py-2 font-medium transition-colors ${
+                    requestStatus[user._id] === "loading"
+                      ? "cursor-not-allowed bg-gray-400 text-white"
+                      : requestStatus[user._id] === "sent"
+                        ? "cursor-not-allowed bg-green-500 text-white"
+                        : "bg-hotCoralPink text-white hover:bg-pink-600"
+                  }`}
+                >
+                  {requestStatus[user._id] === "loading"
+                    ? "Sending..."
+                    : requestStatus[user._id] === "sent"
+                      ? "Request Sent"
+                      : "Add Friend"}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </>
   );
