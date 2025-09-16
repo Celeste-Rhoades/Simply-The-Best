@@ -268,3 +268,37 @@ export const copyRecommendation = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
+
+// recommend to a friend
+export const recommendToFriend = async (req, res) => {
+  try {
+    const { friendId } = req.params;
+    const { title, description, category, rating } = req.body;
+
+    // Validate friend relationship
+    const currentUser = await User.findById(req.user._id);
+    if (!currentUser.following.includes(friendId)) {
+      return res.status(403).json({
+        success: false,
+        message: "Can only recommend to friends",
+      });
+    }
+
+    // Create recommendation
+    const newRecommendation = new Recommend({
+      user: req.user._id, // You are the creator
+      recommendedTo: friendId, // Friend receives it
+      title,
+      description,
+      category,
+      rating,
+      status: "pending", // Needs friend's approval
+    });
+
+    await newRecommendation.save();
+    res.status(201).json({ success: true, data: newRecommendation });
+  } catch (error) {
+    console.error("Error recommending to friend:", error.message);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};

@@ -13,11 +13,12 @@ import {
   getUsers,
   getFriendsRecommendations,
   copyRecommendation,
+  recommendToFriend, // Add this import
 } from "../controller/recommend.js";
 
 const router = express.Router();
 
-// route to get all recomendations
+// route to get all recommendations
 router.get("/", getRecommendation);
 router.get("/grouped", protectRoute, getRecommendationsGroupedByCategory);
 // Route to create a recommendation
@@ -29,12 +30,17 @@ router.get("/users", protectRoute, getUsers);
 router.put("/:id", updateRecommendation);
 //delete recommendations
 router.delete("/:id", deleteRecommendation);
+
 //accepting and declining recommendation
 router.get("/pending", protectRoute, getPendingRecommendations);
-router.put("/:id/approve", protectRoute, approveRecommendation);
-router.put("/:id/reject", protectRoute, rejectRecommendation);
+router.post("/approve/:id", protectRoute, approveRecommendation); // Changed to POST and moved :id
+router.post("/reject/:id", protectRoute, rejectRecommendation); // Changed to POST and moved :id
 
 // Creating copy of friend recommendation
 router.get("/friends", protectRoute, getFriendsRecommendations);
 router.post("/copy/:id", protectRoute, copyRecommendation);
+
+// Recommend to friend
+router.post("/recommend/:friendId", protectRoute, recommendToFriend);
+
 export default router;
