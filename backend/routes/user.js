@@ -16,11 +16,11 @@ const router = express.Router();
 router.get("/profile/:username", protectRoute, getUserProfile);
 router.get("/search", protectRoute, searchUsers);
 router.get("/friends", protectRoute, getFriends);
-router.get("/friend-requests/pending", protectRoute, getPendingRequests);
+router.get("/friendRequests/pending", protectRoute, getPendingRequests);
 
 router.post("/update", protectRoute, updateUser);
-router.post("/friend-request/send/:id", protectRoute, sendFriendRequest);
-router.post("/friend-request/accept/:id", protectRoute, acceptFriendRequest);
-router.post("/friend-request/decline/:id", protectRoute, declineFriendRequest);
+router.post("/friendRequest/send/:id", protectRoute, sendFriendRequest);
+router.post("/friendRequest/accept/:id", protectRoute, acceptFriendRequest);
+router.post("/friendRequest/decline/:id", protectRoute, declineFriendRequest);
 
 export default router;
