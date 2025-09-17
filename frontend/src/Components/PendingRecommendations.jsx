@@ -1,13 +1,21 @@
 import { useState, useEffect } from "react";
+import { Dialog, DialogPanel } from "@headlessui/react";
+
+import NavBar from "shared-components/NavBar";
+import AcceptRecommendationModal from "./AcceptRecommendationModal";
 import apiFetch from "../services/apiFetch";
 
 const PendingRecommendations = () => {
   const [pendingRecs, setPendingRecs] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [processingActions, setProcessingActions] = useState({});
+  const [showAcceptModal, setShowAcceptModal] = useState(false);
+  const [selectedRecommendation, setSelectedRecommendation] = useState(null);
+  const [actionSuccess, setActionSuccess] = useState("");
 
   const fetchPendingRecommendations = async () => {
-    setLoading(true);
+    setIsLoading(true);
     setError("");
     try {
       const res = await apiFetch("GET", "/api/recommendations/pending");
@@ -21,7 +29,7 @@ const PendingRecommendations = () => {
       setError("Network error");
       console.error(err);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -29,80 +37,209 @@ const PendingRecommendations = () => {
     fetchPendingRecommendations();
   }, []);
 
-  const handleApprove = async (recommendationId) => {
+  const handleAcceptClick = (recommendation) => {
+    setSelectedRecommendation(recommendation);
+    setShowAcceptModal(true);
+  };
+
+  const handleAcceptSubmit = async (id, updatedData) => {
+    setProcessingActions((prev) => ({ ...prev, [id]: "approving" }));
+
     try {
+      // Use correct endpoint: POST /api/recommendations/approve/:id
       const res = await apiFetch(
-        "PUT",
-        `/api/recommendations/${recommendationId}/approve`,
+        "POST",
+        `/api/recommendations/approve/${id}`,
+        updatedData,
       );
       if (res.ok) {
         // Remove from pending list
-        setPendingRecs((prev) =>
-          prev.filter((rec) => rec._id !== recommendationId),
-        );
+        setPendingRecs((prev) => prev.filter((rec) => rec._id !== id));
+        setActionSuccess("Recommendation accepted and added to your list!");
+        setTimeout(() => setActionSuccess(""), 3000);
+        setShowAcceptModal(false);
+        return { success: true };
+      } else {
+        const errorData = await res.json();
+        return { success: false, error: errorData.message };
       }
     } catch (error) {
-      console.log("Error approving:", error);
+      return { success: false, error: "Network error" };
+    } finally {
+      setProcessingActions((prev) => {
+        const newState = { ...prev };
+        delete newState[id];
+        return newState;
+      });
     }
   };
 
-  const handleReject = async (recommendationId) => {
-    try {
-      const res = await apiFetch(
-        "PUT",
-        `/api/recommendations/${recommendationId}/reject`,
-      );
-      if (res.ok) {
-        // Remove from pending list
-        setPendingRecs((prev) =>
-          prev.filter((rec) => rec._id !== recommendationId),
+  const handleRejectClick = async (recommendation) => {
+    if (confirm(`Are you sure you want to reject "${recommendation.title}"?`)) {
+      setProcessingActions((prev) => ({
+        ...prev,
+        [recommendation._id]: "rejecting",
+      }));
+
+      try {
+        // Use correct endpoint: POST /api/recommendations/reject/:id
+        const res = await apiFetch(
+          "POST",
+          `/api/recommendations/reject/${recommendation._id}`,
         );
+        if (res.ok) {
+          // Remove from pending list
+          setPendingRecs((prev) =>
+            prev.filter((rec) => rec._id !== recommendation._id),
+          );
+          setActionSuccess("Recommendation rejected");
+          setTimeout(() => setActionSuccess(""), 3000);
+        } else {
+          setError("Failed to reject recommendation");
+        }
+      } catch (error) {
+        setError("Network error");
+        console.error(error);
+      } finally {
+        setProcessingActions((prev) => {
+          const newState = { ...prev };
+          delete newState[recommendation._id];
+          return newState;
+        });
       }
-    } catch (error) {
-      console.log("Error rejecting:", error);
     }
+  };
+
+  const toTitleCase = (str) => {
+    return str.replace(
+      /\w\S*/g,
+      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
+    );
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="mb-6 text-2xl font-bold">Pending Recommendations</h1>
-      {loading ? (
-        <p>Loading pending recommendations...</p>
-      ) : error ? (
-        <p className="text-red-500">{error}</p>
-      ) : pendingRecs.length === 0 ? (
-        <p>No pending recommendations</p>
-      ) : (
-        <div className="space-y-4">
-          {pendingRecs.map((rec) => (
-            <div
-              key={rec._id}
-              className="rounded-lg border bg-white p-4 shadow"
-            >
-              <h3 className="text-lg font-bold">{rec.title}</h3>
-              <p className="mb-2 text-gray-600">{rec.description}</p>
-              <p className="mb-4 text-sm text-gray-500">
-                Recommended by: {rec.user?.username}
-              </p>
+    <div className="bg-lightTanGray relative min-h-screen w-full">
+      <NavBar />
 
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleApprove(rec._id)}
-                  className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
-                >
-                  Approve
-                </button>
-                <button
-                  onClick={() => handleReject(rec._id)}
-                  className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-                >
-                  Reject
-                </button>
-              </div>
+      <div className="mx-8 mt-8">
+        <h1 className="font-boldRaleway mb-6 text-3xl">
+          Pending Recommendations
+        </h1>
+
+        {actionSuccess && (
+          <div className="mb-4 rounded bg-green-100 p-3 text-green-700">
+            {actionSuccess}
+          </div>
+        )}
+
+        {isLoading ? (
+          <div className="font-manrope flex items-center justify-center py-12">
+            <p className="text-lg text-gray-600">
+              Loading pending recommendations...
+            </p>
+          </div>
+        ) : error ? (
+          <div className="rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
+            <p className="mb-2">{error}</p>
+            <button
+              onClick={fetchPendingRecommendations}
+              className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : pendingRecs.length === 0 ? (
+          <div className="py-12 text-center">
+            <p className="font-raleway text-lg text-gray-600">
+              No pending recommendations. All caught up!
+            </p>
+          </div>
+        ) : (
+          <div className="font-raleway">
+            <div className="bg-cerulean flex flex-wrap gap-4 rounded-xl p-4 shadow">
+              {pendingRecs.map((recommendation) => (
+                <div key={recommendation._id} className="w-60 flex-shrink-0">
+                  <div className="font flex h-60 w-60 flex-col overflow-hidden rounded-lg bg-white shadow-lg">
+                    {/* Header section with title and stars */}
+                    <div className="bg-lightTanGray p-3 text-center">
+                      <h3 className="font-boldManrope mb-2 line-clamp-2 text-sm font-bold">
+                        {toTitleCase(recommendation.title)}
+                      </h3>
+                      <div className="flex justify-center gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <span
+                            key={star}
+                            className={
+                              star <= recommendation.rating
+                                ? "text-lighTeal text-lg"
+                                : "text-lg text-gray-300"
+                            }
+                          >
+                            ★
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Description section */}
+                    <div className="m-2 flex flex-grow items-center justify-center bg-gray-800 p-3 text-white">
+                      <p className="line-clamp-4 text-center text-sm">
+                        {recommendation.description || "Description"}
+                      </p>
+                    </div>
+
+                    {/* Footer section with accept/reject buttons */}
+                    <div className="bg-lightTanGray flex items-center justify-between p-2">
+                      {/* Reject button - left */}
+                      <button
+                        onClick={() => handleRejectClick(recommendation)}
+                        disabled={processingActions[recommendation._id]}
+                        className="text-red-500 transition-colors hover:text-red-600 disabled:opacity-50"
+                        aria-label="Reject recommendation"
+                      >
+                        {processingActions[recommendation._id] ===
+                        "rejecting" ? (
+                          <i className="fa-solid fa-spinner animate-spin text-lg"></i>
+                        ) : (
+                          <i className="fa-solid fa-times text-lg"></i>
+                        )}
+                      </button>
+
+                      {/* Recommender info - center */}
+                      <span className="text-xs text-gray-600">
+                        By {recommendation.user?.username}
+                      </span>
+
+                      {/* Accept button - right */}
+                      <button
+                        onClick={() => handleAcceptClick(recommendation)}
+                        disabled={processingActions[recommendation._id]}
+                        className="text-green-500 transition-colors hover:text-green-600 disabled:opacity-50"
+                        aria-label="Accept recommendation"
+                      >
+                        {processingActions[recommendation._id] ===
+                        "approving" ? (
+                          <i className="fa-solid fa-spinner animate-spin text-lg"></i>
+                        ) : (
+                          <i className="fa-solid fa-check text-lg"></i>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
+
+      {/* Accept Modal */}
+      <AcceptRecommendationModal
+        isOpen={showAcceptModal}
+        onClose={() => setShowAcceptModal(false)}
+        recommendation={selectedRecommendation}
+        onAccept={handleAcceptSubmit}
+      />
     </div>
   );
 };

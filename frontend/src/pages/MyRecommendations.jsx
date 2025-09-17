@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
+import { useNavigate } from "react-router-dom";
 
 import apiFetch from "services/apiFetch";
 import NavBar from "shared-components/NavBar";
 import RecommendAddModal from "./RecommendAddModal";
+import RecommendToFriendModal from "../Components/RecommendFriendModal";
+import { useFriendRecommendations } from "../hooks/useFriendRecommendations";
+import routes from "../routes";
 
 const MyRecommendations = () => {
   const [showForm, setShowForm] = useState(false);
@@ -13,6 +17,12 @@ const MyRecommendations = () => {
   const [carouselIndex, setCarouselIndex] = useState({});
   const [pendingCount, setPendingCount] = useState(0);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [showRecommendModal, setShowRecommendModal] = useState(false);
+  const [selectedRecommendation, setSelectedRecommendation] = useState(null);
+  const [recommendSuccess, setRecommendSuccess] = useState("");
+
+  const { recommendToFriend } = useFriendRecommendations();
+  const navigate = useNavigate();
 
   const fetchGroupRecs = async () => {
     setIsLoading(true);
@@ -67,6 +77,21 @@ const MyRecommendations = () => {
     fetchPendingCount();
   };
 
+  const handleRecommendClick = (recommendation) => {
+    setSelectedRecommendation(recommendation);
+    setShowRecommendModal(true);
+  };
+
+  const handleRecommendSubmit = async (friendId, recommendationData) => {
+    const result = await recommendToFriend(friendId, recommendationData);
+    if (result.success) {
+      setRecommendSuccess("Recommendation sent to your friend!");
+      setTimeout(() => setRecommendSuccess(""), 3000);
+      setShowRecommendModal(false);
+    }
+    return result;
+  };
+
   useEffect(() => {
     fetchGroupRecs();
     fetchPendingCount();
@@ -102,6 +127,14 @@ const MyRecommendations = () => {
   return (
     <div className="relative min-h-screen w-full">
       <NavBar />
+
+      {/* Success Message */}
+      {recommendSuccess && (
+        <div className="mx-8 mt-4 rounded bg-green-100 p-3 text-green-700">
+          {recommendSuccess}
+        </div>
+      )}
+
       <div className="mx-8 mt-4 flex justify-end">
         <button
           className="bg-coral font-raleway mx-4 rounded-md px-4 py-2 text-white shadow-lg"
@@ -109,9 +142,13 @@ const MyRecommendations = () => {
         >
           Add recommendation
         </button>
-        <button className="mr-2 rounded bg-orange-500 px-4 py-2 text-white">
+        <button
+          onClick={() => navigate(routes.pendingRecommendations)}
+          className="mr-2 rounded bg-orange-500 px-4 py-2 text-white transition-colors hover:bg-orange-600"
+        >
           Pending ({pendingCount})
         </button>
+
         <Dialog
           open={showForm}
           onClose={() => setShowForm(false)}
@@ -126,6 +163,7 @@ const MyRecommendations = () => {
           </DialogPanel>
         </Dialog>
       </div>
+
       <div className="mx-8 mt-8">
         {isLoading ? (
           <div className="font-manrope flex items-center justify-center py-12">
@@ -179,7 +217,7 @@ const MyRecommendations = () => {
                       <i className="fa-solid fa-circle-chevron-left text-coral hover:text-lightOrange text-5xl"></i>
                     </button>
 
-                    {/*  container  */}
+                    {/* Carousel container */}
                     <div className="bg-cerulean flex h-72 flex-grow items-center overflow-hidden rounded-xl p-4 shadow">
                       <div
                         className="flex flex-nowrap transition-transform duration-300"
@@ -221,8 +259,8 @@ const MyRecommendations = () => {
                                 </p>
                               </div>
 
-                              {/* Footer section with recommender and delete button */}
-                              <div className="bg-lightTanGray relative flex items-center p-2">
+                              {/* Footer section with recommender and action buttons */}
+                              <div className="bg-lightTanGray relative flex items-center justify-between p-2">
                                 <button
                                   onClick={() =>
                                     handleDeleteRecommendation(
@@ -232,14 +270,25 @@ const MyRecommendations = () => {
                                   className="text-hotCoralPink transition-colors hover:text-pink-600"
                                   aria-label="Delete recommendation"
                                 >
-                                  <i className="fa-solid fa-trash m-3 text-sm"></i>
+                                  <i className="fa-solid fa-trash text-sm"></i>
                                 </button>
-                                <span className="absolute left-1/2 -translate-x-1/2 transform text-xs text-gray-600">
+
+                                <span className="absolute left-1/2 -translate-x-1/2 transform text-center text-xs text-gray-600">
                                   {recommendation.user &&
                                   recommendation.user._id === currentUserId
                                     ? "Recommended: Self"
                                     : `Recommended by ${recommendation.user?.username || "Unknown"}`}
                                 </span>
+
+                                <button
+                                  onClick={() =>
+                                    handleRecommendClick(recommendation)
+                                  }
+                                  className="text-blue-500 transition-colors hover:text-blue-600"
+                                  aria-label="Recommend to friend"
+                                >
+                                  <i class="fa-solid fa-share-from-square"></i>{" "}
+                                </button>
                               </div>
                             </div>
                           </div>
@@ -247,7 +296,7 @@ const MyRecommendations = () => {
                       </div>
                     </div>
 
-                    {/* Right arrow - outside  */}
+                    {/* Right arrow */}
                     <button
                       className="z-10 ml-4 p-2"
                       onClick={() =>
@@ -273,6 +322,14 @@ const MyRecommendations = () => {
           </div>
         )}
       </div>
+
+      {/* Recommend to Friend Modal */}
+      <RecommendToFriendModal
+        isOpen={showRecommendModal}
+        onClose={() => setShowRecommendModal(false)}
+        recommendation={selectedRecommendation}
+        onRecommend={handleRecommendSubmit}
+      />
     </div>
   );
 };

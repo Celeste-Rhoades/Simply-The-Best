@@ -5,6 +5,7 @@ const routes = {
   myRecommendations: "/my-recommendations",
   friendRequests: "/friend-requests",
   userSearch: "/search",
+  pendingRecommendations: "/pending-recommendations",
 };
 
 export default routes;
