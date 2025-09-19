@@ -82,7 +82,7 @@ const MyRecommendations = () => {
       <NavBar />
       <div className="mx-8 mt-4 flex justify-end">
         <button
-          className="bg-coral font-raleway rounded-md px-4 py-2 text-white shadow-lg"
+          className="bg-coral font-raleway mx-4 rounded-md px-4 py-2 text-white shadow-lg"
           onClick={() => setShowForm(true)}
         >
           Add recommendation
