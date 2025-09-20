@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
+import { useNavigate } from "react-router-dom";
 
 import NavBar from "shared-components/NavBar";
 import AcceptRecommendationModal from "./AcceptRecommendationModal";
 import apiFetch from "../services/apiFetch";
+import routes from "../routes";
 
 const PendingRecommendations = () => {
   const [pendingRecs, setPendingRecs] = useState([]);
@@ -13,6 +15,8 @@ const PendingRecommendations = () => {
   const [showAcceptModal, setShowAcceptModal] = useState(false);
   const [selectedRecommendation, setSelectedRecommendation] = useState(null);
   const [actionSuccess, setActionSuccess] = useState("");
+
+  const navigate = useNavigate();
 
   const fetchPendingRecommendations = async () => {
     setIsLoading(true);
@@ -46,7 +50,6 @@ const PendingRecommendations = () => {
     setProcessingActions((prev) => ({ ...prev, [id]: "approving" }));
 
     try {
-      // Use correct endpoint: POST /api/recommendations/approve/:id
       const res = await apiFetch(
         "POST",
         `/api/recommendations/approve/${id}`,
@@ -54,10 +57,20 @@ const PendingRecommendations = () => {
       );
       if (res.ok) {
         // Remove from pending list
-        setPendingRecs((prev) => prev.filter((rec) => rec._id !== id));
+        const updatedPendingRecs = pendingRecs.filter((rec) => rec._id !== id);
+        setPendingRecs(updatedPendingRecs);
+
         setActionSuccess("Recommendation accepted and added to your list!");
         setTimeout(() => setActionSuccess(""), 3000);
         setShowAcceptModal(false);
+
+        // Check if no more pending recommendations
+        if (updatedPendingRecs.length === 0) {
+          setTimeout(() => {
+            navigate(routes.myRecommendations);
+          }, 2000); // Wait 2 seconds to show success message
+        }
+
         return { success: true };
       } else {
         const errorData = await res.json();
@@ -82,18 +95,26 @@ const PendingRecommendations = () => {
       }));
 
       try {
-        // Use correct endpoint: POST /api/recommendations/reject/:id
         const res = await apiFetch(
           "POST",
           `/api/recommendations/reject/${recommendation._id}`,
         );
         if (res.ok) {
           // Remove from pending list
-          setPendingRecs((prev) =>
-            prev.filter((rec) => rec._id !== recommendation._id),
+          const updatedPendingRecs = pendingRecs.filter(
+            (rec) => rec._id !== recommendation._id,
           );
+          setPendingRecs(updatedPendingRecs);
+
           setActionSuccess("Recommendation rejected");
           setTimeout(() => setActionSuccess(""), 3000);
+
+          // Check if no more pending recommendations
+          if (updatedPendingRecs.length === 0) {
+            setTimeout(() => {
+              navigate(routes.myRecommendations);
+            }, 2000); // Wait 2 seconds to show success message
+          }
         } else {
           setError("Failed to reject recommendation");
         }
@@ -150,8 +171,17 @@ const PendingRecommendations = () => {
           </div>
         ) : pendingRecs.length === 0 ? (
           <div className="py-12 text-center">
-            <p className="font-raleway text-lg text-gray-600">
-              No pending recommendations. All caught up!
+            <div className="mb-4">
+              <i className="fa-solid fa-check-circle mb-4 text-6xl text-green-500"></i>
+            </div>
+            <p className="font-raleway mb-2 text-xl text-gray-700">
+              All caught up!
+            </p>
+            <p className="font-raleway mb-4 text-lg text-gray-600">
+              No more pending recommendations.
+            </p>
+            <p className="text-sm text-gray-500">
+              Redirecting to My Recommendations...
             </p>
           </div>
         ) : (

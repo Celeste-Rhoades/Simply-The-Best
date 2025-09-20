@@ -6,6 +6,7 @@ import apiFetch from "services/apiFetch";
 import NavBar from "shared-components/NavBar";
 import RecommendAddModal from "./RecommendAddModal";
 import RecommendToFriendModal from "../Components/RecommendFriendModal";
+import CreateAndShareModal from "../pages/CreateAndShareModal";
 import { useFriendRecommendations } from "../hooks/useFriendRecommendations";
 import routes from "../routes";
 
@@ -17,9 +18,15 @@ const MyRecommendations = () => {
   const [carouselIndex, setCarouselIndex] = useState({});
   const [pendingCount, setPendingCount] = useState(0);
   const [currentUserId, setCurrentUserId] = useState(null);
+
+  // Share existing recommendation states
   const [showRecommendModal, setShowRecommendModal] = useState(false);
   const [selectedRecommendation, setSelectedRecommendation] = useState(null);
   const [recommendSuccess, setRecommendSuccess] = useState("");
+
+  // Create and share new recommendation states
+  const [showCreateShareModal, setShowCreateShareModal] = useState(false);
+  const [createShareSuccess, setCreateShareSuccess] = useState("");
 
   const { recommendToFriend } = useFriendRecommendations();
   const navigate = useNavigate();
@@ -77,6 +84,7 @@ const MyRecommendations = () => {
     fetchPendingCount();
   };
 
+  // Share existing recommendation functions
   const handleRecommendClick = (recommendation) => {
     setSelectedRecommendation(recommendation);
     setShowRecommendModal(true);
@@ -88,6 +96,19 @@ const MyRecommendations = () => {
       setRecommendSuccess("Recommendation sent to your friend!");
       setTimeout(() => setRecommendSuccess(""), 3000);
       setShowRecommendModal(false);
+    }
+    return result;
+  };
+
+  // Create and share new recommendation function
+  const handleCreateAndShare = async (friendId, recommendationData) => {
+    const result = await recommendToFriend(friendId, recommendationData);
+    if (result.success) {
+      setCreateShareSuccess(
+        "New recommendation created and shared with your friend!",
+      );
+      setTimeout(() => setCreateShareSuccess(""), 3000);
+      setShowCreateShareModal(false);
     }
     return result;
   };
@@ -128,20 +149,34 @@ const MyRecommendations = () => {
     <div className="relative min-h-screen w-full">
       <NavBar />
 
-      {/* Success Message */}
+      {/* Success Messages */}
       {recommendSuccess && (
         <div className="mx-8 mt-4 rounded bg-green-100 p-3 text-green-700">
           {recommendSuccess}
         </div>
       )}
+      {createShareSuccess && (
+        <div className="mx-8 mt-4 rounded bg-green-100 p-3 text-green-700">
+          {createShareSuccess}
+        </div>
+      )}
 
       <div className="mx-8 mt-4 flex justify-end">
         <button
-          className="bg-coral font-raleway mx-4 rounded-md px-4 py-2 text-white shadow-lg"
+          className="bg-coral font-raleway mx-4 rounded-md px-4 py-2 text-white shadow-lg transition-colors hover:bg-red-500"
           onClick={() => setShowForm(true)}
         >
           Add recommendation
         </button>
+
+        {/* New Create & Share button */}
+        <button
+          className="font-raleway mx-4 rounded-md bg-green-500 px-4 py-2 text-white shadow-lg transition-colors hover:bg-green-600"
+          onClick={() => setShowCreateShareModal(true)}
+        >
+          Share with Friends
+        </button>
+
         <button
           onClick={() => navigate(routes.pendingRecommendations)}
           className="mr-2 rounded bg-orange-500 px-4 py-2 text-white transition-colors hover:bg-orange-600"
@@ -273,7 +308,7 @@ const MyRecommendations = () => {
                                   <i className="fa-solid fa-trash text-sm"></i>
                                 </button>
 
-                                <span className="absolute left-1/2 -translate-x-1/2 transform text-center text-xs text-gray-600">
+                                <span className="absolute left-1/2 -translate-x-1/2 transform text-xs text-gray-600">
                                   {recommendation.user &&
                                   recommendation.user._id === currentUserId
                                     ? "Recommended: Self"
@@ -287,7 +322,7 @@ const MyRecommendations = () => {
                                   className="text-blue-500 transition-colors hover:text-blue-600"
                                   aria-label="Recommend to friend"
                                 >
-                                  <i class="fa-solid fa-share-from-square"></i>{" "}
+                                  <i className="fa-solid fa-paper-plane text-sm"></i>
                                 </button>
                               </div>
                             </div>
@@ -323,12 +358,19 @@ const MyRecommendations = () => {
         )}
       </div>
 
-      {/* Recommend to Friend Modal */}
+      {/* Share existing recommendation modal */}
       <RecommendToFriendModal
         isOpen={showRecommendModal}
         onClose={() => setShowRecommendModal(false)}
         recommendation={selectedRecommendation}
         onRecommend={handleRecommendSubmit}
+      />
+
+      {/* Create and share new recommendation modal */}
+      <CreateAndShareModal
+        isOpen={showCreateShareModal}
+        onClose={() => setShowCreateShareModal(false)}
+        onCreateAndShare={handleCreateAndShare}
       />
     </div>
   );
