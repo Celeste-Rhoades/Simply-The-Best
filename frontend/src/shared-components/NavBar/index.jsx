@@ -1,22 +1,25 @@
 import { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
-import routes from "@/routes";
-import apiFetch from "services/apiFetch";
-import { AppContext } from "@/App";
+import routes from "../../routes";
+import apiFetch from "../../services/apiFetch";
+import { AppContext } from "../../App";
+
+// Import new components
+import SearchBar from "../../Components/SearchBar";
+import FriendRequestsDropdown from "../../Components/FriendRequestsDropdown";
 
 import logo1 from "../../images/logo.png";
 
 const NavBar = () => {
   const { username, setUsername } = useContext(AppContext);
-
   const [userOpenMenu, setUserOpenMenu] = useState(false);
   const navigate = useNavigate();
 
   const logout = async () => {
     const response = await apiFetch("POST", "/api/auth/logout");
     if (response.ok) {
-      setUsername(null)
+      setUsername(null);
       navigate(routes.signIn);
     }
   };
@@ -27,6 +30,7 @@ const NavBar = () => {
       onMouseLeave={() => setUserOpenMenu(false)}
     >
       <div className="relative flex w-full max-w-5xl items-center px-6 py-2">
+        {/* Logo */}
         <div className="font-playfair flex items-center text-xl text-white md:flex-1">
           <Link to="/">
             <img
@@ -36,12 +40,23 @@ const NavBar = () => {
             />
           </Link>
         </div>
+
+        {/* Title */}
         <Link to="/">
           <h1 className="font-manrope pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-2xl whitespace-nowrap text-white select-none md:relative md:top-auto md:left-auto md:flex-none md:translate-x-0 md:translate-y-0 md:text-xl lg:text-4xl xl:text-5xl">
             Simply The Best
           </h1>
         </Link>
-        <div className="font-raleway hidden flex-1 justify-end text-white md:flex">
+
+        {/* Desktop Navigation */}
+        <div className="font-raleway hidden flex-1 items-center justify-end space-x-4 text-white md:flex">
+          {/* Search Bar */}
+          <SearchBar />
+
+          {/* Friend Requests Notification */}
+          <FriendRequestsDropdown />
+
+          {/* User Menu */}
           <div className="relative min-w-44">
             <button
               type="button"
@@ -49,7 +64,7 @@ const NavBar = () => {
               onClick={() => setUserOpenMenu(!userOpenMenu)}
             >
               <i className="fa-solid fa-user m-1"></i>
-              <span className="">
+              <span>
                 {username === null
                   ? "Loading..."
                   : username
@@ -81,6 +96,16 @@ const NavBar = () => {
                   My Recommendations
                 </button>
                 <button
+                  className="hover:text-cerulean mb-2 py-1 text-left"
+                  onClick={() => {
+                    setUserOpenMenu(false);
+                    navigate(routes.friendRequests);
+                  }}
+                >
+                  <i className="fa-solid fa-user-group mr-2"></i>
+                  Friend Requests
+                </button>
+                <button
                   className="hover:text-cerulean py-1 text-left"
                   onClick={() => logout()}
                 >
@@ -92,7 +117,7 @@ const NavBar = () => {
           </div>
         </div>
 
-        {/* hamburger menu */}
+        {/* Mobile hamburger menu */}
         <div className="font-raleway flex flex-1 justify-end text-white md:hidden">
           <div className="relative">
             <button
@@ -135,6 +160,26 @@ const NavBar = () => {
                 >
                   <i className="fa-solid fa-user mr-2"></i>
                   My Recommendations
+                </button>
+                <button
+                  className="hover:text-cerulean mb-2 py-1 text-left"
+                  onClick={() => {
+                    setUserOpenMenu(false);
+                    navigate(routes.userSearch);
+                  }}
+                >
+                  <i className="fa-solid fa-magnifying-glass mr-2"></i>
+                  Search Users
+                </button>
+                <button
+                  className="hover:text-cerulean mb-2 py-1 text-left"
+                  onClick={() => {
+                    setUserOpenMenu(false);
+                    navigate(routes.friendRequests);
+                  }}
+                >
+                  <i className="fa-solid fa-user-group mr-2"></i>
+                  Friend Requests
                 </button>
                 <button
                   className="hover:text-cerulean py-1 text-left"

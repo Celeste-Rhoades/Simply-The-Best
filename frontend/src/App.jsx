@@ -10,6 +10,7 @@ import SignUpPage from "./pages/auth/SignUpPage";
 import RecommendHome from "./pages/RecommendHome";
 import MyRecommendations from "./pages/MyRecommendations";
 import UserSearch from "Components/UserSearch";
+import FriendRequests from "Components/FriendRequests";
 
 export const AppContext = createContext({
   username: null,
@@ -36,8 +37,9 @@ const App = () => {
             path={routes.myRecommendations}
             element={<MyRecommendations />}
           />
+          <Route path={routes.userSearch} element={<UserSearch />} />
+          <Route path={routes.friendRequests} element={<FriendRequests />} />
         </Route>
-        <Route path="/test-search" element={<UserSearch />} />
       </Routes>
     </AppContext>
   );

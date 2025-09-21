@@ -3,6 +3,8 @@ const routes = {
   signUp: "/sign-up",
   recommendations: "/recommendations",
   myRecommendations: "/my-recommendations",
+  friendRequests: "/friend-requests",
+  userSearch: "/search",
 };
 
 export default routes;
