@@ -46,11 +46,17 @@ const recommendSchema = new mongoose.Schema(
       ],
       required: true,
     },
+    originalRecommendedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
     recommendedTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: null,
     },
+
     status: {
       type: String,
       enum: ["approved", "pending", "rejected"],
