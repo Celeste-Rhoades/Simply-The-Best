@@ -56,7 +56,7 @@ const NavBar = () => {
           <div className="relative">
             <button
               type="button"
-              className="hover:bg-opacity-10 flex items-center rounded-lg px-4 py-2 text-lg transition-colors"
+              className="flex items-center rounded-lg py-2 pl-11 text-lg transition-colors"
               onClick={() => setUserOpenMenu(!userOpenMenu)}
             >
               <i className="fa-solid fa-user mr-3"></i>
