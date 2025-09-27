@@ -11,6 +11,8 @@ import {
   approveRecommendation,
   rejectRecommendation,
   getUsers,
+  getFriendsRecommendations,
+  copyRecommendation,
 } from "../controller/recommend.js";
 
 const router = express.Router();
@@ -32,4 +34,7 @@ router.get("/pending", protectRoute, getPendingRecommendations);
 router.put("/:id/approve", protectRoute, approveRecommendation);
 router.put("/:id/reject", protectRoute, rejectRecommendation);
 
+// Creating copy of friend recommendation
+router.get("/friends", protectRoute, getFriendsRecommendations);
+router.post("/copy/:id", protectRoute, copyRecommendation);
 export default router;

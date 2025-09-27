@@ -169,3 +169,102 @@ export const getUsers = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
+export const getFriendsRecommendations = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (page - 1) * limit;
+
+    // Get current user with friends list
+    const currentUser = await User.findById(req.user._id);
+
+    // Find recommendations from friends only
+    const recommendations = await Recommend.find({
+      user: { $in: currentUser.following },
+      status: "approved",
+    })
+      .populate("user", "username")
+      .populate("originalRecommendedBy", "username")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Group by user
+    const groupedByUser = {};
+    recommendations.forEach(rec => {
+      const userId = rec.user._id.toString();
+      if (!groupedByUser[userId]) {
+        groupedByUser[userId] = {
+          username: rec.user.username,
+          recommendations: [],
+        };
+      }
+      groupedByUser[userId].recommendations.push(rec);
+    });
+
+    res.status(200).json({
+      success: true,
+      data: groupedByUser,
+      hasMore: recommendations.length === parseInt(limit),
+    });
+  } catch (error) {
+    console.error("Error fetching friends recommendations:", error.message);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+export const copyRecommendation = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, category, rating } = req.body;
+
+    // Find original recommendation
+    const originalRec = await Recommend.findById(id).populate(
+      "user originalRecommendedBy"
+    );
+    if (!originalRec) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Recommendation not found" });
+    }
+
+    // Check if user is friends with the original poster
+    const currentUser = await User.findById(req.user._id);
+    if (!currentUser.following.includes(originalRec.user._id)) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Can only copy from friends" });
+    }
+
+    // Check for duplicates (same title + category)
+    const existingRec = await Recommend.findOne({
+      user: req.user._id,
+      title: { $regex: new RegExp(`^${title}$`, "i") },
+      category: category,
+    });
+
+    if (existingRec) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "You already have a recommendation with this title in this category",
+      });
+    }
+
+    // Create new recommendation
+    const newRecommendation = new Recommend({
+      user: req.user._id,
+      title,
+      description,
+      category,
+      rating,
+      originalRecommendedBy:
+        originalRec.originalRecommendedBy || originalRec.user._id,
+      status: "approved",
+    });
+
+    await newRecommendation.save();
+    res.status(201).json({ success: true, data: newRecommendation });
+  } catch (error) {
+    console.error("Error copying recommendation:", error.message);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
