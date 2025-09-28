@@ -163,7 +163,7 @@ const MyRecommendations = () => {
 
       <div className="mx-8 mt-4 flex justify-end">
         <button
-          className="bg-coral font-raleway hover:bg-hotCoralPink mx-4 rounded-md px-4 py-2 text-white shadow-lg transition-colors"
+          className="bg-coral font-raleway hover:bg-hotCoralPink mx-2 rounded-md px-4 py-2 text-white shadow-lg transition-colors"
           onClick={() => setShowForm(true)}
         >
           Add recommendation
@@ -171,7 +171,7 @@ const MyRecommendations = () => {
 
         {/* New Create & Share button */}
         <button
-          className="font-raleway bg-tangerine hover:bg-brightSalmon mx-4 rounded-md px-4 py-2 text-white shadow-lg transition-colors"
+          className="font-raleway bg-tangerine hover:bg-brightSalmon mx-2 rounded-md px-4 py-2 text-white shadow-lg transition-colors"
           onClick={() => setShowCreateShareModal(true)}
         >
           Recommend to Friends
@@ -179,7 +179,7 @@ const MyRecommendations = () => {
 
         <button
           onClick={() => navigate(routes.pendingRecommendations)}
-          className="bg-summerTeal hover:bg-lighTeal mr-2 rounded px-4 py-2 text-white transition-colors"
+          className="bg-summerTeal hover:bg-lighTeal font-raleway mx-2 rounded-md px-4 py-2 text-white shadow-lg transition-colors"
         >
           Pending ({pendingCount})
         </button>

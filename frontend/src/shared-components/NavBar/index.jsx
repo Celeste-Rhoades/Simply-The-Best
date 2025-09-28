@@ -59,7 +59,7 @@ const NavBar = () => {
               className="flex items-center rounded-lg py-2 pl-11 text-lg transition-colors"
               onClick={() => setUserOpenMenu(!userOpenMenu)}
             >
-              <i className="fa-solid fa-user mr-3"></i>
+              <i className="fa-solid fa-user mr-2"></i>
               <span>
                 {username === null
                   ? "Loading..."

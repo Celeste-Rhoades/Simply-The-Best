@@ -33,7 +33,7 @@ const FriendRequestsDropdown = () => {
       {/* Notification Bell */}
       <button
         type="button"
-        className="relative p-2 text-white hover:text-gray-200"
+        className="relative text-white hover:text-gray-200"
         onClick={() => setIsOpen(!isOpen)}
       >
         <i className="fa-solid fa-bell text-xl"></i>
