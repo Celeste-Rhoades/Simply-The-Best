@@ -146,7 +146,7 @@ const MyRecommendations = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-full">
+    <div className="bg-lightTanGray relative min-h-screen w-full">
       <NavBar />
 
       {/* Success Messages */}
@@ -179,7 +179,7 @@ const MyRecommendations = () => {
 
         <button
           onClick={() => navigate(routes.pendingRecommendations)}
-          className="bg-summerTeal hover:bg-lighTeal font-raleway mx-2 rounded-md px-4 py-2 text-white shadow-lg transition-colors"
+          className="hover:bg-lighTeal font-raleway mx-2 rounded-md bg-[#69c8d4] px-4 py-2 text-white shadow-lg transition-colors"
         >
           Pending ({pendingCount})
         </button>
@@ -233,7 +233,7 @@ const MyRecommendations = () => {
               })
               .map((category) => (
                 <div key={category} className="mb-8">
-                  <h2 className="font-boldRaleway mb-4 pb-4 text-2xl">
+                  <h2 className="font-boldRaleway text-darkBlue mb-4 pb-4 text-2xl">
                     {toTitleCase(category)}
                   </h2>
                   <div className="relative flex items-center">
@@ -253,7 +253,13 @@ const MyRecommendations = () => {
                     </button>
 
                     {/* Carousel container */}
-                    <div className="bg-cerulean flex h-72 flex-grow items-center overflow-hidden rounded-xl p-4 shadow">
+                    <div
+                      className="flex h-72 flex-grow items-center overflow-hidden rounded-xl p-4 shadow-lg"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, #ff8a95, #fbbfa2, #23dee5)",
+                      }}
+                    >
                       <div
                         className="flex flex-nowrap transition-transform duration-300"
                         style={{
@@ -265,10 +271,10 @@ const MyRecommendations = () => {
                             key={recommendation._id}
                             className="mx-2 w-60 flex-shrink-0"
                           >
-                            <div className="font flex h-60 w-60 flex-col overflow-hidden rounded-lg bg-white shadow-lg">
+                            <div className="font flex h-60 w-60 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg">
                               {/* Header section with title and stars */}
-                              <div className="bg-lightTanGray p-3 text-center">
-                                <h3 className="font-boldManrope mb-2 line-clamp-2 text-sm font-bold">
+                              <div className="text-darkBlue bg-[#f8ede6] p-3 text-center">
+                                <h3 className="font-boldManrope mb-2 line-clamp-2 text-xl font-bold">
                                   {toTitleCase(recommendation.title)}
                                 </h3>
                                 <div className="flex justify-center gap-1">
@@ -277,7 +283,7 @@ const MyRecommendations = () => {
                                       key={star}
                                       className={
                                         star <= recommendation.rating
-                                          ? "text-lighTeal text-lg"
+                                          ? "text-cerulean text-lg"
                                           : "text-lg text-gray-300"
                                       }
                                     >
@@ -288,14 +294,14 @@ const MyRecommendations = () => {
                               </div>
 
                               {/* Description section */}
-                              <div className="m-2 flex flex-grow items-center justify-center bg-gray-800 p-3 text-white">
+                              <div className="m-2 flex flex-grow items-center justify-center bg-[#4a6a7d] p-3 text-white">
                                 <p className="line-clamp-4 text-center text-sm">
                                   {recommendation.description || "Description"}
                                 </p>
                               </div>
 
                               {/* Footer section with recommender and action buttons */}
-                              <div className="bg-lightTanGray relative flex items-center justify-between p-2">
+                              <div className="relative flex items-center justify-between bg-[#f8ede6] p-2">
                                 <button
                                   onClick={() =>
                                     handleDeleteRecommendation(
@@ -305,7 +311,7 @@ const MyRecommendations = () => {
                                   className="text-hotCoralPink transition-colors hover:text-pink-600"
                                   aria-label="Delete recommendation"
                                 >
-                                  <i className="fa-solid fa-trash text-sm"></i>
+                                  <i className="fa-solid fa-trash mx-4 text-sm"></i>
                                 </button>
                                 <span className="absolute left-1/2 -translate-x-1/2 transform text-xs text-gray-600">
                                   {recommendation.user &&
@@ -318,10 +324,10 @@ const MyRecommendations = () => {
                                   onClick={() =>
                                     handleRecommendClick(recommendation)
                                   }
-                                  className="text-blue-500 transition-colors hover:text-blue-600"
+                                  className="text-[#62d3c2] transition-colors hover:text-[#59bbac]"
                                   aria-label="Recommend to friend"
                                 >
-                                  <i className="fa-solid fa-share-from-square"></i>
+                                  <i className="fa-solid fa-share-from-square mx-4"></i>
                                 </button>
                               </div>
                             </div>

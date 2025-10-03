@@ -129,7 +129,7 @@ const RecommendHome = () => {
             {Object.entries(friendsRecs).map(([userId, userdata]) => (
               <div key={userId} className="mb-8">
                 {/* Friend's Username Header */}
-                <h2 className="font-boldRaleway mb-4 pb-4 text-2xl">
+                <h2 className="font-boldRaleway text-darkBlue mb-4 pb-4 text-2xl">
                   {userdata.username?.charAt(0).toUpperCase() +
                     userdata.username?.slice(1)}
                   's Recommendations
@@ -153,7 +153,13 @@ const RecommendHome = () => {
                   </button>
 
                   {/* Recommendations Carousel */}
-                  <div className="bg-cerulean flex h-72 flex-grow items-center overflow-hidden rounded-xl p-4 shadow">
+                  <div
+                    className="bg-cerulean flex h-72 flex-grow items-center overflow-hidden rounded-xl p-4 shadow-xl"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #ff8a95, #fbbfa2, #23dee5)",
+                    }}
+                  >
                     <div
                       className="flex flex-nowrap transition-transform duration-300"
                       style={{
@@ -165,10 +171,10 @@ const RecommendHome = () => {
                           key={recommendation._id}
                           className="mx-2 w-60 flex-shrink-0"
                         >
-                          <div className="font flex h-60 w-60 flex-col overflow-hidden rounded-lg bg-white shadow-lg">
+                          <div className="font flex h-60 w-60 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg">
                             {/* Header section with title and stars */}
-                            <div className="bg-lightTanGray p-3 text-center">
-                              <h3 className="font-boldManrope mb-2 line-clamp-2 text-sm font-bold">
+                            <div className="bg-[#f8ede6] p-3 text-center">
+                              <h3 className="font-boldManrope text-darkBlue mb-2 line-clamp-2 text-xl font-bold">
                                 {toTitleCase(recommendation.title)}
                               </h3>
                               <div className="flex justify-center gap-1">
@@ -188,21 +194,22 @@ const RecommendHome = () => {
                             </div>
 
                             {/* Description section */}
-                            <div className="m-2 flex flex-grow items-center justify-center bg-gray-800 p-3 text-white">
+                            <div className="m-2 flex flex-grow items-center justify-center bg-[#4a6a7d] p-3 text-white">
                               <p className="line-clamp-4 text-center text-sm">
                                 {recommendation.description || "Description"}
                               </p>
                             </div>
 
                             {/* Footer section with plus sign and original recommender */}
-                            <div className="bg-lightTanGray relative flex items-center justify-between p-2">
+                            <div className="relative flex items-center justify-between bg-[#f8ede6] p-2">
                               {/* Plus sign button - bottom left */}
+
                               <button
                                 onClick={() => handleCopyClick(recommendation)}
-                                className="text-hotCoralPink transition-colors hover:text-pink-600"
+                                className="text-hotCoralPink mx-4 transition-colors hover:text-pink-600"
                                 aria-label="Add to my recommendations"
                               >
-                                <i className="fa-solid fa-plus text-sm"></i>
+                                <i className="fa-solid fa-plus text-md"></i>
                               </button>
 
                               {/* Original recommender info - centered */}
