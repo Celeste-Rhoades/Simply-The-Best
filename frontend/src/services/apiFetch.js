@@ -5,7 +5,7 @@ const apiFetch = (method, path, body = null) => {
     method,
     credentials: "include",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
   };
 
