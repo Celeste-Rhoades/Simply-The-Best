@@ -15,7 +15,22 @@ const app = express();
 
 const PORT = process.env.PORT || 5288;
 
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+const allowedOrigins = ["http://localhost:3000", process.env.FRONTEND_URL];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 app.use(express.json()); //allows express to read json on req.body
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
