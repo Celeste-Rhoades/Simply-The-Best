@@ -79,20 +79,17 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
-    res.cookie("jwt", "", { maxAge: 0 });
-    res.cookie("isLoggedIn", "", { maxAge: 0 });
+    const options = {
+      maxAge: 0,
+      sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
+      secure: process.env.NODE_ENV !== "development",
+    };
+
+    res.cookie("jwt", "", { ...options, httpOnly: true });
+    res.cookie("isLoggedIn", "", options);
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     console.log("Error in logout controller", error.message);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
-export const getProfile = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id).select("-password");
-    res.status(200).json(user);
-  } catch (error) {
-    console.log("Error in getMe controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
