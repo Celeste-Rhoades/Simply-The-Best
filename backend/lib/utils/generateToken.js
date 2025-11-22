@@ -7,9 +7,9 @@ export const generateTokenAndSetCookie = (userId, res) => {
 
   const options = {
     maxAge: 15 * 24 * 60 * 60 * 1000,
-    sameSite: process.env.NODE_ENV === "development" ? "lax" : "strict",
+    sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
     secure: process.env.NODE_ENV !== "development",
-  }
+  };
 
   res.cookie("jwt", token, {
     ...options,
