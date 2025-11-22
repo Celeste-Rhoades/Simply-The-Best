@@ -19,6 +19,7 @@ const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:5173",
   "https://simplytheebest.netlify.app",
+  "https://www.getsimplythebest.net",
   process.env.FRONTEND_URL,
 ];
 
