@@ -20,6 +20,7 @@ const allowedOrigins = [
   "https://simplytheebest.netlify.app",
   "https://getsimplythebest.net",
   "https://www.getsimplythebest.net",
+  "https://api.getsimplythebest.net",
 ];
 
 app.use(
