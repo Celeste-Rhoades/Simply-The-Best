@@ -16,7 +16,7 @@ const app = express();
 const PORT = process.env.PORT || 5288;
 const allowedOrigins = [
   "http://localhost:3000",
-  "http://localhost:5173",
+  "http://localhost:5288",
   "https://simplytheebest.netlify.app",
   "https://getsimplythebest.net",
   "https://www.getsimplythebest.net",
