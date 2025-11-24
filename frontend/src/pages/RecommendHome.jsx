@@ -79,11 +79,11 @@ const RecommendHome = () => {
   };
 
   return (
-    <div className="bg-lightTanGray relative min-h-screen w-full">
+    <div className="bg-lightTanGray relative flex min-h-screen w-full flex-col">
       <NavBar />
 
       {/* Header with Add Button */}
-      <div className="mx-8 mt-4 flex justify-end">
+      <div className="mx-8 mt-4 hidden justify-end sm:flex">
         <button
           className="bg-coral font-raleway mx-4 rounded-md px-4 py-2 text-white shadow-lg"
           onClick={() => setShowForm(true)}
@@ -100,7 +100,7 @@ const RecommendHome = () => {
       )}
 
       {/* Main Content */}
-      <div className="mx-8 mt-8">
+      <div className="mx-4 mt-8 sm:mx-8">
         {isLoading && Object.keys(friendsRecs).length === 0 ? (
           <div className="font-manrope flex items-center justify-center py-12">
             <p className="text-lg text-gray-600">
@@ -139,7 +139,7 @@ const RecommendHome = () => {
                 <div className="relative flex items-center">
                   {/* Left Arrow */}
                   <button
-                    className="z-10 mr-4 p-2"
+                    className="z-10 p-1 sm:mr-4 sm:p-2"
                     onClick={() =>
                       updateCarouselIndex(
                         userId,
@@ -149,32 +149,167 @@ const RecommendHome = () => {
                     disabled={(carouselIndex[userId] || 0) === 0}
                     aria-label="Previous"
                   >
-                    <i className="fa-solid fa-circle-chevron-left text-coral hover:text-lightOrange text-5xl"></i>
+                    <i className="fa-solid fa-circle-chevron-left text-coral hover:text-lightOrange text-2xl sm:text-5xl"></i>
                   </button>
 
                   {/* Recommendations Carousel */}
                   <div
-                    className="bg-cerulean flex h-72 flex-grow items-center overflow-hidden rounded-xl p-4 shadow-xl"
+                    className="flex flex-grow items-center overflow-hidden rounded-xl p-4 shadow-xl sm:h-72 sm:justify-start sm:p-4"
                     style={{
                       background:
                         "linear-gradient(135deg, #ff8a95, #fbbfa2, #23dee5)",
                     }}
                   >
+                    {/* Mobile: show current card with peek of next */}
+                    <div className="block w-full sm:hidden">
+                      <div className="flex justify-start gap-2">
+                        <div className="flex h-44 w-44 flex-shrink-0 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg md:h-48 md:w-48">
+                          {/* Current card content */}
+                          {userdata.recommendations[
+                            carouselIndex[userId] || 0
+                          ] && (
+                            <>
+                              <div className="bg-[#f8ede6] p-1.5 text-center md:p-2">
+                                <h3 className="font-boldManrope text-darkBlue mb-0.5 line-clamp-2 text-[11px] font-bold break-words md:mb-1 md:text-sm">
+                                  {toTitleCase(
+                                    userdata.recommendations[
+                                      carouselIndex[userId] || 0
+                                    ].title,
+                                  )}
+                                </h3>
+                                <div className="flex justify-center gap-0.5">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <span
+                                      key={star}
+                                      className={
+                                        star <=
+                                        userdata.recommendations[
+                                          carouselIndex[userId] || 0
+                                        ].rating
+                                          ? "text-lighTeal text-xs md:text-sm"
+                                          : "text-xs text-gray-300 md:text-sm"
+                                      }
+                                    >
+                                      ★
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div className="m-1 flex flex-grow items-center justify-center bg-[#4a6a7d] p-1.5 text-white md:m-1.5 md:p-2">
+                                <p className="line-clamp-3 text-center text-[10px] break-words md:text-xs">
+                                  {userdata.recommendations[
+                                    carouselIndex[userId] || 0
+                                  ].description || "Description"}
+                                </p>
+                              </div>
+
+                              <div className="flex flex-col gap-0.5 bg-[#f8ede6] p-1 md:p-1.5">
+                                <div className="flex items-center justify-between px-1">
+                                  <button
+                                    onClick={() =>
+                                      handleCopyClick(
+                                        userdata.recommendations[
+                                          carouselIndex[userId] || 0
+                                        ],
+                                      )
+                                    }
+                                    className="text-hotCoralPink transition-colors hover:text-pink-600"
+                                    aria-label="Add to my recommendations"
+                                  >
+                                    <i className="fa-solid fa-plus text-[10px] md:text-xs"></i>
+                                  </button>
+
+                                  <p className="truncate px-0.5 text-center text-[9px] text-gray-600 md:text-[10px]">
+                                    {userdata.recommendations[
+                                      carouselIndex[userId] || 0
+                                    ].originalRecommendedBy
+                                      ? `Originally by ${userdata.recommendations[carouselIndex[userId] || 0].originalRecommendedBy.username?.charAt(0).toUpperCase() + userdata.recommendations[carouselIndex[userId] || 0].originalRecommendedBy.username?.slice(1)}`
+                                      : `By ${userdata.recommendations[carouselIndex[userId] || 0].user.username?.charAt(0).toUpperCase() + userdata.recommendations[carouselIndex[userId] || 0].user.username?.slice(1)}`}
+                                  </p>
+                                </div>
+                              </div>
+                            </>
+                          )}
+                        </div>
+
+                        {/* Peek of next card */}
+                        {userdata.recommendations[
+                          (carouselIndex[userId] || 0) + 1
+                        ] && (
+                          <div className="h-44 w-16 flex-shrink-0 overflow-hidden rounded-r-lg opacity-70 shadow-lg md:h-48 md:w-20">
+                            <div className="flex h-44 w-44 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg md:h-48 md:w-48">
+                              <div className="bg-[#f8ede6] p-1.5 text-center md:p-2">
+                                <h3 className="font-boldManrope text-darkBlue mb-0.5 line-clamp-2 text-[11px] font-bold break-words md:mb-1 md:text-sm">
+                                  {toTitleCase(
+                                    userdata.recommendations[
+                                      (carouselIndex[userId] || 0) + 1
+                                    ].title,
+                                  )}
+                                </h3>
+                                <div className="flex justify-center gap-0.5">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <span
+                                      key={star}
+                                      className={
+                                        star <=
+                                        userdata.recommendations[
+                                          (carouselIndex[userId] || 0) + 1
+                                        ].rating
+                                          ? "text-lighTeal text-xs md:text-sm"
+                                          : "text-xs text-gray-300 md:text-sm"
+                                      }
+                                    >
+                                      ★
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div className="m-1 flex flex-grow items-center justify-center bg-[#4a6a7d] p-1.5 text-white md:m-1.5 md:p-2">
+                                <p className="line-clamp-3 text-center text-[10px] break-words md:text-xs">
+                                  {userdata.recommendations[
+                                    (carouselIndex[userId] || 0) + 1
+                                  ].description || "Description"}
+                                </p>
+                              </div>
+
+                              <div className="flex flex-col gap-0.5 bg-[#f8ede6] p-1 md:p-1.5">
+                                <div className="flex items-center justify-between px-1">
+                                  <button className="text-hotCoralPink">
+                                    <i className="fa-solid fa-plus text-[10px] md:text-xs"></i>
+                                  </button>
+                                  <p className="truncate px-0.5 text-center text-[9px] text-gray-600 md:text-[10px]">
+                                    {userdata.recommendations[
+                                      (carouselIndex[userId] || 0) + 1
+                                    ].originalRecommendedBy
+                                      ? `Originally by ${userdata.recommendations[(carouselIndex[userId] || 0) + 1].originalRecommendedBy.username?.charAt(0).toUpperCase() + userdata.recommendations[(carouselIndex[userId] || 0) + 1].originalRecommendedBy.username?.slice(1)}`
+                                      : `By ${userdata.recommendations[(carouselIndex[userId] || 0) + 1].user.username?.charAt(0).toUpperCase() + userdata.recommendations[(carouselIndex[userId] || 0) + 1].user.username?.slice(1)}`}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Desktop: show carousel */}
                     <div
-                      className="flex flex-nowrap transition-transform duration-300"
+                      className="hidden sm:flex sm:gap-4 sm:transition-transform sm:duration-300 sm:ease-in-out"
                       style={{
-                        transform: `translateX(-${(carouselIndex[userId] || 0) * 256}px)`,
+                        transform: `translateX(-${(carouselIndex[userId] || 0) * 272}px)`,
                       }}
                     >
                       {userdata.recommendations.map((recommendation) => (
                         <div
                           key={recommendation._id}
-                          className="mx-2 w-60 flex-shrink-0"
+                          className="w-64 flex-shrink-0"
                         >
-                          <div className="font flex h-60 w-60 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg">
+                          <div className="flex h-60 w-64 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg">
                             {/* Header section with title and stars */}
                             <div className="bg-[#f8ede6] p-3 text-center">
-                              <h3 className="font-boldManrope text-darkBlue mb-2 line-clamp-2 text-xl font-bold">
+                              <h3 className="font-boldManrope text-darkBlue mb-2 line-clamp-2 text-lg font-bold break-words">
                                 {toTitleCase(recommendation.title)}
                               </h3>
                               <div className="flex justify-center gap-1">
@@ -195,29 +330,30 @@ const RecommendHome = () => {
 
                             {/* Description section */}
                             <div className="m-2 flex flex-grow items-center justify-center bg-[#4a6a7d] p-3 text-white">
-                              <p className="line-clamp-4 text-center text-sm">
+                              <p className="line-clamp-4 text-center text-sm break-words">
                                 {recommendation.description || "Description"}
                               </p>
                             </div>
 
                             {/* Footer section with plus sign and original recommender */}
-                            <div className="relative flex items-center justify-between bg-[#f8ede6] p-2">
-                              {/* Plus sign button - bottom left */}
+                            <div className="flex flex-col gap-1 bg-[#f8ede6] p-2">
+                              <div className="flex items-center justify-between px-2">
+                                <button
+                                  onClick={() =>
+                                    handleCopyClick(recommendation)
+                                  }
+                                  className="text-hotCoralPink transition-colors hover:text-pink-600"
+                                  aria-label="Add to my recommendations"
+                                >
+                                  <i className="fa-solid fa-plus text-sm"></i>
+                                </button>
 
-                              <button
-                                onClick={() => handleCopyClick(recommendation)}
-                                className="text-hotCoralPink mx-4 transition-colors hover:text-pink-600"
-                                aria-label="Add to my recommendations"
-                              >
-                                <i className="fa-solid fa-plus text-md"></i>
-                              </button>
-
-                              {/* Original recommender info - centered */}
-                              <span className="absolute left-1/2 -translate-x-1/2 transform text-xs text-gray-600">
-                                {recommendation.originalRecommendedBy
-                                  ? `Originally by ${recommendation.originalRecommendedBy.username?.charAt(0).toUpperCase() + recommendation.originalRecommendedBy.username?.slice(1)}`
-                                  : `By ${recommendation.user.username?.charAt(0).toUpperCase() + recommendation.user.username?.slice(1)}`}
-                              </span>
+                                <p className="truncate px-1 text-center text-xs text-gray-600">
+                                  {recommendation.originalRecommendedBy
+                                    ? `Originally by ${recommendation.originalRecommendedBy.username?.charAt(0).toUpperCase() + recommendation.originalRecommendedBy.username?.slice(1)}`
+                                    : `By ${recommendation.user.username?.charAt(0).toUpperCase() + recommendation.user.username?.slice(1)}`}
+                                </p>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -227,7 +363,7 @@ const RecommendHome = () => {
 
                   {/* Right Arrow */}
                   <button
-                    className="z-10 ml-4 p-2"
+                    className="z-10 p-1 sm:ml-4 sm:p-2"
                     onClick={() =>
                       updateCarouselIndex(
                         userId,
@@ -243,7 +379,7 @@ const RecommendHome = () => {
                     }
                     aria-label="Next"
                   >
-                    <i className="fa-solid fa-circle-chevron-right text-coral hover:text-lightOrange text-5xl"></i>
+                    <i className="fa-solid fa-circle-chevron-right text-coral hover:text-lightOrange text-2xl sm:text-5xl"></i>
                   </button>
                 </div>
               </div>
