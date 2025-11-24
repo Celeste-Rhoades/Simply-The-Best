@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import apiFetch from "../services/apiFetch";
+import routes from "../routes";
 
 const FriendRequests = () => {
   // State management - grouped logically
@@ -7,6 +9,9 @@ const FriendRequests = () => {
   const [isLoading, setIsLoading] = useState(true); // Start as true for initial load
   const [errors, setErrors] = useState("");
   const [processing, setProcessing] = useState({});
+  const [acceptSuccess, setAcceptSuccess] = useState("");
+
+  const navigate = useNavigate();
 
   // Helper function to clear processing state (DRY principle)
   const clearProcessingState = (userId) => {
@@ -54,7 +59,7 @@ const FriendRequests = () => {
   };
 
   // Function to accept a friend request
-  const acceptFriendRequest = async (userId) => {
+  const acceptFriendRequest = async (userId, username) => {
     // Input validation
     if (!userId || typeof userId !== "string") {
       setErrors("Invalid user ID");
@@ -85,6 +90,16 @@ const FriendRequests = () => {
         setPendingRequests((prevRequests) =>
           prevRequests.filter((request) => request._id !== userId),
         );
+
+        // Show success message
+        setAcceptSuccess(
+          `You're now friends with ${username}! Redirecting to see their recommendations...`,
+        );
+
+        // Navigate to RecommendHome after 1.5 seconds with refresh flag
+        setTimeout(() => {
+          navigate(routes.recommendations, { state: { refresh: true } });
+        }, 1500);
       } else {
         const errorMessage = await handleServerError(
           res,
@@ -215,6 +230,25 @@ const FriendRequests = () => {
     );
   }
 
+  // Render success message
+  if (acceptSuccess) {
+    return (
+      <div>
+        <h2>Friend Requests</h2>
+        <div
+          style={{
+            background: "#d1fae5",
+            padding: "1rem",
+            borderRadius: "0.5rem",
+            color: "#065f46",
+          }}
+        >
+          {acceptSuccess}
+        </div>
+      </div>
+    );
+  }
+
   // Render empty state
   if (pendingRequests.length === 0) {
     return (
@@ -236,7 +270,7 @@ const FriendRequests = () => {
           <p>wants to be your friend</p>
 
           <button
-            onClick={() => acceptFriendRequest(request._id)}
+            onClick={() => acceptFriendRequest(request._id, request.username)}
             disabled={processing[request._id]}
             type="button"
           >

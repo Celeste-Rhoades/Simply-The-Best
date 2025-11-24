@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
+import { useLocation } from "react-router-dom";
 
 import NavBar from "shared-components/NavBar";
 import RecommendAddModal from "./RecommendAddModal";
@@ -25,6 +26,7 @@ const RecommendHome = () => {
   const [selectedTitle, setSelectedTitle] = useState("");
 
   const loadMoreRef = useRef(null);
+  const location = useLocation();
 
   const {
     friendsRecs,
@@ -33,8 +35,15 @@ const RecommendHome = () => {
     hasMore,
     loadMoreFriends,
     copyRecommendation,
-    refreshRecs,
   } = useFriendsRecommendations();
+
+  // Trigger refresh when navigated with refresh flag
+  useEffect(() => {
+    if (location.state?.refresh) {
+      // Reload the page to show new friend's recommendations
+      window.location.reload();
+    }
+  }, [location]);
 
   // Lazy loading intersection observer
   useEffect(() => {
@@ -56,7 +65,7 @@ const RecommendHome = () => {
 
   const handleModalClose = () => {
     setShowForm(false);
-    refreshRecs();
+    // No need to refresh since we're just closing the modal
   };
 
   const handleCopyClick = (recommendation) => {
@@ -70,7 +79,8 @@ const RecommendHome = () => {
       setCopySuccess("Recommendation added to your list!");
       setTimeout(() => setCopySuccess(""), 3000);
       setShowCopyModal(false);
-      refreshRecs();
+      // Reload to show the newly copied recommendation
+      setTimeout(() => window.location.reload(), 1500);
     }
     return result;
   };
@@ -147,7 +157,7 @@ const RecommendHome = () => {
           <div className="rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
             <p className="mb-2">{error}</p>
             <button
-              onClick={refreshRecs}
+              onClick={() => window.location.reload()}
               className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
             >
               Try Again

@@ -6,6 +6,7 @@ const routes = {
   friendRequests: "/friend-requests",
   userSearch: "/search",
   pendingRecommendations: "/pending-recommendations",
+  friends: "/friends",
 };
 
 export default routes;

@@ -91,6 +91,16 @@ const NavBar = () => {
                   <i className="fa-solid fa-user mr-2"></i>
                   My Recommendations
                 </button>
+                <button
+                  className="hover:text-cerulean mb-2 py-1 text-left"
+                  onClick={() => {
+                    setUserOpenMenu(false);
+                    navigate(routes.friends);
+                  }}
+                >
+                  <i className="fa-solid fa-user-group mr-2"></i>
+                  Friends
+                </button>
 
                 <button
                   className="hover:text-cerulean py-1 text-left"
@@ -172,6 +182,16 @@ const NavBar = () => {
                 >
                   <i className="fa-solid fa-user mr-2"></i>
                   My Recommendations
+                </button>
+                <button
+                  className="hover:text-cerulean mb-2 py-1 text-left"
+                  onClick={() => {
+                    setUserOpenMenu(false);
+                    navigate(routes.friends);
+                  }}
+                >
+                  <i className="fa-solid fa-user-group mr-2"></i>
+                  Friends
                 </button>
 
                 <button

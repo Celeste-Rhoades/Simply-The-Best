@@ -12,6 +12,7 @@ import MyRecommendations from "./pages/MyRecommendations";
 import UserSearch from "Components/UserSearch";
 import FriendRequests from "Components/FriendRequests";
 import PendingRecommendations from "Components/PendingRecommendations";
+import Friends from "./pages/Friends";
 
 export const AppContext = createContext({
   username: null,
@@ -44,6 +45,7 @@ const App = () => {
             path={routes.pendingRecommendations}
             element={<PendingRecommendations />}
           />
+          <Route path={routes.friends} element={<Friends />} />
         </Route>
       </Routes>
     </AppContext>
