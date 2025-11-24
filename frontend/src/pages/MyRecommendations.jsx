@@ -180,11 +180,11 @@ const MyRecommendations = () => {
     const length = title.length;
     // Adjust margin based on how many lines the title likely takes
     if (length > 40) {
-      // 2 lines - less margin
-      return "mb-0.5 sm:mb-1";
+      // 2 lines - medium margin
+      return "mb-1.5 sm:mb-1.5";
     } else {
       // 1 line - more margin
-      return "mb-1.5 sm:mb-2";
+      return "mb-2 sm:mb-2.5";
     }
   };
 
@@ -341,7 +341,7 @@ const MyRecommendations = () => {
 
                     {/* Carousel container */}
                     <div
-                      className="flex h-[228px] flex-grow items-center overflow-hidden rounded-xl p-4 shadow-lg sm:h-[316px] sm:justify-start sm:p-4"
+                      className="flex h-[236px] flex-grow items-center overflow-hidden rounded-xl p-4 shadow-lg sm:h-[316px] sm:justify-start sm:p-4"
                       style={{
                         background:
                           "linear-gradient(135deg, #ff8a95, #fbbfa2, #23dee5)",
@@ -359,7 +359,7 @@ const MyRecommendations = () => {
                             key={recommendation._id}
                             className="w-44 flex-shrink-0 sm:w-64"
                           >
-                            <div className="relative flex h-[212px] w-44 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg sm:h-[300px] sm:w-64">
+                            <div className="relative flex h-[220px] w-44 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg sm:h-[300px] sm:w-64">
                               {/* EDIT BUTTON - Top right corner - higher position */}
                               <button
                                 onClick={() =>
@@ -372,21 +372,21 @@ const MyRecommendations = () => {
                               </button>
 
                               {/* Header section with title and stars - 2 LINES MAX */}
-                              <div className="text-darkBlue relative h-[68px] flex-shrink-0 bg-[#f8ede6] px-1.5 pt-1.5 text-center sm:h-[84px] sm:px-2 sm:pt-2">
+                              <div className="text-darkBlue relative h-[76px] flex-shrink-0 bg-[#f8ede6] px-1.5 pt-3.5 text-center sm:h-[84px] sm:px-2 sm:pt-2.5">
                                 {recommendation.title &&
                                 recommendation.title.length > 60 ? (
                                   <button
                                     onClick={() =>
                                       handleSeeTitleMore(recommendation.title)
                                     }
-                                    className={`font-boldManrope ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.2] font-bold break-words transition-colors hover:text-gray-600 sm:text-[15px] sm:leading-[1.3]`}
+                                    className={`font-boldManrope ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] font-bold break-words transition-colors hover:text-gray-600 sm:text-[15px] sm:leading-[1.3]`}
                                     title="Click to see full title"
                                   >
                                     {toTitleCase(recommendation.title)}
                                   </button>
                                 ) : (
                                   <h3
-                                    className={`font-boldManrope ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.2] font-bold break-words sm:text-[15px] sm:leading-[1.3]`}
+                                    className={`font-boldManrope ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] font-bold break-words sm:text-[15px] sm:leading-[1.3]`}
                                     title={recommendation.title}
                                   >
                                     {toTitleCase(recommendation.title)}
