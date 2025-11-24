@@ -161,43 +161,73 @@ const MyRecommendations = () => {
         </div>
       )}
 
-      <div className="mx-8 mt-4 hidden justify-end sm:flex">
-        <button
-          className="bg-coral font-raleway hover:bg-hotCoralPink mx-2 rounded-md px-4 py-2 text-white shadow-lg transition-colors"
-          onClick={() => setShowForm(true)}
-        >
-          Add recommendation
-        </button>
-
-        {/* New Create & Share button */}
-        <button
-          className="font-raleway bg-tangerine hover:bg-brightSalmon mx-2 rounded-md px-4 py-2 text-white shadow-lg transition-colors"
-          onClick={() => setShowCreateShareModal(true)}
-        >
-          Recommend to Friends
-        </button>
-
-        <button
-          onClick={() => navigate(routes.pendingRecommendations)}
-          className="hover:bg-lighTeal font-raleway mx-2 rounded-md bg-[#69c8d4] px-4 py-2 text-white shadow-lg transition-colors"
-        >
-          Pending ({pendingCount})
-        </button>
-
-        <Dialog
-          open={showForm}
-          onClose={() => setShowForm(false)}
-          transition
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 transition duration-300 data-closed:opacity-0"
-        >
-          <DialogPanel
-            transition
-            className="w-full max-w-md transition duration-300 data-closed:scale-75 data-closed:opacity-0"
+      {/* Mobile: Two-row layout | Desktop: Single row */}
+      <div className="mx-4 mt-4 sm:mx-8">
+        {/* Row 1: Add recommendation + Pending (Mobile only) */}
+        <div className="flex justify-end gap-2 sm:hidden">
+          <button
+            className="bg-coral font-raleway hover:bg-hotCoralPink flex-1 rounded-md px-3 py-2 text-sm text-white shadow-lg transition-colors"
+            onClick={() => setShowForm(true)}
           >
-            <RecommendAddModal onClose={handleModalClose} />
-          </DialogPanel>
-        </Dialog>
+            Add recommendation
+          </button>
+          <button
+            onClick={() => navigate(routes.pendingRecommendations)}
+            className="hover:bg-lighTeal font-raleway rounded-md bg-[#69c8d4] px-3 py-2 text-sm text-white shadow-lg transition-colors"
+          >
+            Pending ({pendingCount})
+          </button>
+        </div>
+
+        {/* Row 2: Recommend to Friends (Mobile only) */}
+        <div className="mt-2 flex justify-end sm:hidden">
+          <button
+            className="font-raleway bg-tangerine hover:bg-brightSalmon w-full rounded-md px-3 py-2 text-sm text-white shadow-lg transition-colors"
+            onClick={() => setShowCreateShareModal(true)}
+          >
+            Recommend to Friends
+          </button>
+        </div>
+
+        {/* Desktop: Single row (original layout) */}
+        <div className="hidden justify-end sm:flex">
+          <button
+            className="bg-coral font-raleway hover:bg-hotCoralPink mx-2 rounded-md px-4 py-2 text-white shadow-lg transition-colors"
+            onClick={() => setShowForm(true)}
+          >
+            Add recommendation
+          </button>
+
+          <button
+            className="font-raleway bg-tangerine hover:bg-brightSalmon mx-2 rounded-md px-4 py-2 text-white shadow-lg transition-colors"
+            onClick={() => setShowCreateShareModal(true)}
+          >
+            Recommend to Friends
+          </button>
+
+          <button
+            onClick={() => navigate(routes.pendingRecommendations)}
+            className="hover:bg-lighTeal font-raleway mx-2 rounded-md bg-[#69c8d4] px-4 py-2 text-white shadow-lg transition-colors"
+          >
+            Pending ({pendingCount})
+          </button>
+        </div>
       </div>
+
+      {/* Add Recommendation Modal */}
+      <Dialog
+        open={showForm}
+        onClose={() => setShowForm(false)}
+        transition
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 transition duration-300 data-closed:opacity-0"
+      >
+        <DialogPanel
+          transition
+          className="w-full max-w-md transition duration-300 data-closed:scale-75 data-closed:opacity-0"
+        >
+          <RecommendAddModal onClose={handleModalClose} />
+        </DialogPanel>
+      </Dialog>
 
       <div className="mx-4 mt-8 sm:mx-8">
         {isLoading ? (
