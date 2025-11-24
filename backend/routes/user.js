@@ -9,6 +9,7 @@ import {
   declineFriendRequest,
   getFriends,
   getPendingRequests,
+  removeFriend,
 } from "../controller/user.js";
 
 const router = express.Router();
@@ -22,5 +23,7 @@ router.post("/update", protectRoute, updateUser);
 router.post("/friendRequest/send/:id", protectRoute, sendFriendRequest);
 router.post("/friendRequest/accept/:id", protectRoute, acceptFriendRequest);
 router.post("/friendRequest/decline/:id", protectRoute, declineFriendRequest);
+
+router.delete("/friends/:id", protectRoute, removeFriend);
 
 export default router;
