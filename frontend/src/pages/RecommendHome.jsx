@@ -82,10 +82,10 @@ const RecommendHome = () => {
     <div className="bg-lightTanGray relative flex min-h-screen w-full flex-col">
       <NavBar />
 
-      {/* Header with Add Button */}
-      <div className="mx-8 mt-4 hidden justify-end sm:flex">
+      {/* UPDATED: Mobile and Desktop Add Button - centered on mobile, right-aligned on desktop */}
+      <div className="mx-4 mt-4 flex justify-center sm:mx-8 sm:justify-end">
         <button
-          className="bg-coral font-raleway mx-4 rounded-md px-4 py-2 text-white shadow-lg"
+          className="bg-coral font-raleway hover:bg-hotCoralPink rounded-md px-3 py-2 text-sm text-white shadow-lg transition-colors sm:mx-4 sm:px-4"
           onClick={() => setShowForm(true)}
         >
           Add recommendation

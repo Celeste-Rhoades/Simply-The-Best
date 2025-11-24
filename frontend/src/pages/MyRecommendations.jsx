@@ -164,9 +164,9 @@ const MyRecommendations = () => {
       {/* Mobile: Two-row layout | Desktop: Single row */}
       <div className="mx-4 mt-4 sm:mx-8">
         {/* Row 1: Add recommendation + Pending (Mobile only) */}
-        <div className="flex justify-end gap-2 sm:hidden">
+        <div className="flex justify-center gap-2 sm:hidden">
           <button
-            className="bg-coral font-raleway hover:bg-hotCoralPink flex-1 rounded-md px-3 py-2 text-sm text-white shadow-lg transition-colors"
+            className="bg-coral font-raleway hover:bg-hotCoralPink rounded-md px-3 py-2 text-sm text-white shadow-lg transition-colors"
             onClick={() => setShowForm(true)}
           >
             Add recommendation
@@ -180,9 +180,9 @@ const MyRecommendations = () => {
         </div>
 
         {/* Row 2: Recommend to Friends (Mobile only) */}
-        <div className="mt-2 flex justify-end sm:hidden">
+        <div className="mt-2 flex justify-center sm:hidden">
           <button
-            className="font-raleway bg-tangerine hover:bg-brightSalmon w-full rounded-md px-3 py-2 text-sm text-white shadow-lg transition-colors"
+            className="font-raleway bg-tangerine hover:bg-brightSalmon rounded-md px-3 py-2 text-sm text-white shadow-lg transition-colors"
             onClick={() => setShowCreateShareModal(true)}
           >
             Recommend to Friends
