@@ -160,166 +160,32 @@ const RecommendHome = () => {
                         "linear-gradient(135deg, #ff8a95, #fbbfa2, #23dee5)",
                     }}
                   >
-                    {/* Mobile: show current card with peek of next */}
-                    <div className="block w-full sm:hidden">
-                      <div className="flex justify-start gap-2">
-                        <div className="flex h-44 w-44 flex-shrink-0 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg md:h-48 md:w-48">
-                          {/* Current card content */}
-                          {userdata.recommendations[
-                            carouselIndex[userId] || 0
-                          ] && (
-                            <>
-                              <div className="bg-[#f8ede6] p-1.5 text-center md:p-2">
-                                <h3 className="font-boldManrope text-darkBlue mb-0.5 line-clamp-2 text-[11px] font-bold break-words md:mb-1 md:text-sm">
-                                  {toTitleCase(
-                                    userdata.recommendations[
-                                      carouselIndex[userId] || 0
-                                    ].title,
-                                  )}
-                                </h3>
-                                <div className="flex justify-center gap-0.5">
-                                  {[1, 2, 3, 4, 5].map((star) => (
-                                    <span
-                                      key={star}
-                                      className={
-                                        star <=
-                                        userdata.recommendations[
-                                          carouselIndex[userId] || 0
-                                        ].rating
-                                          ? "text-lighTeal text-xs md:text-sm"
-                                          : "text-xs text-gray-300 md:text-sm"
-                                      }
-                                    >
-                                      ★
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-
-                              <div className="m-1 flex flex-grow items-center justify-center bg-[#4a6a7d] p-1.5 text-white md:m-1.5 md:p-2">
-                                <p className="line-clamp-3 text-center text-[10px] break-words md:text-xs">
-                                  {userdata.recommendations[
-                                    carouselIndex[userId] || 0
-                                  ].description || "Description"}
-                                </p>
-                              </div>
-
-                              <div className="flex flex-col gap-0.5 bg-[#f8ede6] p-1 md:p-1.5">
-                                <div className="flex items-center justify-between px-1">
-                                  <button
-                                    onClick={() =>
-                                      handleCopyClick(
-                                        userdata.recommendations[
-                                          carouselIndex[userId] || 0
-                                        ],
-                                      )
-                                    }
-                                    className="text-hotCoralPink transition-colors hover:text-pink-600"
-                                    aria-label="Add to my recommendations"
-                                  >
-                                    <i className="fa-solid fa-plus text-[10px] md:text-xs"></i>
-                                  </button>
-
-                                  <p className="truncate px-0.5 text-center text-[9px] text-gray-600 md:text-[10px]">
-                                    {userdata.recommendations[
-                                      carouselIndex[userId] || 0
-                                    ].originalRecommendedBy
-                                      ? `Originally by ${userdata.recommendations[carouselIndex[userId] || 0].originalRecommendedBy.username?.charAt(0).toUpperCase() + userdata.recommendations[carouselIndex[userId] || 0].originalRecommendedBy.username?.slice(1)}`
-                                      : `By ${userdata.recommendations[carouselIndex[userId] || 0].user.username?.charAt(0).toUpperCase() + userdata.recommendations[carouselIndex[userId] || 0].user.username?.slice(1)}`}
-                                  </p>
-                                </div>
-                              </div>
-                            </>
-                          )}
-                        </div>
-
-                        {/* Peek of next card */}
-                        {userdata.recommendations[
-                          (carouselIndex[userId] || 0) + 1
-                        ] && (
-                          <div className="h-44 w-16 flex-shrink-0 overflow-hidden rounded-r-lg opacity-70 shadow-lg md:h-48 md:w-20">
-                            <div className="flex h-44 w-44 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg md:h-48 md:w-48">
-                              <div className="bg-[#f8ede6] p-1.5 text-center md:p-2">
-                                <h3 className="font-boldManrope text-darkBlue mb-0.5 line-clamp-2 text-[11px] font-bold break-words md:mb-1 md:text-sm">
-                                  {toTitleCase(
-                                    userdata.recommendations[
-                                      (carouselIndex[userId] || 0) + 1
-                                    ].title,
-                                  )}
-                                </h3>
-                                <div className="flex justify-center gap-0.5">
-                                  {[1, 2, 3, 4, 5].map((star) => (
-                                    <span
-                                      key={star}
-                                      className={
-                                        star <=
-                                        userdata.recommendations[
-                                          (carouselIndex[userId] || 0) + 1
-                                        ].rating
-                                          ? "text-lighTeal text-xs md:text-sm"
-                                          : "text-xs text-gray-300 md:text-sm"
-                                      }
-                                    >
-                                      ★
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-
-                              <div className="m-1 flex flex-grow items-center justify-center bg-[#4a6a7d] p-1.5 text-white md:m-1.5 md:p-2">
-                                <p className="line-clamp-3 text-center text-[10px] break-words md:text-xs">
-                                  {userdata.recommendations[
-                                    (carouselIndex[userId] || 0) + 1
-                                  ].description || "Description"}
-                                </p>
-                              </div>
-
-                              <div className="flex flex-col gap-0.5 bg-[#f8ede6] p-1 md:p-1.5">
-                                <div className="flex items-center justify-between px-1">
-                                  <button className="text-hotCoralPink">
-                                    <i className="fa-solid fa-plus text-[10px] md:text-xs"></i>
-                                  </button>
-                                  <p className="truncate px-0.5 text-center text-[9px] text-gray-600 md:text-[10px]">
-                                    {userdata.recommendations[
-                                      (carouselIndex[userId] || 0) + 1
-                                    ].originalRecommendedBy
-                                      ? `Originally by ${userdata.recommendations[(carouselIndex[userId] || 0) + 1].originalRecommendedBy.username?.charAt(0).toUpperCase() + userdata.recommendations[(carouselIndex[userId] || 0) + 1].originalRecommendedBy.username?.slice(1)}`
-                                      : `By ${userdata.recommendations[(carouselIndex[userId] || 0) + 1].user.username?.charAt(0).toUpperCase() + userdata.recommendations[(carouselIndex[userId] || 0) + 1].user.username?.slice(1)}`}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Desktop: show carousel */}
+                    {/* Mobile and Desktop: show all cards with natural overflow */}
                     <div
-                      className="hidden sm:flex sm:gap-4 sm:transition-transform sm:duration-300 sm:ease-in-out"
+                      className="flex gap-2 transition-transform duration-300 sm:gap-4"
                       style={{
-                        transform: `translateX(-${(carouselIndex[userId] || 0) * 272}px)`,
+                        transform: `translateX(-${(carouselIndex[userId] || 0) * (window.innerWidth >= 640 ? 272 : 184)}px)`,
                       }}
                     >
                       {userdata.recommendations.map((recommendation) => (
                         <div
                           key={recommendation._id}
-                          className="w-64 flex-shrink-0"
+                          className="w-44 flex-shrink-0 sm:w-64"
                         >
-                          <div className="flex h-60 w-64 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg">
+                          <div className="flex h-44 w-44 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg sm:h-60 sm:w-64">
                             {/* Header section with title and stars */}
-                            <div className="bg-[#f8ede6] p-3 text-center">
-                              <h3 className="font-boldManrope text-darkBlue mb-2 line-clamp-2 text-lg font-bold break-words">
+                            <div className="bg-[#f8ede6] p-1.5 text-center sm:p-3">
+                              <h3 className="font-boldManrope text-darkBlue mb-0.5 line-clamp-2 text-[11px] font-bold break-words sm:mb-2 sm:text-lg">
                                 {toTitleCase(recommendation.title)}
                               </h3>
-                              <div className="flex justify-center gap-1">
+                              <div className="flex justify-center gap-0.5 sm:gap-1">
                                 {[1, 2, 3, 4, 5].map((star) => (
                                   <span
                                     key={star}
                                     className={
                                       star <= recommendation.rating
-                                        ? "text-lighTeal text-lg"
-                                        : "text-lg text-gray-300"
+                                        ? "text-lighTeal text-xs sm:text-lg"
+                                        : "text-xs text-gray-300 sm:text-lg"
                                     }
                                   >
                                     ★
@@ -329,31 +195,27 @@ const RecommendHome = () => {
                             </div>
 
                             {/* Description section */}
-                            <div className="m-2 flex flex-grow items-center justify-center bg-[#4a6a7d] p-3 text-white">
-                              <p className="line-clamp-4 text-center text-sm break-words">
+                            <div className="m-1 flex flex-grow items-center justify-center bg-[#4a6a7d] p-1.5 text-white sm:m-2 sm:p-3">
+                              <p className="line-clamp-3 text-center text-[10px] break-words sm:line-clamp-4 sm:text-sm">
                                 {recommendation.description || "Description"}
                               </p>
                             </div>
 
                             {/* Footer section with plus sign and original recommender */}
-                            <div className="flex flex-col gap-1 bg-[#f8ede6] p-2">
-                              <div className="flex items-center justify-between px-2">
-                                <button
-                                  onClick={() =>
-                                    handleCopyClick(recommendation)
-                                  }
-                                  className="text-hotCoralPink transition-colors hover:text-pink-600"
-                                  aria-label="Add to my recommendations"
-                                >
-                                  <i className="fa-solid fa-plus text-sm"></i>
-                                </button>
+                            <div className="flex items-center justify-between bg-[#f8ede6] p-1 px-1 sm:p-2 sm:px-2">
+                              <button
+                                onClick={() => handleCopyClick(recommendation)}
+                                className="text-hotCoralPink transition-colors hover:text-pink-600"
+                                aria-label="Add to my recommendations"
+                              >
+                                <i className="fa-solid fa-plus text-[10px] sm:text-sm"></i>
+                              </button>
 
-                                <p className="truncate px-1 text-center text-xs text-gray-600">
-                                  {recommendation.originalRecommendedBy
-                                    ? `Originally by ${recommendation.originalRecommendedBy.username?.charAt(0).toUpperCase() + recommendation.originalRecommendedBy.username?.slice(1)}`
-                                    : `By ${recommendation.user.username?.charAt(0).toUpperCase() + recommendation.user.username?.slice(1)}`}
-                                </p>
-                              </div>
+                              <p className="truncate px-0.5 text-center text-[9px] text-gray-600 sm:px-1 sm:text-xs">
+                                {recommendation.originalRecommendedBy
+                                  ? `Originally by ${recommendation.originalRecommendedBy.username?.charAt(0).toUpperCase() + recommendation.originalRecommendedBy.username?.slice(1)}`
+                                  : `By ${recommendation.user.username?.charAt(0).toUpperCase() + recommendation.user.username?.slice(1)}`}
+                              </p>
                             </div>
                           </div>
                         </div>
