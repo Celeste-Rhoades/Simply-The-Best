@@ -13,6 +13,17 @@ const RecommendHome = () => {
   const [carouselIndex, setCarouselIndex] = useState({});
   const [copySuccess, setCopySuccess] = useState("");
 
+  // See more modal state
+  const [showDescriptionModal, setShowDescriptionModal] = useState(false);
+  const [selectedDescription, setSelectedDescription] = useState({
+    title: "",
+    description: "",
+  });
+
+  // See more title modal state
+  const [showTitleModal, setShowTitleModal] = useState(false);
+  const [selectedTitle, setSelectedTitle] = useState("");
+
   const loadMoreRef = useRef(null);
 
   const {
@@ -64,6 +75,18 @@ const RecommendHome = () => {
     return result;
   };
 
+  // See more description function
+  const handleSeeMore = (title, description) => {
+    setSelectedDescription({ title, description });
+    setShowDescriptionModal(true);
+  };
+
+  // See more title function
+  const handleSeeTitleMore = (title) => {
+    setSelectedTitle(title);
+    setShowTitleModal(true);
+  };
+
   const updateCarouselIndex = (userId, newIdx) => {
     setCarouselIndex((prev) => ({
       ...prev,
@@ -78,11 +101,24 @@ const RecommendHome = () => {
     );
   };
 
+  // Dynamic margin based on title length to keep consistent spacing to description
+  const getTitleMargin = (title) => {
+    const length = title.length;
+    // Adjust margin based on how many lines the title likely takes
+    if (length > 40) {
+      // 2 lines - less margin
+      return "mb-0.5 sm:mb-1";
+    } else {
+      // 1 line - more margin
+      return "mb-1.5 sm:mb-2";
+    }
+  };
+
   return (
     <div className="bg-lightTanGray relative flex min-h-screen w-full flex-col">
       <NavBar />
 
-      {/* UPDATED: Mobile and Desktop Add Button - centered on mobile, right-aligned on desktop */}
+      {/* Mobile and Desktop: Add Button - centered on mobile, right-aligned on desktop */}
       <div className="mx-4 mt-4 flex justify-center sm:mx-8 sm:justify-end">
         <button
           className="bg-coral font-raleway hover:bg-hotCoralPink rounded-md px-3 py-2 text-sm text-white shadow-lg transition-colors sm:mx-4 sm:px-4"
@@ -154,7 +190,7 @@ const RecommendHome = () => {
 
                   {/* Recommendations Carousel */}
                   <div
-                    className="flex flex-grow items-center overflow-hidden rounded-xl p-4 shadow-xl sm:h-72 sm:justify-start sm:p-4"
+                    className="flex h-[228px] flex-grow items-center overflow-hidden rounded-xl p-4 shadow-xl sm:h-[316px] sm:justify-start sm:p-4"
                     style={{
                       background:
                         "linear-gradient(135deg, #ff8a95, #fbbfa2, #23dee5)",
@@ -172,20 +208,37 @@ const RecommendHome = () => {
                           key={recommendation._id}
                           className="w-44 flex-shrink-0 sm:w-64"
                         >
-                          <div className="flex h-44 w-44 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg sm:h-60 sm:w-64">
-                            {/* Header section with title and stars */}
-                            <div className="bg-[#f8ede6] p-1.5 text-center sm:p-3">
-                              <h3 className="font-boldManrope text-darkBlue mb-0.5 line-clamp-2 text-[11px] font-bold break-words sm:mb-2 sm:text-lg">
-                                {toTitleCase(recommendation.title)}
-                              </h3>
+                          <div className="flex h-[212px] w-44 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg sm:h-[300px] sm:w-64">
+                            {/* Header section with title and stars - 2 LINES MAX */}
+                            <div className="relative h-[68px] flex-shrink-0 bg-[#f8ede6] px-1.5 pt-1.5 text-center sm:h-[84px] sm:px-2 sm:pt-2">
+                              {recommendation.title &&
+                              recommendation.title.length > 60 ? (
+                                <button
+                                  onClick={() =>
+                                    handleSeeTitleMore(recommendation.title)
+                                  }
+                                  className={`font-boldManrope text-darkBlue ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.2] font-bold break-words transition-colors hover:text-gray-600 sm:text-[15px] sm:leading-[1.3]`}
+                                  title="Click to see full title"
+                                >
+                                  {toTitleCase(recommendation.title)}
+                                </button>
+                              ) : (
+                                <h3
+                                  className={`font-boldManrope text-darkBlue ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.2] font-bold break-words sm:text-[15px] sm:leading-[1.3]`}
+                                  title={recommendation.title}
+                                >
+                                  {toTitleCase(recommendation.title)}
+                                </h3>
+                              )}
+
                               <div className="flex justify-center gap-0.5 sm:gap-1">
                                 {[1, 2, 3, 4, 5].map((star) => (
                                   <span
                                     key={star}
                                     className={
                                       star <= recommendation.rating
-                                        ? "text-lighTeal text-xs sm:text-lg"
-                                        : "text-xs text-gray-300 sm:text-lg"
+                                        ? "text-lighTeal text-[11px] sm:text-[15px]"
+                                        : "text-[11px] text-gray-300 sm:text-[15px]"
                                     }
                                   >
                                     ★
@@ -194,15 +247,34 @@ const RecommendHome = () => {
                               </div>
                             </div>
 
-                            {/* Description section */}
-                            <div className="m-1 flex flex-grow items-center justify-center bg-[#4a6a7d] p-1.5 text-white sm:m-2 sm:p-3">
-                              <p className="line-clamp-3 text-center text-[10px] break-words sm:line-clamp-4 sm:text-sm">
-                                {recommendation.description || "Description"}
+                            {/* Description section - GROWS to fill available space */}
+                            <div className="relative m-1 flex flex-grow items-center justify-center bg-[#4a6a7d] p-1.5 text-white sm:m-2 sm:p-3">
+                              <p className="text-center text-[10px] leading-tight break-words sm:text-sm">
+                                {recommendation.description &&
+                                recommendation.description.length > 100
+                                  ? `${recommendation.description.substring(0, 100)}...`
+                                  : recommendation.description || "Description"}
                               </p>
+
+                              {/* See more button - bottom right corner */}
+                              {recommendation.description &&
+                                recommendation.description.length > 100 && (
+                                  <button
+                                    onClick={() =>
+                                      handleSeeMore(
+                                        recommendation.title,
+                                        recommendation.description,
+                                      )
+                                    }
+                                    className="absolute right-1 bottom-1 text-[8px] text-white/80 underline hover:text-white sm:text-[10px]"
+                                  >
+                                    see more
+                                  </button>
+                                )}
                             </div>
 
-                            {/* Footer section with plus sign and original recommender */}
-                            <div className="flex items-center justify-between bg-[#f8ede6] p-1 px-1 sm:p-2 sm:px-2">
+                            {/* Footer section - FIXED compact height */}
+                            <div className="flex h-8 flex-shrink-0 items-center justify-between bg-[#f8ede6] px-2 sm:h-10 sm:px-3">
                               <button
                                 onClick={() => handleCopyClick(recommendation)}
                                 className="text-hotCoralPink transition-colors hover:text-pink-600"
@@ -279,6 +351,48 @@ const RecommendHome = () => {
         originalRec={selectedRecommendation}
         onCopy={handleCopySubmit}
       />
+
+      {/* Description modal - See more */}
+      <Dialog
+        open={showDescriptionModal}
+        onClose={() => setShowDescriptionModal(false)}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+      >
+        <DialogPanel className="mx-4 w-full max-w-md rounded-lg bg-white p-6">
+          <h3 className="mb-4 text-xl font-bold text-gray-800">
+            {toTitleCase(selectedDescription.title)}
+          </h3>
+          <p className="whitespace-pre-wrap text-gray-700">
+            {selectedDescription.description}
+          </p>
+          <button
+            onClick={() => setShowDescriptionModal(false)}
+            className="bg-tangerine hover:bg-lightOrange mt-4 w-full rounded px-4 py-2 text-white"
+          >
+            Close
+          </button>
+        </DialogPanel>
+      </Dialog>
+
+      {/* Title modal - See more */}
+      <Dialog
+        open={showTitleModal}
+        onClose={() => setShowTitleModal(false)}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+      >
+        <DialogPanel className="mx-4 w-full max-w-md rounded-lg bg-white p-6">
+          <h3 className="mb-4 text-xl font-bold text-gray-800">Full Title</h3>
+          <p className="whitespace-pre-wrap text-gray-700">
+            {toTitleCase(selectedTitle)}
+          </p>
+          <button
+            onClick={() => setShowTitleModal(false)}
+            className="bg-tangerine hover:bg-lightOrange mt-4 w-full rounded px-4 py-2 text-white"
+          >
+            Close
+          </button>
+        </DialogPanel>
+      </Dialog>
     </div>
   );
 };
