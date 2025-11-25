@@ -119,14 +119,20 @@ export const deleteRecommendation = async (req, res) => {
       return res.status(404).json({ error: "Recommendation not found" });
     }
 
-    // Verify the user owns this recommendation
-    if (recommendation.user.toString() !== req.user._id.toString()) {
+    // ✅ UPDATED: Allow deletion if you created it OR it was recommended to you and approved
+    const isOwner = recommendation.user.toString() === req.user._id.toString();
+    const isRecipient =
+      recommendation.recommendedTo &&
+      recommendation.recommendedTo.toString() === req.user._id.toString() &&
+      recommendation.status === "approved";
+
+    if (!isOwner && !isRecipient) {
       return res.status(403).json({
         error: "You are not authorized to delete this recommendation",
       });
     }
 
-    // User owns it - safe to delete
+    // User can delete it - safe to delete
     await Recommend.findByIdAndDelete(id);
 
     res.status(200).json({
