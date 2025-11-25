@@ -108,30 +108,30 @@ const UserSearch = () => {
 
   return (
     <div className="bg-lightTanGray min-h-screen">
-      {/* Mobile Navbar */}
+      {/* Navbar - Matches main NavBar responsive design */}
       <nav className="bg-laguna relative z-40 flex justify-center">
-        <div className="relative grid w-full max-w-5xl grid-cols-3 items-center px-6 py-2">
+        <div className="relative flex w-full max-w-7xl items-center justify-between px-2 py-2 sm:px-4 md:px-6">
           {/* Left Section - Logo */}
-          <div className="font-playfair flex items-center justify-start text-xl text-white">
+          <div className="font-playfair flex items-center text-xl text-white">
             <Link to="/">
               <img
-                className="h-28 w-28 object-contain md:h-38 md:w-38"
+                className="h-16 w-16 object-contain sm:h-20 sm:w-20 md:h-24 md:w-24 lg:h-28 lg:w-28"
                 alt="starfish"
                 src={logo1}
               />
             </Link>
           </div>
 
-          {/* Center Section - Title */}
-          <div className="flex justify-center">
+          {/* Center Section - Title (Always Centered) */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <Link to="/">
-              <h1 className="font-manrope text-center text-2xl whitespace-nowrap text-white select-none md:text-xl lg:text-4xl xl:text-5xl">
+              <h1 className="font-manrope text-center text-xl whitespace-nowrap text-white select-none sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl">
                 Simply The Best
               </h1>
             </Link>
           </div>
 
-          {/* Right Section - Mobile Menu */}
+          {/* Right Section - Hamburger Menu */}
           <div className="font-raleway flex items-center justify-end text-white">
             <div className="relative z-50">
               <button
@@ -178,6 +178,16 @@ const UserSearch = () => {
                     <i className="fa-solid fa-user mr-2"></i>
                     My Recommendations
                   </button>
+                  <button
+                    className="hover:text-cerulean mb-2 py-1 text-left"
+                    onClick={() => {
+                      setUserOpenMenu(false);
+                      navigate(routes.friends);
+                    }}
+                  >
+                    <i className="fa-solid fa-user-group mr-2"></i>
+                    Friends
+                  </button>
 
                   <button
                     className="hover:text-cerulean py-1 text-left"
@@ -195,14 +205,18 @@ const UserSearch = () => {
 
       {/* Search Content */}
       <div className="p-4">
-        {/* Simple Search Input */}
+        <h1 className="mb-4 text-center text-2xl font-bold text-gray-800">
+          Find Friends
+        </h1>
+
+        {/* Search Input */}
         <div className="relative mx-auto mb-6 max-w-md">
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onFocus={() => setUserOpenMenu(false)}
-            placeholder="Search for users by username"
+            placeholder="Search for friends by username..."
             className="focus:border-cerulean w-full rounded-lg border border-gray-300 bg-white px-4 py-3 pl-12 text-gray-900 placeholder-gray-500 focus:outline-none"
           />
           <i className="fa-solid fa-magnifying-glass absolute top-1/2 left-4 -translate-y-1/2 text-gray-400"></i>
@@ -228,7 +242,7 @@ const UserSearch = () => {
             {searchResults.map((user) => (
               <div
                 key={user._id}
-                className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3"
+                className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3 shadow-sm"
               >
                 <span className="font-medium text-gray-900">
                   {user.username}

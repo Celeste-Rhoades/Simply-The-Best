@@ -5,7 +5,7 @@ import routes from "../../routes";
 import apiFetch from "../../services/apiFetch";
 import { AppContext } from "../../App";
 
-// Import new components
+// Import existing components
 import SearchBar from "../../Components/SearchBar";
 import FriendRequestsDropdown from "../../Components/FriendRequestsDropdown";
 
@@ -29,34 +29,34 @@ const NavBar = () => {
       className="bg-laguna relative z-40 flex justify-center"
       onMouseLeave={() => setUserOpenMenu(false)}
     >
-      <div className="relative flex w-full max-w-7xl items-center px-6 py-2">
+      <div className="relative flex w-full max-w-7xl items-center justify-between px-2 py-2 sm:px-4 md:px-6">
         {/* Left Section - Logo */}
-        <div className="font-playfair flex flex-1 items-center text-xl text-white">
+        <div className="font-playfair flex items-center text-xl text-white">
           <Link to="/">
             <img
-              className="h-28 w-28 object-contain md:h-38 md:w-38"
+              className="h-16 w-16 object-contain sm:h-20 sm:w-20 md:h-24 md:w-24 lg:h-28 lg:w-28"
               alt="starfish"
               src={logo1}
             />
           </Link>
         </div>
 
-        {/* Center Section - Title */}
-        <div className="flex flex-1 justify-center">
+        {/* Center Section - Title (Always Centered) */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
           <Link to="/">
-            <h1 className="font-manrope text-center text-2xl whitespace-nowrap text-white select-none md:text-xl lg:text-4xl xl:text-5xl">
+            <h1 className="font-manrope text-center text-xl whitespace-nowrap text-white select-none sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl">
               Simply The Best
             </h1>
           </Link>
         </div>
 
-        {/* Right Section - Navigation */}
-        <div className="font-raleway hidden flex-1 items-center justify-end space-x-6 text-white md:flex">
-          {/* User Menu - First */}
+        {/* Right Section - Desktop Navigation (XL screens only) */}
+        <div className="font-raleway hidden items-center justify-end space-x-6 text-white xl:flex">
+          {/* User Menu */}
           <div className="relative">
             <button
               type="button"
-              className="flex items-center rounded-lg py-2 pl-11 text-lg transition-colors"
+              className="flex items-center rounded-lg py-2 text-lg transition-colors"
               onClick={() => setUserOpenMenu(!userOpenMenu)}
             >
               <i className="fa-solid fa-user mr-2"></i>
@@ -70,7 +70,7 @@ const NavBar = () => {
             </button>
 
             {userOpenMenu && (
-              <div className="bg-lightTanGray absolute top-8 right-0 flex min-w-65 flex-col rounded-md px-6 py-4 text-lg text-stone-800 shadow-md">
+              <div className="bg-lightTanGray absolute top-full right-0 mt-2 flex min-w-65 flex-col rounded-md px-6 py-4 text-lg text-stone-800 shadow-md">
                 <button
                   className="hover:text-cerulean mb-2 py-1 text-left"
                   onClick={() => {
@@ -113,19 +113,19 @@ const NavBar = () => {
             )}
           </div>
 
-          {/* Friend Requests Notification - Second */}
+          {/* Friend Requests Notification */}
           <FriendRequestsDropdown />
 
-          {/* Search Bar - Third */}
+          {/* Search Bar - Only on XL+ screens */}
           <SearchBar />
         </div>
 
-        {/* Mobile hamburger menu */}
-        <div className="font-raleway flex flex-1 items-center justify-end space-x-4 text-white md:hidden">
+        {/* Mobile/Tablet Navigation (XS-L screens) */}
+        <div className="font-raleway flex items-center justify-end space-x-3 text-white sm:space-x-4 xl:hidden">
           {/* Mobile Friend Requests Notification */}
           <FriendRequestsDropdown />
 
-          {/* Mobile Hamburger Menu */}
+          {/* Hamburger Menu */}
           <div className="relative z-50">
             <button
               type="button"
