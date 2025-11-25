@@ -200,7 +200,7 @@ const RecommendHome = () => {
 
                   {/* Recommendations Carousel */}
                   <div
-                    className="flex h-[236px] flex-grow items-center overflow-hidden rounded-xl p-4 shadow-xl sm:h-[316px] sm:justify-start sm:p-4"
+                    className="flex h-[260px] flex-grow items-center overflow-hidden rounded-xl px-4 py-4 shadow-xl sm:h-[340px] sm:justify-start sm:px-4 sm:py-6"
                     style={{
                       background:
                         "linear-gradient(135deg, #ff8a95, #fbbfa2, #23dee5)",
@@ -218,7 +218,8 @@ const RecommendHome = () => {
                           key={recommendation._id}
                           className="w-44 flex-shrink-0 sm:w-64"
                         >
-                          <div className="flex h-[220px] w-44 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg sm:h-[300px] sm:w-64">
+                          {/* ✅ CHANGED: Card height increased to h-[232px] mobile, h-[314px] desktop */}
+                          <div className="flex h-[232px] w-44 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg sm:h-[314px] sm:w-64">
                             {/* Header section with title and stars - 2 LINES MAX */}
                             <div className="relative h-[76px] flex-shrink-0 bg-[#f8ede6] px-1.5 pt-3.5 text-center sm:h-[84px] sm:px-2 sm:pt-2.5">
                               {recommendation.title &&
@@ -283,21 +284,31 @@ const RecommendHome = () => {
                                 )}
                             </div>
 
-                            {/* Footer section - FIXED compact height */}
-                            <div className="flex h-8 flex-shrink-0 items-center justify-between bg-[#f8ede6] px-2 sm:h-10 sm:px-3">
-                              <button
-                                onClick={() => handleCopyClick(recommendation)}
-                                className="text-hotCoralPink transition-colors hover:text-pink-600"
-                                aria-label="Add to my recommendations"
-                              >
-                                <i className="fa-solid fa-plus text-[10px] sm:text-sm"></i>
-                              </button>
-
-                              <p className="truncate px-0.5 text-center text-[9px] text-gray-600 sm:px-1 sm:text-xs">
-                                {recommendation.originalRecommendedBy
-                                  ? `Originally by ${recommendation.originalRecommendedBy.username?.charAt(0).toUpperCase() + recommendation.originalRecommendedBy.username?.slice(1)}`
-                                  : `By ${recommendation.user.username?.charAt(0).toUpperCase() + recommendation.user.username?.slice(1)}`}
+                            {/* ✅ CHANGED: Footer section - 2 rows layout */}
+                            <div className="flex h-12 flex-shrink-0 flex-col justify-between bg-[#f8ede6] px-2 py-1 sm:h-14 sm:px-3 sm:py-1.5">
+                              {/* Row 1: Category - centered, dark blue, bold Manrope */}
+                              <p className="font-boldManrope text-darkBlue text-center text-[11px] sm:text-sm">
+                                {toTitleCase(recommendation.category)}
                               </p>
+
+                              {/* Row 2: + icon and username */}
+                              <div className="flex items-center justify-between">
+                                <button
+                                  onClick={() =>
+                                    handleCopyClick(recommendation)
+                                  }
+                                  className="text-hotCoralPink transition-colors hover:text-pink-600"
+                                  aria-label="Add to my recommendations"
+                                >
+                                  <i className="fa-solid fa-plus text-[10px] sm:text-sm"></i>
+                                </button>
+
+                                <p className="truncate px-0.5 text-center text-[9px] text-gray-600 sm:px-1 sm:text-xs">
+                                  {recommendation.originalRecommendedBy
+                                    ? `Originally by ${recommendation.originalRecommendedBy.username?.charAt(0).toUpperCase() + recommendation.originalRecommendedBy.username?.slice(1)}`
+                                    : `By ${recommendation.user.username?.charAt(0).toUpperCase() + recommendation.user.username?.slice(1)}`}
+                                </p>
+                              </div>
                             </div>
                           </div>
                         </div>
