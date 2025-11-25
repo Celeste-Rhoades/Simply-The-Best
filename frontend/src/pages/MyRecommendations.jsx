@@ -204,7 +204,7 @@ const MyRecommendations = () => {
 
   return (
     <div
-      className={`relative flex min-h-screen w-full flex-col ${isDarkMode ? "bg-gray-700" : "bg-lightTanGray"}`}
+      className={`relative flex min-h-screen w-full flex-col ${isDarkMode ? "bg-gray-800" : "bg-lightTanGray"}`}
     >
       <NavBar />
 
@@ -540,16 +540,18 @@ const MyRecommendations = () => {
         onClose={() => setShowDescriptionModal(false)}
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
       >
-        <DialogPanel className="mx-4 w-full max-w-md rounded-lg bg-white p-6">
+        <DialogPanel className="mx-4 flex max-h-[85vh] w-full max-w-md flex-col rounded-lg bg-white p-6">
           <h3 className="mb-4 text-xl font-bold text-gray-800">
             {toTitleCase(selectedDescription.title)}
           </h3>
-          <p className="whitespace-pre-wrap text-gray-700">
-            {selectedDescription.description}
-          </p>
+          <div className="flex-1 overflow-y-auto pr-2">
+            <p className="whitespace-pre-wrap text-gray-700">
+              {selectedDescription.description}
+            </p>
+          </div>
           <button
             onClick={() => setShowDescriptionModal(false)}
-            className="bg-tangerine hover:bg-lightOrange mt-4 w-full rounded px-4 py-2 text-white"
+            className="bg-lightOrange hover:bg-hotCoralPink mt-4 w-full rounded px-4 py-2 text-white"
           >
             Close
           </button>
@@ -562,14 +564,16 @@ const MyRecommendations = () => {
         onClose={() => setShowTitleModal(false)}
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
       >
-        <DialogPanel className="mx-4 w-full max-w-md rounded-lg bg-white p-6">
+        <DialogPanel className="mx-4 flex max-h-[85vh] w-full max-w-md flex-col rounded-lg bg-white p-6">
           <h3 className="mb-4 text-xl font-bold text-gray-800">Full Title</h3>
-          <p className="whitespace-pre-wrap text-gray-700">
-            {toTitleCase(selectedTitle)}
-          </p>
+          <div className="flex-1 overflow-y-auto pr-2">
+            <p className="whitespace-pre-wrap text-gray-700">
+              {toTitleCase(selectedTitle)}
+            </p>
+          </div>
           <button
             onClick={() => setShowTitleModal(false)}
-            className="bg-tangerine hover:bg-lightOrange mt-4 w-full rounded px-4 py-2 text-white"
+            className="bg-lightOrange hover:bg-hotCoralPink mt-4 w-full rounded px-4 py-2 text-white"
           >
             Close
           </button>
