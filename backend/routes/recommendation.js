@@ -27,9 +27,9 @@ router.post("/", protectRoute, createRecommendation);
 router.get("/users", protectRoute, getUsers);
 
 //update recommendation
-router.put("/:id", updateRecommendation);
+router.put("/:id", protectRoute, updateRecommendation);
 //delete recommendations
-router.delete("/:id", deleteRecommendation);
+router.delete("/:id", protectRoute, deleteRecommendation);
 
 //accepting and declining recommendation
 router.get("/pending", protectRoute, getPendingRecommendations);

@@ -73,37 +73,68 @@ export const createRecommendation = async (req, res) => {
 
 export const updateRecommendation = async (req, res) => {
   const { id } = req.params;
-  const recommendation = req.body;
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res
-      .status(404)
-      .json({ success: false, message: "Invalid recommendation id" });
-  }
+  const { title, description, category, rating } = req.body;
 
   try {
-    const updatedRecommendation = await Recommend.findByIdAndUpdate(
-      id,
-      recommendation,
-      { new: true }
-    );
-    res.status(200).json({ success: true, data: updatedRecommendation });
+    // Find the recommendation first
+    const recommendation = await Recommend.findById(id);
+
+    if (!recommendation) {
+      return res.status(404).json({ error: "Recommendation not found" });
+    }
+
+    //  Verify the user owns this recommendation
+    if (recommendation.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        error: "You are not authorized to edit this recommendation",
+      });
+    }
+
+    // User owns it - safe to update
+    recommendation.title = title || recommendation.title;
+    recommendation.description = description || recommendation.description;
+    recommendation.category = category || recommendation.category;
+    recommendation.rating = rating || recommendation.rating;
+
+    await recommendation.save();
+
+    res.status(200).json({
+      message: "Recommendation updated successfully",
+      data: recommendation,
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Server Error" });
+    console.error("Error updating recommendation:", error);
+    res.status(500).json({ error: "Failed to update recommendation" });
   }
 };
 
 export const deleteRecommendation = async (req, res) => {
   const { id } = req.params;
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res
-      .status(404)
-      .json({ success: false, message: "Invalid recommendation ID" });
-  }
+
   try {
+    // Find the recommendation first
+    const recommendation = await Recommend.findById(id);
+
+    if (!recommendation) {
+      return res.status(404).json({ error: "Recommendation not found" });
+    }
+
+    // Verify the user owns this recommendation
+    if (recommendation.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        error: "You are not authorized to delete this recommendation",
+      });
+    }
+
+    // User owns it - safe to delete
     await Recommend.findByIdAndDelete(id);
-    res.status(200).json({ success: true, message: "Recommendation Deleted" });
+
+    res.status(200).json({
+      message: "Recommendation deleted successfully",
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Server Error" });
+    console.error("Error deleting recommendation:", error);
+    res.status(500).json({ error: "Failed to delete recommendation" });
   }
 };
 export const getPendingRecommendations = async (req, res) => {
