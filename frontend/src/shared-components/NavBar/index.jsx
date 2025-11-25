@@ -159,7 +159,7 @@ const NavBar = () => {
                     }}
                   >
                     <i className="fa-solid fa-magnifying-glass mr-2"></i>
-                    Search Users
+                    Find Friends
                   </button>
                 </div>
 

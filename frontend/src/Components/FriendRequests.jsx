@@ -6,10 +6,9 @@ import routes from "../routes";
 const FriendRequests = () => {
   // State management - grouped logically
   const [pendingRequests, setPendingRequests] = useState([]);
-  const [isLoading, setIsLoading] = useState(true); // Start as true for initial load
+  const [isLoading, setIsLoading] = useState(true);
   const [errors, setErrors] = useState("");
   const [processing, setProcessing] = useState({});
-  const [acceptSuccess, setAcceptSuccess] = useState("");
 
   const navigate = useNavigate();
 
@@ -59,24 +58,17 @@ const FriendRequests = () => {
   };
 
   // Function to accept a friend request
-  const acceptFriendRequest = async (userId, username) => {
-    // Input validation
+  const acceptFriendRequest = async (userId) => {
     if (!userId || typeof userId !== "string") {
       setErrors("Invalid user ID");
       return;
     }
 
-    // Prevent duplicate processing
     if (processing[userId]) {
       return;
     }
 
-    // Set processing state for this specific request
-    setProcessing((prevProcessing) => ({
-      ...prevProcessing,
-      [userId]: true,
-    }));
-
+    setProcessing((prev) => ({ ...prev, [userId]: true }));
     setErrors("");
 
     try {
@@ -86,20 +78,16 @@ const FriendRequests = () => {
       );
 
       if (res.ok) {
-        // Optimistic update - remove accepted request immediately
-        setPendingRequests((prevRequests) =>
-          prevRequests.filter((request) => request._id !== userId),
+        // Remove from pending requests
+        setPendingRequests((prev) =>
+          prev.filter((request) => request._id !== userId),
         );
 
-        // Show success message
-        setAcceptSuccess(
-          `You're now friends with ${username}! Redirecting to see their recommendations...`,
-        );
-
-        // Navigate to RecommendHome after 1.5 seconds with refresh flag
-        setTimeout(() => {
-          navigate(routes.recommendations, { state: { refresh: true } });
-        }, 1500);
+        // Navigate with state to trigger refetch, use replace to avoid back button issues
+        navigate(routes.recommendations, {
+          state: { refetchFriends: Date.now() },
+          replace: true,
+        });
       } else {
         const errorMessage = await handleServerError(
           res,
@@ -230,25 +218,6 @@ const FriendRequests = () => {
     );
   }
 
-  // Render success message
-  if (acceptSuccess) {
-    return (
-      <div>
-        <h2>Friend Requests</h2>
-        <div
-          style={{
-            background: "#d1fae5",
-            padding: "1rem",
-            borderRadius: "0.5rem",
-            color: "#065f46",
-          }}
-        >
-          {acceptSuccess}
-        </div>
-      </div>
-    );
-  }
-
   // Render empty state
   if (pendingRequests.length === 0) {
     return (
@@ -270,7 +239,7 @@ const FriendRequests = () => {
           <p>wants to be your friend</p>
 
           <button
-            onClick={() => acceptFriendRequest(request._id, request.username)}
+            onClick={() => acceptFriendRequest(request._id)}
             disabled={processing[request._id]}
             type="button"
           >

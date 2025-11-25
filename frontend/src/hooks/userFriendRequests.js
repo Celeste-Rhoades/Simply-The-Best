@@ -7,25 +7,30 @@ export const useFriendRequests = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [processing, setProcessing] = useState({});
 
-  const fetchPendingRequests = async () => {
-    setIsLoading(true);
-    try {
-      const res = await apiFetch("GET", "/api/users/friendRequests/pending");
-      if (res.ok) {
-        const data = await res.json();
-        setPendingRequests(data.data);
-        setPendingCount(data.data.length);
+  // Fetch pending requests on mount
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const res = await apiFetch("GET", "/api/users/friendRequests/pending");
+
+        if (res.ok) {
+          const data = await res.json();
+          setPendingRequests(data.data || []);
+          setPendingCount(data.data?.length || 0);
+        }
+      } catch (error) {
+        console.error("Error fetching friend requests:", error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.log("Error fetching pending requests:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
 
+    fetchRequests();
+  }, []);
+
+  // Accept friend request - RETURNS TRUE ON SUCCESS
   const acceptRequest = async (userId) => {
-    if (processing[userId]) return;
-
+    // Set processing state
     setProcessing((prev) => ({ ...prev, [userId]: "accepting" }));
 
     try {
@@ -33,27 +38,50 @@ export const useFriendRequests = () => {
         "POST",
         `/api/users/friendRequest/accept/${userId}`,
       );
+
       if (res.ok) {
-        // Remove from pending requests
-        setPendingRequests((prev) =>
-          prev.filter((request) => request._id !== userId),
-        );
+        // Update local state - remove from pending list
+        setPendingRequests((prev) => prev.filter((r) => r._id !== userId));
         setPendingCount((prev) => prev - 1);
+
+        // Clear processing state
+        setProcessing((prev) => {
+          const newState = { ...prev };
+          delete newState[userId];
+          return newState;
+        });
+
+        // IMPORTANT: Return true for success
+        return true;
       }
-    } catch (error) {
-      console.log("Error accepting friend request:", error);
-    } finally {
+
+      // Clear processing state on failure
       setProcessing((prev) => {
-        const newProcessing = { ...prev };
-        delete newProcessing[userId];
-        return newProcessing;
+        const newState = { ...prev };
+        delete newState[userId];
+        return newState;
       });
+
+      // IMPORTANT: Return false for failure
+      return false;
+    } catch (error) {
+      console.error("Error accepting request:", error);
+
+      // Clear processing state on error
+      setProcessing((prev) => {
+        const newState = { ...prev };
+        delete newState[userId];
+        return newState;
+      });
+
+      // IMPORTANT: Return false for error
+      return false;
     }
   };
 
+  // Decline friend request
   const declineRequest = async (userId) => {
-    if (processing[userId]) return;
-
+    // Set processing state
     setProcessing((prev) => ({ ...prev, [userId]: "declining" }));
 
     try {
@@ -61,35 +89,37 @@ export const useFriendRequests = () => {
         "POST",
         `/api/users/friendRequest/decline/${userId}`,
       );
+
       if (res.ok) {
-        // Remove from pending requests
-        setPendingRequests((prev) =>
-          prev.filter((request) => request._id !== userId),
-        );
+        // Update local state - remove from pending list
+        setPendingRequests((prev) => prev.filter((r) => r._id !== userId));
         setPendingCount((prev) => prev - 1);
       }
-    } catch (error) {
-      console.log("Error declining friend request:", error);
-    } finally {
+
+      // Clear processing state
       setProcessing((prev) => {
-        const newProcessing = { ...prev };
-        delete newProcessing[userId];
-        return newProcessing;
+        const newState = { ...prev };
+        delete newState[userId];
+        return newState;
+      });
+    } catch (error) {
+      console.error("Error declining request:", error);
+
+      // Clear processing state on error
+      setProcessing((prev) => {
+        const newState = { ...prev };
+        delete newState[userId];
+        return newState;
       });
     }
   };
-
-  useEffect(() => {
-    fetchPendingRequests();
-  }, []);
 
   return {
     pendingRequests,
     pendingCount,
     isLoading,
-    acceptRequest,
-    declineRequest,
     processing,
-    refreshCount: fetchPendingRequests,
+    acceptRequest, // Now returns true/false
+    declineRequest,
   };
 };

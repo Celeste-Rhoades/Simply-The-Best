@@ -21,7 +21,12 @@ const FriendRequestsDropdown = () => {
   };
 
   const handleAccept = async (userId) => {
-    await acceptRequest(userId);
+    const success = await acceptRequest(userId);
+
+    // If accept was successful, reload page to show new friend's recommendations
+    if (success) {
+      window.location.reload();
+    }
   };
 
   const handleDecline = async (userId) => {
@@ -36,7 +41,7 @@ const FriendRequestsDropdown = () => {
         className="relative text-white hover:text-gray-200"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <i className="fa-solid fa-bell text-xl"></i>
+        <i className="fa-solid fa-bell xs:text-sm sm:text-lg lg:text-xl"></i>
         {pendingCount > 0 && (
           <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
             {pendingCount > 9 ? "9+" : pendingCount}

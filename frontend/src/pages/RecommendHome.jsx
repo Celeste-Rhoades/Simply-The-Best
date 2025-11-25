@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
-import { useLocation } from "react-router-dom";
 
 import NavBar from "shared-components/NavBar";
 import RecommendAddModal from "./RecommendAddModal";
@@ -26,7 +25,6 @@ const RecommendHome = () => {
   const [selectedTitle, setSelectedTitle] = useState("");
 
   const loadMoreRef = useRef(null);
-  const location = useLocation();
 
   const {
     friendsRecs,
@@ -36,14 +34,6 @@ const RecommendHome = () => {
     loadMoreFriends,
     copyRecommendation,
   } = useFriendsRecommendations();
-
-  // Trigger refresh when navigated with refresh flag
-  useEffect(() => {
-    if (location.state?.refresh) {
-      // Reload the page to show new friend's recommendations
-      window.location.reload();
-    }
-  }, [location]);
 
   // Lazy loading intersection observer
   useEffect(() => {

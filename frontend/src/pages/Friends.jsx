@@ -156,7 +156,7 @@ const Friends = () => {
                     handleRemoveFriend(friend._id, friend.username)
                   }
                   disabled={processing[friend._id]}
-                  className="bg-tangerine hover:bg-lightOrange rounded px-3 py-1.5 text-sm text-white transition-colors disabled:opacity-50"
+                  className="bg-lightOrange hover:bg-hotCoralPink rounded px-3 py-1.5 text-sm text-white transition-colors disabled:opacity-50"
                   aria-label="Remove friend"
                 >
                   {processing[friend._id] ? (
