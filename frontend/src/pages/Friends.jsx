@@ -81,7 +81,7 @@ const Friends = () => {
 
   return (
     <div
-      className={`relative min-h-screen w-full ${isDarkMode ? "bg-gray-900" : "bg-lightTanGray"}`}
+      className={`relative min-h-screen w-full ${isDarkMode ? "bg-gray-700" : "bg-lightTanGray"}`}
     >
       <NavBar />
 

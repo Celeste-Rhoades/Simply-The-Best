@@ -110,7 +110,7 @@ const UserSearch = () => {
 
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-lightTanGray"}`}
+      className={`min-h-screen ${isDarkMode ? "bg-gray-700" : "bg-lightTanGray"}`}
     >
       {/* Navbar - Matches main NavBar responsive design */}
       <nav className="bg-laguna relative z-40 flex justify-center">
@@ -209,7 +209,9 @@ const UserSearch = () => {
 
       {/* Search Content */}
       <div className="p-4">
-        <h1 className="mb-4 text-center text-2xl font-bold text-gray-800">
+        <h1
+          className={`mb-4 text-center text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-800"}`}
+        >
           Find Friends
         </h1>
 
@@ -229,7 +231,9 @@ const UserSearch = () => {
         {/* Loading */}
         {isLoading && (
           <div className="py-4 text-center">
-            <p className="text-gray-600">Searching...</p>
+            <p className={isDarkMode ? "text-gray-300" : "text-gray-600"}>
+              Searching...
+            </p>
           </div>
         )}
 
@@ -287,7 +291,9 @@ const UserSearch = () => {
           !searchError &&
           searchTerm.trim() && (
             <div className="py-4 text-center">
-              <p className="text-gray-600">No users found</p>
+              <p className={isDarkMode ? "text-gray-300" : "text-gray-600"}>
+                No users found
+              </p>
             </div>
           )}
       </div>

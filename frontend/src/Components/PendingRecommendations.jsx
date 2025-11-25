@@ -42,7 +42,7 @@ const PendingRecommendations = () => {
 
   return (
     <div
-      className={`flex min-h-screen flex-col ${isDarkMode ? "bg-gray-900" : "bg-lightTanGray"}`}
+      className={`flex min-h-screen flex-col ${isDarkMode ? "bg-gray-700" : "bg-lightTanGray"}`}
     >
       <NavBar />
 

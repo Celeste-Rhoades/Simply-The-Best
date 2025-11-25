@@ -118,7 +118,7 @@ const RecommendHome = () => {
 
   return (
     <div
-      className={`relative flex min-h-screen w-full flex-col ${isDarkMode ? "bg-gray-900" : "bg-lightTanGray"}`}
+      className={`relative flex min-h-screen w-full flex-col ${isDarkMode ? "bg-gray-700" : "bg-lightTanGray"}`}
     >
       <NavBar />
 
