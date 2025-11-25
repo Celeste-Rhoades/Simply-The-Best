@@ -41,7 +41,7 @@ const FriendRequestsDropdown = () => {
         className="relative text-white hover:text-gray-200"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <i className="fa-solid fa-bell text-base sm:text-lg md:text-xl lg:text-2xl"></i>
+        <i className="fa-solid fa-bell text-base sm:text-lg md:text-xl lg:text-xl"></i>
         {pendingCount > 0 && (
           <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white sm:h-5 sm:w-5 sm:text-xs">
             {pendingCount > 9 ? "9+" : pendingCount}

@@ -110,7 +110,7 @@ const UserSearch = () => {
 
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? "bg-gray-700" : "bg-lightTanGray"}`}
+      className={`min-h-screen ${isDarkMode ? "bg-gray-800" : "bg-lightTanGray"}`}
     >
       {/* Navbar - Matches main NavBar responsive design */}
       <nav className="bg-laguna relative z-40 flex justify-center">
@@ -148,59 +148,68 @@ const UserSearch = () => {
                 <span className="h-0.5 w-6 bg-white transition-all duration-300"></span>
               </button>
               {userOpenMenu && (
-                <div className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex min-w-48 flex-col rounded-md px-6 py-4 text-lg text-stone-800 shadow-md">
-                  <div className="mb-3 border-b border-stone-300 pb-2">
-                    <span className="text-sm text-stone-600">
-                      Signed in as:
-                    </span>
-                    <div className="font-semibold">
-                      {username === null
-                        ? "Loading..."
-                        : username
-                          ? username
-                          : "Guest"}
+                <>
+                  {/* Backdrop - click to close */}
+                  <div
+                    className="fixed inset-0 z-[9998]"
+                    onClick={() => setUserOpenMenu(false)}
+                  ></div>
+
+                  {/* Dropdown Menu */}
+                  <div className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex min-w-48 flex-col rounded-md px-6 py-4 text-lg text-stone-800 shadow-md">
+                    <div className="mb-3 border-b border-stone-300 pb-2">
+                      <span className="text-sm text-stone-600">
+                        Signed in as:
+                      </span>
+                      <div className="font-semibold">
+                        {username === null
+                          ? "Loading..."
+                          : username
+                            ? username
+                            : "Guest"}
+                      </div>
                     </div>
+
+                    <button
+                      className="hover:text-cerulean mb-2 py-1 text-left"
+                      onClick={() => {
+                        setUserOpenMenu(false);
+                        navigate(routes.recommendations);
+                      }}
+                    >
+                      <i className="fa-solid fa-house mr-2"></i>
+                      Home
+                    </button>
+                    <button
+                      className="hover:text-cerulean mb-2 py-1 text-left"
+                      onClick={() => {
+                        setUserOpenMenu(false);
+                        navigate(routes.myRecommendations);
+                      }}
+                    >
+                      <i className="fa-solid fa-user mr-2"></i>
+                      My Recommendations
+                    </button>
+                    <button
+                      className="hover:text-cerulean mb-2 py-1 text-left"
+                      onClick={() => {
+                        setUserOpenMenu(false);
+                        navigate(routes.friends);
+                      }}
+                    >
+                      <i className="fa-solid fa-user-group mr-2"></i>
+                      Friends
+                    </button>
+
+                    <button
+                      className="hover:text-cerulean py-1 text-left"
+                      onClick={() => logout()}
+                    >
+                      <i className="fa-solid fa-arrow-right-from-bracket mr-2"></i>
+                      Sign out
+                    </button>
                   </div>
-
-                  <button
-                    className="hover:text-cerulean mb-2 py-1 text-left"
-                    onClick={() => {
-                      setUserOpenMenu(false);
-                      navigate(routes.recommendations);
-                    }}
-                  >
-                    <i className="fa-solid fa-house mr-2"></i>
-                    Home
-                  </button>
-                  <button
-                    className="hover:text-cerulean mb-2 py-1 text-left"
-                    onClick={() => {
-                      setUserOpenMenu(false);
-                      navigate(routes.myRecommendations);
-                    }}
-                  >
-                    <i className="fa-solid fa-user mr-2"></i>
-                    My Recommendations
-                  </button>
-                  <button
-                    className="hover:text-cerulean mb-2 py-1 text-left"
-                    onClick={() => {
-                      setUserOpenMenu(false);
-                      navigate(routes.friends);
-                    }}
-                  >
-                    <i className="fa-solid fa-user-group mr-2"></i>
-                    Friends
-                  </button>
-
-                  <button
-                    className="hover:text-cerulean py-1 text-left"
-                    onClick={() => logout()}
-                  >
-                    <i className="fa-solid fa-arrow-right-from-bracket mr-2"></i>
-                    Sign out
-                  </button>
-                </div>
+                </>
               )}
             </div>
           </div>
