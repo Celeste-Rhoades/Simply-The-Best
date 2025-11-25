@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
+import { useTheme } from "../contexts/ThemeContext";
 
 import NavBar from "shared-components/NavBar";
 import RecommendAddModal from "./RecommendAddModal";
@@ -12,6 +13,7 @@ const RecommendHome = () => {
   const [selectedRecommendation, setSelectedRecommendation] = useState(null);
   const [carouselIndex, setCarouselIndex] = useState({});
   const [copySuccess, setCopySuccess] = useState("");
+  const { isDarkMode } = useTheme();
 
   // See more modal state
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
@@ -115,13 +117,15 @@ const RecommendHome = () => {
   };
 
   return (
-    <div className="bg-lightTanGray relative flex min-h-screen w-full flex-col">
+    <div
+      className={`relative flex min-h-screen w-full flex-col ${isDarkMode ? "bg-gray-900" : "bg-lightTanGray"}`}
+    >
       <NavBar />
 
       {/* Mobile and Desktop: Add Button - centered on mobile, right-aligned on desktop */}
       <div className="mx-4 mt-4 flex justify-center sm:mx-8 sm:justify-end">
         <button
-          className="bg-coral font-raleway hover:bg-hotCoralPink rounded-md px-3 py-2 text-sm text-white shadow-lg transition-colors sm:mx-4 sm:px-4"
+          className="bg-coral font-raleway hover:bg-hotCoralPink rounded-md px-3 py-2 text-sm text-white shadow-lg transition-colors sm:px-4"
           onClick={() => setShowForm(true)}
         >
           Add recommendation
@@ -139,7 +143,9 @@ const RecommendHome = () => {
       <div className="mx-4 mt-8 sm:mx-8">
         {isLoading && Object.keys(friendsRecs).length === 0 ? (
           <div className="font-manrope flex items-center justify-center py-12">
-            <p className="text-lg text-gray-600">
+            <p
+              className={`text-lg ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+            >
               Loading friends' recommendations...
             </p>
           </div>
@@ -155,7 +161,9 @@ const RecommendHome = () => {
           </div>
         ) : Object.keys(friendsRecs).length === 0 ? (
           <div className="py-12 text-center">
-            <p className="font-raleway text-lg text-gray-600">
+            <p
+              className={`font-raleway text-lg ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+            >
               No recommendations from friends yet. Add some friends to see their
               recommendations!
             </p>
@@ -165,7 +173,9 @@ const RecommendHome = () => {
             {Object.entries(friendsRecs).map(([userId, userdata]) => (
               <div key={userId} className="mb-8">
                 {/* Friend's Username Header */}
-                <h2 className="font-boldRaleway text-darkBlue mb-4 pb-4 text-2xl">
+                <h2
+                  className={`font-boldRaleway mb-4 pb-4 text-2xl ${isDarkMode ? "text-white" : "text-darkBlue"}`}
+                >
                   {userdata.username?.charAt(0).toUpperCase() +
                     userdata.username?.slice(1)}
                   's Recommendations
@@ -322,7 +332,9 @@ const RecommendHome = () => {
             {/* Lazy Loading Trigger */}
             {hasMore && (
               <div ref={loadMoreRef} className="py-8 text-center">
-                <p className="text-gray-600">Loading more friends...</p>
+                <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+                  Loading more friends...
+                </p>
               </div>
             )}
           </div>

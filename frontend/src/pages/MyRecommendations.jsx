@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "../contexts/ThemeContext";
 
 import apiFetch from "services/apiFetch";
 import NavBar from "shared-components/NavBar";
@@ -19,6 +20,7 @@ const MyRecommendations = () => {
   const [carouselIndex, setCarouselIndex] = useState({});
   const [pendingCount, setPendingCount] = useState(0);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const { isDarkMode } = useTheme();
 
   // Share existing recommendation states
   const [showRecommendModal, setShowRecommendModal] = useState(false);
@@ -201,7 +203,9 @@ const MyRecommendations = () => {
   };
 
   return (
-    <div className="bg-lightTanGray relative flex min-h-screen w-full flex-col">
+    <div
+      className={`relative flex min-h-screen w-full flex-col ${isDarkMode ? "bg-gray-900" : "bg-lightTanGray"}`}
+    >
       <NavBar />
 
       {/* Success Messages */}
@@ -287,7 +291,11 @@ const MyRecommendations = () => {
       <div className="mx-4 mt-8 sm:mx-8">
         {isLoading ? (
           <div className="font-manrope flex items-center justify-center py-12">
-            <p className="text-lg text-gray-600">Loading recommendations...</p>
+            <p
+              className={`text-lg ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+            >
+              Loading recommendations...
+            </p>
           </div>
         ) : errors ? (
           <div className="rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
@@ -301,7 +309,9 @@ const MyRecommendations = () => {
           </div>
         ) : Object.keys(showRec).length === 0 ? (
           <div className="py-12 text-center">
-            <p className="font-rale text-lg text-gray-600">
+            <p
+              className={`font-rale text-lg ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+            >
               No recommendations yet. Add your first one!
             </p>
           </div>
@@ -318,7 +328,9 @@ const MyRecommendations = () => {
               })
               .map((category) => (
                 <div key={category} className="mb-8">
-                  <h2 className="font-boldRaleway text-darkBlue mb-4 pb-4 text-2xl">
+                  <h2
+                    className={`font-boldRaleway mb-4 pb-4 text-2xl ${isDarkMode ? "text-white" : "text-darkBlue"}`}
+                  >
                     {toTitleCase(category)}
                   </h2>
 

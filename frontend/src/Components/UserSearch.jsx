@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useTheme } from "../contexts/ThemeContext";
 import apiFetch from "../services/apiFetch";
 import { AppContext } from "../App";
 import routes from "../routes";
@@ -9,6 +10,7 @@ const UserSearch = () => {
   const { username, setUsername } = useContext(AppContext);
   const [userOpenMenu, setUserOpenMenu] = useState(false);
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -107,7 +109,9 @@ const UserSearch = () => {
   }, []);
 
   return (
-    <div className="bg-lightTanGray min-h-screen">
+    <div
+      className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-lightTanGray"}`}
+    >
       {/* Navbar - Matches main NavBar responsive design */}
       <nav className="bg-laguna relative z-40 flex justify-center">
         <div className="relative flex w-full max-w-7xl items-center justify-between px-2 py-2 sm:px-4 md:px-6">

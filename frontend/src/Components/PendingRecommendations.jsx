@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "../contexts/ThemeContext";
 import routes from "../routes";
 import { usePendingRecommendations } from "../hooks/usePendingRecommendations";
 import NavBar from "../shared-components/NavBar";
@@ -14,6 +15,7 @@ const PendingRecommendations = () => {
   } = usePendingRecommendations();
 
   const [processingId, setProcessingId] = useState(null);
+  const { isDarkMode } = useTheme();
 
   // Redirect when no pending recommendations
   useEffect(() => {
@@ -39,7 +41,9 @@ const PendingRecommendations = () => {
   };
 
   return (
-    <div className="bg-lightTanGray flex min-h-screen flex-col">
+    <div
+      className={`flex min-h-screen flex-col ${isDarkMode ? "bg-gray-900" : "bg-lightTanGray"}`}
+    >
       <NavBar />
 
       <main className="flex-1 px-4 py-8 sm:px-6 lg:px-8">
@@ -53,13 +57,19 @@ const PendingRecommendations = () => {
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-500">
                 <i className="fa-solid fa-check text-3xl text-white"></i>
               </div>
-              <h2 className="mb-2 text-2xl font-semibold text-gray-800">
+              <h2
+                className={`mb-2 text-2xl font-semibold ${isDarkMode ? "text-white" : "text-gray-800"}`}
+              >
                 All caught up!
               </h2>
-              <p className="mb-4 text-gray-600">
+              <p
+                className={`mb-4 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+              >
                 No more pending recommendations.
               </p>
-              <p className="text-sm text-gray-500">
+              <p
+                className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              >
                 Redirecting to My Recommendations...
               </p>
             </div>

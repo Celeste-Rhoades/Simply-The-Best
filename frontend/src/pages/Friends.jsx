@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTheme } from "../contexts/ThemeContext";
 import NavBar from "shared-components/NavBar";
 import apiFetch from "../services/apiFetch";
 
@@ -8,6 +9,7 @@ const Friends = () => {
   const [error, setError] = useState("");
   const [processing, setProcessing] = useState({});
   const [deleteSuccess, setDeleteSuccess] = useState("");
+  const { isDarkMode } = useTheme();
 
   // Fetch friends list
   const fetchFriends = async () => {
@@ -78,11 +80,15 @@ const Friends = () => {
   }, []);
 
   return (
-    <div className="bg-lightTanGray relative min-h-screen w-full">
+    <div
+      className={`relative min-h-screen w-full ${isDarkMode ? "bg-gray-900" : "bg-lightTanGray"}`}
+    >
       <NavBar />
 
       <div className="mx-4 mt-8 sm:mx-8">
-        <h1 className="font-boldRaleway text-darkBlue mb-6 text-3xl">
+        <h1
+          className={`font-boldRaleway mb-6 text-3xl ${isDarkMode ? "text-white" : "text-darkBlue"}`}
+        >
           My Friends
         </h1>
 
@@ -109,18 +115,28 @@ const Friends = () => {
         {/* Loading State */}
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <p className="text-lg text-gray-600">Loading friends...</p>
+            <p
+              className={`text-lg ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+            >
+              Loading friends...
+            </p>
           </div>
         ) : friends.length === 0 ? (
           // Empty State
           <div className="py-12 text-center">
             <div className="mb-4">
-              <i className="fa-solid fa-user-group mb-4 text-6xl text-gray-400"></i>
+              <i
+                className={`fa-solid fa-user-group mb-4 text-6xl ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}
+              ></i>
             </div>
-            <p className="font-raleway mb-2 text-xl text-gray-700">
+            <p
+              className={`font-raleway mb-2 text-xl ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}
+            >
               No friends yet
             </p>
-            <p className="font-raleway text-gray-600">
+            <p
+              className={`font-raleway ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+            >
               Start adding friends to see their recommendations!
             </p>
           </div>
@@ -173,7 +189,9 @@ const Friends = () => {
         {/* Friends Count */}
         {!isLoading && friends.length > 0 && (
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            <p
+              className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+            >
               You have {friends.length}{" "}
               {friends.length === 1 ? "friend" : "friends"}
             </p>
