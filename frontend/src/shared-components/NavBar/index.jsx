@@ -6,6 +6,7 @@ import logo1 from "../../images/logo.png";
 import FriendRequestsDropdown from "../../Components/FriendRequestsDropdown";
 import SearchBar from "../../Components/SearchBar";
 import ThemeToggle from "../../Components/ThemeToggle";
+import apiFetch from "../../services/apiFetch";
 
 const NavBar = () => {
   const { username, setUsername } = useContext(AppContext);
@@ -14,10 +15,7 @@ const NavBar = () => {
   const navigate = useNavigate();
 
   const logout = async () => {
-    const response = await fetch("/api/auth/logout", {
-      method: "POST",
-      credentials: "include",
-    });
+    const response = await apiFetch("POST", "/api/auth/logout");
     if (response.ok) {
       setUsername(null);
       navigate(routes.signIn);
