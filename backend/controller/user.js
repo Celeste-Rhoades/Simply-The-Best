@@ -3,6 +3,8 @@ import Notification from "../models/Notification.js";
 import Recommend from "../models/Recommend.js";
 
 import bcrypt from "bcryptjs";
+import { io } from "../server.js";
+import { getUserSocketId } from "../socket/socket.js";
 
 export const getUserProfile = async (req, res) => {
   const { username } = req.params;
@@ -112,6 +114,22 @@ export const removeFriend = async (req, res) => {
     await currentUser.save();
     await friendUser.save();
 
+    // Emit socket events to both users
+    const friendSocketId = getUserSocketId(id);
+    if (friendSocketId) {
+      io.to(friendSocketId).emit("friendRemoved", {
+        removedBy: req.user._id,
+      });
+    }
+
+    // Also notify the current user (for multi-device sync)
+    const currentUserSocketId = getUserSocketId(req.user._id.toString());
+    if (currentUserSocketId) {
+      io.to(currentUserSocketId).emit("friendRemoved", {
+        removedFriendId: id,
+      });
+    }
+
     // Return success response
     res.status(200).json({ message: "Friend removed successfully" });
   } catch (error) {
@@ -154,6 +172,15 @@ export const sendFriendRequest = async (req, res) => {
     await currentUser.save();
     await userToModify.save();
 
+    //Emit socket event to recipient
+    const recipientSocketId = getUserSocketId(id);
+    if (recipientSocketId) {
+      io.to(recipientSocketId).emit("newFriendRequest", {
+        senderId: req.user._id,
+        senderUsername: currentUser.username,
+      });
+    }
+
     // Return success response
     res.status(200).json({ message: "Friend request sent successfully" });
   } catch (error) {
@@ -194,6 +221,33 @@ export const acceptFriendRequest = async (req, res) => {
     await currentUser.save();
     await requestingUser.save();
 
+    // Create notification for the person who sent the request
+    const notification = new Notification({
+      from: req.user._id, //person who accepted
+      to: id, //Person who sent
+      type: "friend_request_accepted",
+      read: false,
+    });
+    await notification.save();
+
+    // Emit socket event to the requesting user
+    const requesterSocketId = getUserSocketId(id);
+    if (requesterSocketId) {
+      io.to(requesterSocketId).emit("friendRequestAccepted", {
+        acceptorId: req.user._id,
+        acceptorUsername: currentUser.username,
+        notification: notification,
+      });
+    }
+    // Also emit to the acceptor (current user) so their friends list updates
+    const acceptorSocketId = getUserSocketId(req.user._id.toString());
+    if (acceptorSocketId) {
+      io.to(acceptorSocketId).emit("friendRequestAccepted", {
+        acceptorId: id,
+        acceptorUsername: requestingUser.username,
+      });
+    }
+
     // Return success response
     res.status(200).json({ message: "Friend request accepted successfully" });
   } catch (error) {
@@ -232,6 +286,14 @@ export const declineFriendRequest = async (req, res) => {
     // Save both users and return response
     await currentUser.save();
     await requestingUser.save();
+
+    // Emit socket event to the requesting user (silent removal)
+    const requesterSocketId = getUserSocketId(id);
+    if (requesterSocketId) {
+      io.to(requesterSocketId).emit("friendRequestDeclined", {
+        declinedBy: req.user._id,
+      });
+    }
 
     res.status(200).json({ message: "Friend request declined" });
   } catch (error) {

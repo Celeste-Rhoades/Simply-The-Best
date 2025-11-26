@@ -1,6 +1,8 @@
 import Recommend from "../models/Recommend.js";
 import User from "../models/User.js";
 import mongoose, { createConnection } from "mongoose";
+import { io } from "../server.js";
+import { getUserSocketId } from "../socket/socket.js";
 
 export const getRecommendation = async (req, res) => {
   try {
@@ -333,6 +335,21 @@ export const recommendToFriend = async (req, res) => {
     });
 
     await newRecommendation.save();
+
+    // Emit socket event to the friend
+    const friendSocketId = getUserSocketId(friendId);
+    if (friendSocketId) {
+      io.to(friendSocketId).emit("newRecommendation", {
+        senderId: req.user._id,
+        senderUsername: currentUser.username,
+        recommendation: {
+          id: newRecommendation._id,
+          title: newRecommendation.title,
+          category: newRecommendation.category,
+        },
+      });
+    }
+
     res.status(201).json({ success: true, data: newRecommendation });
   } catch (error) {
     console.error("Error recommending to friend:", error.message);
