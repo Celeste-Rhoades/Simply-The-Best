@@ -7,9 +7,10 @@ import FriendRequestsDropdown from "../../Components/FriendRequestsDropdown";
 import SearchBar from "../../Components/SearchBar";
 import ThemeToggle from "../../Components/ThemeToggle";
 import apiFetch from "../../services/apiFetch";
+import { disconnectSocket } from "../../services/socket";
 
 const NavBar = () => {
-  const { username, setUsername } = useContext(AppContext);
+  const { user, setUser } = useContext(AppContext);
   const [userOpenMenu, setUserOpenMenu] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const navigate = useNavigate();
@@ -17,7 +18,8 @@ const NavBar = () => {
   const logout = async () => {
     const response = await apiFetch("POST", "/api/auth/logout");
     if (response.ok) {
-      setUsername(null);
+      disconnectSocket(); // Disconnect socket on logout
+      setUser(null);
       navigate(routes.signIn);
     }
   };
@@ -60,7 +62,7 @@ const NavBar = () => {
                 onClick={() => setUserOpenMenu(!userOpenMenu)}
               >
                 <span>
-                  {username === null ? "Loading..." : username || "Guest"}
+                  {user === null ? "Loading..." : user?.username || "Guest"}
                 </span>
                 <i className="fa-solid fa-caret-down"></i>
               </button>
@@ -80,11 +82,9 @@ const NavBar = () => {
                         Signed in as:
                       </span>
                       <div className="font-semibold">
-                        {username === null
+                        {user === null
                           ? "Loading..."
-                          : username
-                            ? username
-                            : "Guest"}
+                          : user?.username || "Guest"}
                       </div>
                     </div>
 
@@ -168,11 +168,7 @@ const NavBar = () => {
                       Signed in as:
                     </span>
                     <div className="font-semibold">
-                      {username === null
-                        ? "Loading..."
-                        : username
-                          ? username
-                          : "Guest"}
+                      {user === null ? "Loading..." : user?.username || "Guest"}
                     </div>
                   </div>
 

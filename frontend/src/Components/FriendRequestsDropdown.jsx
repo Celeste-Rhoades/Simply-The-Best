@@ -1,19 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useFriendRequests } from "../hooks/userFriendRequests.js";
+import { useNotifications } from "../contexts/NotificationContext";
+import apiFetch from "../services/apiFetch";
 import routes from "../routes";
 
 const FriendRequestsDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const {
-    pendingRequests,
-    pendingCount,
-    isLoading,
-    acceptRequest,
-    declineRequest,
-    processing,
-  } = useFriendRequests();
+  const [processing, setProcessing] = useState({});
   const navigate = useNavigate();
+
+  // Get real-time data from NotificationContext
+  const { pendingRequests, friendRequestCount, removeFriendRequest } =
+    useNotifications();
 
   const handleViewAll = () => {
     setIsOpen(false);
@@ -21,16 +19,75 @@ const FriendRequestsDropdown = () => {
   };
 
   const handleAccept = async (userId) => {
-    const success = await acceptRequest(userId);
+    // Set processing state
+    setProcessing((prev) => ({ ...prev, [userId]: "accepting" }));
 
-    // If accept was successful, reload page to show new friend's recommendations
-    if (success) {
-      window.location.reload();
+    try {
+      const res = await apiFetch(
+        "POST",
+        `/api/users/friendRequest/accept/${userId}`,
+      );
+
+      if (res.ok) {
+        // Remove from list immediately
+        removeFriendRequest(userId);
+
+        // Clear processing state
+        setProcessing((prev) => {
+          const newState = { ...prev };
+          delete newState[userId];
+          return newState;
+        });
+
+        // Reload to show new friend's recommendations
+        window.location.reload();
+      } else {
+        // Clear processing on error
+        setProcessing((prev) => {
+          const newState = { ...prev };
+          delete newState[userId];
+          return newState;
+        });
+      }
+    } catch (error) {
+      console.error("Error accepting request:", error);
+      setProcessing((prev) => {
+        const newState = { ...prev };
+        delete newState[userId];
+        return newState;
+      });
     }
   };
 
   const handleDecline = async (userId) => {
-    await declineRequest(userId);
+    // Set processing state
+    setProcessing((prev) => ({ ...prev, [userId]: "declining" }));
+
+    try {
+      const res = await apiFetch(
+        "POST",
+        `/api/users/friendRequest/decline/${userId}`,
+      );
+
+      if (res.ok) {
+        // Remove from list immediately
+        removeFriendRequest(userId);
+      }
+
+      // Clear processing state
+      setProcessing((prev) => {
+        const newState = { ...prev };
+        delete newState[userId];
+        return newState;
+      });
+    } catch (error) {
+      console.error("Error declining request:", error);
+      setProcessing((prev) => {
+        const newState = { ...prev };
+        delete newState[userId];
+        return newState;
+      });
+    }
   };
 
   return (
@@ -42,9 +99,9 @@ const FriendRequestsDropdown = () => {
         onClick={() => setIsOpen(!isOpen)}
       >
         <i className="fa-solid fa-bell text-base sm:text-lg md:text-xl lg:text-xl"></i>
-        {pendingCount > 0 && (
+        {friendRequestCount > 0 && (
           <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white sm:h-5 sm:w-5 sm:text-xs">
-            {pendingCount > 9 ? "9+" : pendingCount}
+            {friendRequestCount > 9 ? "9+" : friendRequestCount}
           </span>
         )}
       </button>
@@ -57,11 +114,7 @@ const FriendRequestsDropdown = () => {
           </div>
 
           <div className="max-h-80 overflow-y-auto">
-            {isLoading ? (
-              <div className="p-4 text-center text-gray-600">
-                Loading requests...
-              </div>
-            ) : pendingRequests.length === 0 ? (
+            {pendingRequests.length === 0 ? (
               <div className="p-4 text-center text-gray-600">
                 No pending friend requests
               </div>

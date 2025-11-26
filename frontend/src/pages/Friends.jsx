@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import NavBar from "shared-components/NavBar";
 import apiFetch from "../services/apiFetch";
+import socket from "../services/socket";
 
 const Friends = () => {
   const [friends, setFriends] = useState([]);
@@ -75,8 +76,48 @@ const Friends = () => {
     }
   };
 
+  // Initial fetch
   useEffect(() => {
     fetchFriends();
+  }, []);
+
+  // Socket listeners for real-time updates
+  useEffect(() => {
+    console.log("🔔 Friends page socket listeners registered");
+
+    // When someone accepts your friend request
+    socket.on("friendRequestAccepted", (data) => {
+      console.log(
+        "Friend request accepted - adding to friends list:",
+        data.acceptorUsername,
+      );
+
+      // Add new friend to the list
+      setFriends((prev) => [
+        ...prev,
+        { _id: data.acceptorId, username: data.acceptorUsername },
+      ]);
+
+      // Show success message
+      setDeleteSuccess(`${data.acceptorUsername} is now your friend!`);
+      setTimeout(() => setDeleteSuccess(""), 3000);
+    });
+
+    // When someone removes you as a friend
+    socket.on("friendRemoved", (data) => {
+      console.log("Friend removed you:", data);
+
+      // Remove from friends list
+      setFriends((prev) =>
+        prev.filter((friend) => friend._id !== data.removedBy),
+      );
+    });
+
+    // Cleanup
+    return () => {
+      socket.off("friendRequestAccepted");
+      socket.off("friendRemoved");
+    };
   }, []);
 
   return (

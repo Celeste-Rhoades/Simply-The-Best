@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import apiFetch from "../services/apiFetch";
+import socket from "../services/socket";
 
 const SearchBar = ({
   isVisible = false,
@@ -70,6 +71,63 @@ const SearchBar = ({
 
     return () => clearTimeout(timeoutId);
   }, [searchTerm, handleSearch]);
+
+  // Socket listeners for real-time search result updates
+  useEffect(() => {
+    // When someone accepts your friend request
+    socket.on("friendRequestAccepted", (data) => {
+      setSearchResults((prevResults) =>
+        prevResults.map((user) =>
+          user._id === data.acceptorId
+            ? { ...user, isFriend: true, isPendingRequest: false }
+            : user,
+        ),
+      );
+
+      // Clear request status
+      setRequestStatus((prev) => {
+        const newStatus = { ...prev };
+        delete newStatus[data.acceptorId];
+        return newStatus;
+      });
+    });
+
+    // When someone removes you as a friend
+    socket.on("friendRemoved", (data) => {
+      setSearchResults((prevResults) =>
+        prevResults.map((user) =>
+          user._id === data.removedBy
+            ? { ...user, isFriend: false, isPendingRequest: false }
+            : user,
+        ),
+      );
+    });
+
+    // When someone declines your friend request
+    socket.on("friendRequestDeclined", (data) => {
+      setSearchResults((prevResults) =>
+        prevResults.map((user) =>
+          user._id === data.declinedBy
+            ? { ...user, isPendingRequest: false }
+            : user,
+        ),
+      );
+
+      // Clear request status
+      setRequestStatus((prev) => {
+        const newStatus = { ...prev };
+        delete newStatus[data.declinedBy];
+        return newStatus;
+      });
+    });
+
+    // Cleanup
+    return () => {
+      socket.off("friendRequestAccepted");
+      socket.off("friendRemoved");
+      socket.off("friendRequestDeclined");
+    };
+  }, []);
 
   const sendFriendRequest = useCallback(async (userId) => {
     try {
