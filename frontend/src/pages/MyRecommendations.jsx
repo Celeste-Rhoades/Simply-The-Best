@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
+import { useNotifications } from "../contexts/NotificationContext";
+import { useSwipeable } from "react-swipeable";
 
 import apiFetch from "services/apiFetch";
 import NavBar from "shared-components/NavBar";
@@ -21,6 +23,7 @@ const MyRecommendations = () => {
   const [pendingCount, setPendingCount] = useState(0);
   const [currentUserId, setCurrentUserId] = useState(null);
   const { isDarkMode } = useTheme();
+  const { setPendingRecommendationCount } = useNotifications();
 
   // Share existing recommendation states
   const [showRecommendModal, setShowRecommendModal] = useState(false);
@@ -180,12 +183,9 @@ const MyRecommendations = () => {
   // Dynamic margin based on title length to keep consistent spacing to description
   const getTitleMargin = (title) => {
     const length = title.length;
-    // Adjust margin based on how many lines the title likely takes
     if (length > 40) {
-      // 2 lines - medium margin
       return "mb-1.5 sm:mb-1.5";
     } else {
-      // 1 line - more margin
       return "mb-2 sm:mb-2.5";
     }
   };
@@ -200,6 +200,192 @@ const MyRecommendations = () => {
     } catch (error) {
       console.log("Error fetching pending count:", error);
     }
+  };
+
+  // Component for individual carousel with swipe
+  const CarouselWithSwipe = ({ category, recommendations }) => {
+    const maxIndex = recommendations.length - 1;
+    const currentIndex = carouselIndex[category] || 0;
+
+    const handlers = useSwipeable({
+      onSwipedLeft: () => {
+        if (currentIndex < maxIndex) {
+          updateCarouselIndex(category, currentIndex + 1);
+        }
+      },
+      onSwipedRight: () => {
+        if (currentIndex > 0) {
+          updateCarouselIndex(category, currentIndex - 1);
+        }
+      },
+      trackMouse: false,
+      trackTouch: true,
+      preventScrollOnSwipe: true,
+    });
+
+    return (
+      <div className="mb-8">
+        <h2
+          className={`font-boldRaleway mb-4 pb-4 text-2xl ${isDarkMode ? "text-white" : "text-darkBlue"}`}
+        >
+          {toTitleCase(category)}
+        </h2>
+
+        <div className="relative flex items-center">
+          {/* Left arrow - Hidden on mobile, visible on tablet+ */}
+          <button
+            className="z-10 hidden p-2 sm:mr-4 sm:block"
+            onClick={() =>
+              updateCarouselIndex(category, Math.max(currentIndex - 1, 0))
+            }
+            disabled={currentIndex === 0}
+            aria-label="Previous"
+          >
+            <i className="fa-solid fa-circle-chevron-left text-coral hover:text-lightOrange text-5xl"></i>
+          </button>
+
+          {/* Carousel container with swipe handlers */}
+          <div
+            {...handlers}
+            className="flex h-[236px] flex-grow items-center justify-start overflow-hidden rounded-xl p-4 shadow-lg sm:h-[316px] sm:p-4"
+            style={{
+              background: "linear-gradient(135deg, #ff8a95, #fbbfa2, #23dee5)",
+            }}
+          >
+            <div
+              className="flex gap-2 transition-transform duration-300 sm:gap-4"
+              style={{
+                transform: `translateX(-${currentIndex * (window.innerWidth >= 640 ? 272 : 184)}px)`,
+              }}
+            >
+              {recommendations.map((recommendation) => (
+                <div
+                  key={recommendation._id}
+                  className="w-44 flex-shrink-0 sm:w-64"
+                >
+                  <div className="relative flex h-[220px] w-44 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg sm:h-[300px] sm:w-64">
+                    {/* EDIT BUTTON */}
+                    <button
+                      onClick={() => handleEditRecommendation(recommendation)}
+                      className="absolute top-0.5 right-1 z-10 text-gray-600 transition-colors hover:text-gray-800 sm:top-1 sm:right-2"
+                      aria-label="Edit recommendation"
+                    >
+                      <i className="fa-solid fa-pencil text-[10px] sm:text-xs"></i>
+                    </button>
+
+                    {/* Header section */}
+                    <div className="text-darkBlue relative h-[76px] flex-shrink-0 bg-[#f8ede6] px-1.5 pt-5 text-center sm:h-[84px] sm:px-2 sm:pt-5">
+                      {recommendation.title &&
+                      recommendation.title.length > 60 ? (
+                        <button
+                          onClick={() =>
+                            handleSeeTitleMore(recommendation.title)
+                          }
+                          className={`font-boldManrope ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] font-bold break-words transition-colors hover:text-gray-600 sm:text-[15px] sm:leading-[1.3]`}
+                          title="Click to see full title"
+                        >
+                          {toTitleCase(recommendation.title)}
+                        </button>
+                      ) : (
+                        <h3
+                          className={`font-boldManrope ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] font-bold break-words sm:text-[15px] sm:leading-[1.3]`}
+                          title={recommendation.title}
+                        >
+                          {toTitleCase(recommendation.title)}
+                        </h3>
+                      )}
+
+                      <div className="flex justify-center gap-0.5 sm:gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <span
+                            key={star}
+                            className={
+                              star <= recommendation.rating
+                                ? "text-cerulean text-[11px] sm:text-[15px]"
+                                : "text-[11px] text-gray-300 sm:text-[15px]"
+                            }
+                          >
+                            ★
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Description section */}
+                    <div className="relative m-1 flex flex-grow items-center justify-center bg-[#4a6a7d] p-1.5 text-white sm:m-2 sm:p-3">
+                      <p className="text-center text-[10px] leading-tight break-words sm:text-sm">
+                        {recommendation.description &&
+                        recommendation.description.length > 100
+                          ? `${recommendation.description.substring(0, 100)}...`
+                          : recommendation.description || "Description"}
+                      </p>
+
+                      {recommendation.description &&
+                        recommendation.description.length > 100 && (
+                          <button
+                            onClick={() =>
+                              handleSeeMore(
+                                recommendation.title,
+                                recommendation.description,
+                              )
+                            }
+                            className="absolute right-1 bottom-1 text-[8px] text-white/80 underline hover:text-white sm:text-[10px]"
+                          >
+                            see more
+                          </button>
+                        )}
+                    </div>
+
+                    {/* Footer section */}
+                    <div className="flex h-8 flex-shrink-0 items-center justify-between bg-[#f8ede6] px-2 sm:h-10 sm:px-3">
+                      <button
+                        onClick={() =>
+                          handleDeleteRecommendation(recommendation._id)
+                        }
+                        className="text-hotCoralPink transition-colors hover:text-pink-600"
+                        aria-label="Delete recommendation"
+                      >
+                        <i className="fa-solid fa-trash text-[10px] sm:text-sm"></i>
+                      </button>
+
+                      <p className="truncate px-0.5 text-center text-[9px] text-gray-600 sm:px-1 sm:text-xs">
+                        {recommendation.user &&
+                        recommendation.user._id === currentUserId
+                          ? "Self"
+                          : `By ${recommendation.user?.username?.charAt(0).toUpperCase() + recommendation.user?.username?.slice(1) || "Unknown"}`}
+                      </p>
+
+                      <button
+                        onClick={() => handleRecommendClick(recommendation)}
+                        className="text-[#62d3c2] transition-colors hover:text-[#59bbac]"
+                        aria-label="Recommend to friend"
+                      >
+                        <i className="fa-solid fa-share-from-square text-[10px] sm:text-sm"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right arrow - Hidden on mobile, visible on tablet+ */}
+          <button
+            className="z-10 hidden p-2 sm:ml-4 sm:block"
+            onClick={() =>
+              updateCarouselIndex(
+                category,
+                Math.min(currentIndex + 1, maxIndex),
+              )
+            }
+            disabled={currentIndex >= maxIndex}
+            aria-label="Next"
+          >
+            <i className="fa-solid fa-circle-chevron-right text-coral hover:text-lightOrange text-5xl"></i>
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -225,31 +411,42 @@ const MyRecommendations = () => {
         {/* Row 1: Add recommendation + Pending (Mobile only) */}
         <div className="flex justify-center gap-2 sm:hidden">
           <button
-            className="bg-coral font-raleway hover:bg-hotCoralPink rounded-md px-3 py-2 text-sm text-white shadow-lg transition-colors"
+            className="bg-coral font-raleway hover:bg-hotCoralPink flex-1 rounded-md px-2 py-2 text-xs text-white shadow-lg transition-colors"
             onClick={() => setShowForm(true)}
           >
-            Add recommendation
+            Add Recommendation
           </button>
           <button
-            onClick={() => navigate(routes.pendingRecommendations)}
-            className="hover:bg-lighTeal font-raleway rounded-md bg-[#69c8d4] px-3 py-2 text-sm text-white shadow-lg transition-colors"
+            onClick={() => {
+              setPendingRecommendationCount(0);
+              navigate(routes.pendingRecommendations);
+            }}
+            className="hover:bg-lighTeal font-raleway relative flex-1 rounded-md bg-[#69c8d4] px-2 py-2 text-xs text-white shadow-lg transition-colors"
           >
-            Pending ({pendingCount})
+            Pending
+            {pendingCount > 0 && (
+              <span
+                className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white"
+                style={{ backgroundColor: "var(--color-hotCoralPink)" }}
+              >
+                {pendingCount > 9 ? "9+" : pendingCount}
+              </span>
+            )}
           </button>
         </div>
 
         {/* Row 2: Recommend to Friends (Mobile only) */}
         <div className="mt-2 flex justify-center sm:hidden">
           <button
-            className="font-raleway bg-tangerine hover:bg-brightSalmon rounded-md px-3 py-2 text-sm text-white shadow-lg transition-colors"
+            className="font-raleway bg-lightOrange w-full rounded-md px-2 py-2 text-xs text-white shadow-lg transition-colors hover:bg-[#ff9e66]"
             onClick={() => setShowCreateShareModal(true)}
           >
-            Recommend to Friends
+            Recommend to friend
           </button>
         </div>
 
-        {/* Desktop: Single row (original layout) */}
-        <div className="hidden justify-end sm:flex">
+        {/* Desktop: Single row */}
+        <div className="hidden sm:flex sm:justify-end">
           <button
             className="bg-coral font-raleway hover:bg-hotCoralPink mx-2 rounded-md px-4 py-2 text-white shadow-lg transition-colors"
             onClick={() => setShowForm(true)}
@@ -258,17 +455,28 @@ const MyRecommendations = () => {
           </button>
 
           <button
-            className="font-raleway bg-tangerine hover:bg-brightSalmon mx-2 rounded-md px-4 py-2 text-white shadow-lg transition-colors"
+            className="font-raleway bg-lightOrange mx-2 rounded-md px-4 py-2 text-white shadow-lg transition-colors hover:bg-[#ff9e66]"
             onClick={() => setShowCreateShareModal(true)}
           >
             Recommend to Friends
           </button>
 
           <button
-            onClick={() => navigate(routes.pendingRecommendations)}
-            className="hover:bg-lighTeal font-raleway mx-2 rounded-md bg-[#69c8d4] px-4 py-2 text-white shadow-lg transition-colors"
+            onClick={() => {
+              setPendingRecommendationCount(0);
+              navigate(routes.pendingRecommendations);
+            }}
+            className="hover:bg-lighTeal font-raleway relative mx-2 rounded-md bg-[#69c8d4] px-4 py-2 text-white shadow-lg transition-colors"
           >
             Pending ({pendingCount})
+            {pendingCount > 0 && (
+              <span
+                className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white"
+                style={{ backgroundColor: "var(--color-hotCoralPink)" }}
+              >
+                {pendingCount > 9 ? "9+" : pendingCount}
+              </span>
+            )}
           </button>
         </div>
       </div>
@@ -319,200 +527,22 @@ const MyRecommendations = () => {
           <div className="font-raleway">
             {Object.keys(showRec)
               .sort((a, b) => {
-                // Put "better than all the rest" first
                 if (a === "better than all the rest") return -1;
                 if (b === "better than all the rest") return 1;
-
-                // Then sort alphabetically
                 return a.localeCompare(b);
               })
               .map((category) => (
-                <div key={category} className="mb-8">
-                  <h2
-                    className={`font-boldRaleway mb-4 pb-4 text-2xl ${isDarkMode ? "text-white" : "text-darkBlue"}`}
-                  >
-                    {toTitleCase(category)}
-                  </h2>
-
-                  {/* Carousel Container */}
-                  <div className="relative flex items-center">
-                    {/* Left arrow */}
-                    <button
-                      className="z-10 p-1 sm:mr-4 sm:p-2"
-                      onClick={() =>
-                        updateCarouselIndex(
-                          category,
-                          Math.max((carouselIndex[category] || 0) - 1, 0),
-                        )
-                      }
-                      disabled={(carouselIndex[category] || 0) === 0}
-                      aria-label="Previous"
-                    >
-                      <i className="fa-solid fa-circle-chevron-left text-coral hover:text-lightOrange text-2xl sm:text-5xl"></i>
-                    </button>
-
-                    {/* Carousel container */}
-                    <div
-                      className="flex h-[236px] flex-grow items-center overflow-hidden rounded-xl p-4 shadow-lg sm:h-[316px] sm:justify-start sm:p-4"
-                      style={{
-                        background:
-                          "linear-gradient(135deg, #ff8a95, #fbbfa2, #23dee5)",
-                      }}
-                    >
-                      {/* Mobile and Desktop: show all cards with natural overflow */}
-                      <div
-                        className="flex gap-2 transition-transform duration-300 sm:gap-4"
-                        style={{
-                          transform: `translateX(-${(carouselIndex[category] || 0) * (window.innerWidth >= 640 ? 272 : 184)}px)`,
-                        }}
-                      >
-                        {showRec[category].map((recommendation) => (
-                          <div
-                            key={recommendation._id}
-                            className="w-44 flex-shrink-0 sm:w-64"
-                          >
-                            <div className="relative flex h-[220px] w-44 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg sm:h-[300px] sm:w-64">
-                              {/* EDIT BUTTON - Top right corner - higher position */}
-                              <button
-                                onClick={() =>
-                                  handleEditRecommendation(recommendation)
-                                }
-                                className="absolute top-0.5 right-1 z-10 text-gray-600 transition-colors hover:text-gray-800 sm:top-1 sm:right-2"
-                                aria-label="Edit recommendation"
-                              >
-                                <i className="fa-solid fa-pencil text-[10px] sm:text-xs"></i>
-                              </button>
-
-                              {/* Header section with title and stars - 2 LINES MAX */}
-                              <div className="text-darkBlue relative h-[76px] flex-shrink-0 bg-[#f8ede6] px-1.5 pt-3.5 text-center sm:h-[84px] sm:px-2 sm:pt-2.5">
-                                {recommendation.title &&
-                                recommendation.title.length > 60 ? (
-                                  <button
-                                    onClick={() =>
-                                      handleSeeTitleMore(recommendation.title)
-                                    }
-                                    className={`font-boldManrope ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] font-bold break-words transition-colors hover:text-gray-600 sm:text-[15px] sm:leading-[1.3]`}
-                                    title="Click to see full title"
-                                  >
-                                    {toTitleCase(recommendation.title)}
-                                  </button>
-                                ) : (
-                                  <h3
-                                    className={`font-boldManrope ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] font-bold break-words sm:text-[15px] sm:leading-[1.3]`}
-                                    title={recommendation.title}
-                                  >
-                                    {toTitleCase(recommendation.title)}
-                                  </h3>
-                                )}
-
-                                <div className="flex justify-center gap-0.5 sm:gap-1">
-                                  {[1, 2, 3, 4, 5].map((star) => (
-                                    <span
-                                      key={star}
-                                      className={
-                                        star <= recommendation.rating
-                                          ? "text-cerulean text-[11px] sm:text-[15px]"
-                                          : "text-[11px] text-gray-300 sm:text-[15px]"
-                                      }
-                                    >
-                                      ★
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-
-                              {/* Description section - GROWS to fill available space */}
-                              <div className="relative m-1 flex flex-grow items-center justify-center bg-[#4a6a7d] p-1.5 text-white sm:m-2 sm:p-3">
-                                <p className="text-center text-[10px] leading-tight break-words sm:text-sm">
-                                  {recommendation.description &&
-                                  recommendation.description.length > 100
-                                    ? `${recommendation.description.substring(0, 100)}...`
-                                    : recommendation.description ||
-                                      "Description"}
-                                </p>
-
-                                {/* See more button - bottom right corner */}
-                                {recommendation.description &&
-                                  recommendation.description.length > 100 && (
-                                    <button
-                                      onClick={() =>
-                                        handleSeeMore(
-                                          recommendation.title,
-                                          recommendation.description,
-                                        )
-                                      }
-                                      className="absolute right-1 bottom-1 text-[8px] text-white/80 underline hover:text-white sm:text-[10px]"
-                                    >
-                                      see more
-                                    </button>
-                                  )}
-                              </div>
-
-                              {/* Footer section - FIXED compact height */}
-                              <div className="flex h-8 flex-shrink-0 items-center justify-between bg-[#f8ede6] px-2 sm:h-10 sm:px-3">
-                                <button
-                                  onClick={() =>
-                                    handleDeleteRecommendation(
-                                      recommendation._id,
-                                    )
-                                  }
-                                  className="text-hotCoralPink transition-colors hover:text-pink-600"
-                                  aria-label="Delete recommendation"
-                                >
-                                  <i className="fa-solid fa-trash text-[10px] sm:text-sm"></i>
-                                </button>
-
-                                <p className="truncate px-0.5 text-center text-[9px] text-gray-600 sm:px-1 sm:text-xs">
-                                  {recommendation.user &&
-                                  recommendation.user._id === currentUserId
-                                    ? "Self"
-                                    : `By ${recommendation.user?.username?.charAt(0).toUpperCase() + recommendation.user?.username?.slice(1) || "Unknown"}`}
-                                </p>
-
-                                <button
-                                  onClick={() =>
-                                    handleRecommendClick(recommendation)
-                                  }
-                                  className="text-[#62d3c2] transition-colors hover:text-[#59bbac]"
-                                  aria-label="Recommend to friend"
-                                >
-                                  <i className="fa-solid fa-share-from-square text-[10px] sm:text-sm"></i>
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Right arrow */}
-                    <button
-                      className="z-10 p-1 sm:ml-4 sm:p-2"
-                      onClick={() =>
-                        updateCarouselIndex(
-                          category,
-                          Math.min(
-                            (carouselIndex[category] || 0) + 1,
-                            (showRec[category]?.length || 0) - 1,
-                          ),
-                        )
-                      }
-                      disabled={
-                        (carouselIndex[category] || 0) >=
-                        (showRec[category]?.length || 0) - 1
-                      }
-                      aria-label="Next"
-                    >
-                      <i className="fa-solid fa-circle-chevron-right text-coral hover:text-lightOrange text-2xl sm:text-5xl"></i>
-                    </button>
-                  </div>
-                </div>
+                <CarouselWithSwipe
+                  key={category}
+                  category={category}
+                  recommendations={showRec[category]}
+                />
               ))}
           </div>
         )}
       </div>
 
-      {/* Share existing recommendation modal */}
+      {/* Modals */}
       <RecommendToFriendModal
         isOpen={showRecommendModal}
         onClose={() => setShowRecommendModal(false)}
@@ -520,21 +550,18 @@ const MyRecommendations = () => {
         onRecommend={handleRecommendSubmit}
       />
 
-      {/* Create and share new recommendation modal */}
       <CreateAndShareModal
         isOpen={showCreateShareModal}
         onClose={() => setShowCreateShareModal(false)}
         onCreateAndShare={handleCreateAndShare}
       />
 
-      {/* Edit recommendation modal */}
       <RecommendEditModal
         isOpen={showEditModal}
         onClose={handleEditModalClose}
         recommendation={recommendationToEdit}
       />
 
-      {/* Description modal - See more */}
       <Dialog
         open={showDescriptionModal}
         onClose={() => setShowDescriptionModal(false)}
@@ -558,7 +585,6 @@ const MyRecommendations = () => {
         </DialogPanel>
       </Dialog>
 
-      {/* Title modal - See more */}
       <Dialog
         open={showTitleModal}
         onClose={() => setShowTitleModal(false)}

@@ -26,18 +26,32 @@ export const NotificationProvider = ({ children }) => {
   // Accepted Notifications State
   const [acceptedNotifications, setAcceptedNotifications] = useState([]);
 
-  // Initial fetch of pending friend requests
+  // Initial fetch of pending friend requests AND pending recommendations
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const res = await apiFetch("GET", "/api/users/friendRequests/pending");
-        if (res.ok) {
-          const data = await res.json();
-          setPendingRequests(data.data || []);
-          setFriendRequestCount(data.data?.length || 0);
+        // Fetch pending friend requests
+        const friendReqRes = await apiFetch(
+          "GET",
+          "/api/users/friendRequests/pending",
+        );
+        if (friendReqRes.ok) {
+          const friendReqData = await friendReqRes.json();
+          setPendingRequests(friendReqData.data || []);
+          setFriendRequestCount(friendReqData.data?.length || 0);
+        }
+
+        // Fetch pending recommendations
+        const pendingRecRes = await apiFetch(
+          "GET",
+          "/api/recommendations/pending",
+        );
+        if (pendingRecRes.ok) {
+          const pendingRecData = await pendingRecRes.json();
+          setPendingRecommendationCount(pendingRecData.data?.length || 0);
         }
       } catch (error) {
-        console.error("Error fetching initial friend requests:", error);
+        console.error("Error fetching initial notification data:", error);
       }
     };
 
@@ -47,6 +61,7 @@ export const NotificationProvider = ({ children }) => {
   // Listen for socket events
   useEffect(() => {
     console.log("🔔 NotificationContext socket listeners registered");
+
     // New friend request received
     socket.on("newFriendRequest", (data) => {
       console.log("New friend request from:", data.senderUsername);
@@ -65,20 +80,23 @@ export const NotificationProvider = ({ children }) => {
     socket.on("friendRequestAccepted", (data) => {
       console.log("Friend request accepted by:", data.acceptorUsername);
 
-      // Add to accepted notifications
-      setAcceptedNotifications((prev) =>
-        [
-          {
-            id: data.notification._id,
-            type: "friend_request_accepted",
-            username: data.acceptorUsername,
-            userId: data.acceptorId,
-            read: false,
-            createdAt: new Date(),
-          },
-          ...prev,
-        ].slice(0, 5),
-      );
+      // Only add to accepted notifications if notification object exists
+      // (only exists when YOU are the requester, not the acceptor)
+      if (data.notification) {
+        setAcceptedNotifications((prev) =>
+          [
+            {
+              id: data.notification._id,
+              type: "friend_request_accepted",
+              username: data.acceptorUsername,
+              userId: data.acceptorId,
+              read: false,
+              createdAt: new Date(),
+            },
+            ...prev,
+          ].slice(0, 5),
+        );
+      }
     });
 
     // New recommendation received
@@ -108,6 +126,47 @@ export const NotificationProvider = ({ children }) => {
     setFriendRequestCount((prev) => Math.max(0, prev - 1));
   };
 
+  // Helper: Clear badge counts when bell opens
+  const clearBadgeCounts = () => {
+    // Badge shows 0, but items stay until acted upon
+  };
+
+  // Helper: Mark accepted notifications as read
+  const markAcceptedAsRead = () => {
+    setAcceptedNotifications((prev) =>
+      prev.map((notif) => ({ ...notif, read: true })),
+    );
+  };
+
+  // Helper: Delete single accepted notification
+  const deleteAcceptedNotification = async (notificationId) => {
+    try {
+      const res = await apiFetch(
+        "DELETE",
+        `/api/notifications/${notificationId}`,
+      );
+      if (res.ok) {
+        setAcceptedNotifications((prev) =>
+          prev.filter((notif) => notif.id !== notificationId),
+        );
+      }
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+    }
+  };
+
+  // Helper: Clear all accepted notifications
+  const clearAllAcceptedNotifications = async () => {
+    try {
+      const res = await apiFetch("DELETE", "/api/notifications");
+      if (res.ok) {
+        setAcceptedNotifications([]);
+      }
+    } catch (error) {
+      console.error("Error clearing notifications:", error);
+    }
+  };
+
   const value = {
     // Friend Requests
     pendingRequests,
@@ -120,7 +179,12 @@ export const NotificationProvider = ({ children }) => {
 
     // Accepted Notifications
     acceptedNotifications,
-    setAcceptedNotifications,
+    markAcceptedAsRead,
+    deleteAcceptedNotification,
+    clearAllAcceptedNotifications,
+
+    // Badge
+    clearBadgeCounts,
   };
 
   return (

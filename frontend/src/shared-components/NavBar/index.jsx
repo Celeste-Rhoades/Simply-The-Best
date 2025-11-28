@@ -18,7 +18,7 @@ const NavBar = () => {
   const logout = async () => {
     const response = await apiFetch("POST", "/api/auth/logout");
     if (response.ok) {
-      disconnectSocket(); // Disconnect socket on logout
+      disconnectSocket();
       setUser(null);
       navigate(routes.signIn);
     }
@@ -48,7 +48,7 @@ const NavBar = () => {
         </div>
 
         {/* Right Section - Navigation */}
-        <div className="font-raleway flex items-center justify-end gap-4 text-white sm:gap-6">
+        <div className="font-raleway flex items-center justify-end gap-1 text-white sm:gap-4 md:gap-6">
           {/* Bell Notification - Always Visible */}
           <FriendRequestsDropdown />
 

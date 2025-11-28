@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { useTheme } from "../contexts/ThemeContext";
+import { useSwipeable } from "react-swipeable";
 
 import NavBar from "shared-components/NavBar";
 import RecommendAddModal from "./RecommendAddModal";
 import CopyRecommendationModal from "../Components/CopyRecommendationModal";
+import CreateAndShareModal from "../pages/CreateAndShareModal";
 import { useFriendsRecommendations } from "../hooks/userFriendsRecommendations";
+import { useFriendRecommendations } from "../hooks/useFriendRecommendations";
 
 const RecommendHome = () => {
   const [showForm, setShowForm] = useState(false);
@@ -14,6 +17,10 @@ const RecommendHome = () => {
   const [carouselIndex, setCarouselIndex] = useState({});
   const [copySuccess, setCopySuccess] = useState("");
   const { isDarkMode } = useTheme();
+
+  // Create and share new recommendation states
+  const [showCreateShareModal, setShowCreateShareModal] = useState(false);
+  const [createShareSuccess, setCreateShareSuccess] = useState("");
 
   // See more modal state
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
@@ -37,6 +44,8 @@ const RecommendHome = () => {
     copyRecommendation,
   } = useFriendsRecommendations();
 
+  const { recommendToFriend } = useFriendRecommendations();
+
   // Lazy loading intersection observer
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -57,7 +66,6 @@ const RecommendHome = () => {
 
   const handleModalClose = () => {
     setShowForm(false);
-    // No need to refresh since we're just closing the modal
   };
 
   const handleCopyClick = (recommendation) => {
@@ -71,8 +79,20 @@ const RecommendHome = () => {
       setCopySuccess("Recommendation added to your list!");
       setTimeout(() => setCopySuccess(""), 3000);
       setShowCopyModal(false);
-      // Reload to show the newly copied recommendation
       setTimeout(() => window.location.reload(), 1500);
+    }
+    return result;
+  };
+
+  // Create and share new recommendation function
+  const handleCreateAndShare = async (friendId, recommendationData) => {
+    const result = await recommendToFriend(friendId, recommendationData);
+    if (result.success) {
+      setCreateShareSuccess(
+        "New recommendation created and shared with your friend!",
+      );
+      setTimeout(() => setCreateShareSuccess(""), 3000);
+      setShowCreateShareModal(false);
     }
     return result;
   };
@@ -103,17 +123,182 @@ const RecommendHome = () => {
     );
   };
 
-  // Dynamic margin based on title length to keep consistent spacing to description
   const getTitleMargin = (title) => {
     const length = title.length;
-    // Adjust margin based on how many lines the title likely takes
     if (length > 40) {
-      // 2 lines - medium margin
       return "mb-1.5 sm:mb-1.5";
     } else {
-      // 1 line - more margin
       return "mb-2 sm:mb-2.5";
     }
+  };
+
+  // Component for individual carousel with swipe
+  const CarouselWithSwipe = ({ userId, userdata }) => {
+    const maxIndex = userdata.recommendations.length - 1;
+    const currentIndex = carouselIndex[userId] || 0;
+
+    const handlers = useSwipeable({
+      onSwipedLeft: () => {
+        if (currentIndex < maxIndex) {
+          updateCarouselIndex(userId, currentIndex + 1);
+        }
+      },
+      onSwipedRight: () => {
+        if (currentIndex > 0) {
+          updateCarouselIndex(userId, currentIndex - 1);
+        }
+      },
+      trackMouse: false,
+      trackTouch: true,
+      preventScrollOnSwipe: true,
+    });
+
+    return (
+      <div className="mb-8">
+        <h2
+          className={`font-boldRaleway mb-4 pb-4 text-2xl ${isDarkMode ? "text-white" : "text-darkBlue"}`}
+        >
+          {userdata.username?.charAt(0).toUpperCase() +
+            userdata.username?.slice(1)}
+          's Recommendations
+        </h2>
+
+        <div className="relative flex items-center">
+          {/* Left arrow - Hidden on mobile, visible on tablet+ */}
+          <button
+            className="z-10 hidden p-2 sm:mr-4 sm:block"
+            onClick={() =>
+              updateCarouselIndex(userId, Math.max(currentIndex - 1, 0))
+            }
+            disabled={currentIndex === 0}
+            aria-label="Previous"
+          >
+            <i className="fa-solid fa-circle-chevron-left text-coral hover:text-lightOrange text-5xl"></i>
+          </button>
+
+          {/* Carousel container with swipe handlers */}
+          <div
+            {...handlers}
+            className="flex h-[260px] flex-grow items-center justify-start overflow-hidden rounded-xl px-4 py-4 shadow-xl sm:h-[340px] sm:px-4 sm:py-6"
+            style={{
+              background: "linear-gradient(135deg, #ff8a95, #fbbfa2, #23dee5)",
+            }}
+          >
+            <div
+              className="flex gap-2 transition-transform duration-300 sm:gap-4"
+              style={{
+                transform: `translateX(-${currentIndex * (window.innerWidth >= 640 ? 272 : 184)}px)`,
+              }}
+            >
+              {userdata.recommendations.map((recommendation) => (
+                <div
+                  key={recommendation._id}
+                  className="w-44 flex-shrink-0 sm:w-64"
+                >
+                  <div className="flex h-[232px] w-44 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg sm:h-[314px] sm:w-64">
+                    {/* Header section with MORE TOP PADDING */}
+                    <div className="relative h-[76px] flex-shrink-0 bg-[#f8ede6] px-1.5 pt-5 text-center sm:h-[84px] sm:px-2 sm:pt-5">
+                      {recommendation.title &&
+                      recommendation.title.length > 60 ? (
+                        <button
+                          onClick={() =>
+                            handleSeeTitleMore(recommendation.title)
+                          }
+                          className={`font-boldManrope text-darkBlue ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] font-bold break-words transition-colors hover:text-gray-600 sm:text-[15px] sm:leading-[1.3]`}
+                          title="Click to see full title"
+                        >
+                          {toTitleCase(recommendation.title)}
+                        </button>
+                      ) : (
+                        <h3
+                          className={`font-boldManrope text-darkBlue ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] font-bold break-words sm:text-[15px] sm:leading-[1.3]`}
+                          title={recommendation.title}
+                        >
+                          {toTitleCase(recommendation.title)}
+                        </h3>
+                      )}
+
+                      <div className="flex justify-center gap-0.5 sm:gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <span
+                            key={star}
+                            className={
+                              star <= recommendation.rating
+                                ? "text-cerulean text-[11px] sm:text-[15px]"
+                                : "text-[11px] text-gray-300 sm:text-[15px]"
+                            }
+                          >
+                            ★
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="relative m-1 flex flex-grow items-center justify-center bg-[#4a6a7d] p-1.5 text-white sm:m-2 sm:p-3">
+                      <p className="text-center text-[10px] leading-tight break-words sm:text-sm">
+                        {recommendation.description &&
+                        recommendation.description.length > 100
+                          ? `${recommendation.description.substring(0, 100)}...`
+                          : recommendation.description || "Description"}
+                      </p>
+
+                      {recommendation.description &&
+                        recommendation.description.length > 100 && (
+                          <button
+                            onClick={() =>
+                              handleSeeMore(
+                                recommendation.title,
+                                recommendation.description,
+                              )
+                            }
+                            className="absolute right-1 bottom-1 text-[8px] text-white/80 underline hover:text-white sm:text-[10px]"
+                          >
+                            see more
+                          </button>
+                        )}
+                    </div>
+
+                    <div className="flex h-12 flex-shrink-0 flex-col justify-between bg-[#f8ede6] px-2 py-1 sm:h-14 sm:px-3 sm:py-1.5">
+                      <p className="font-boldManrope text-darkBlue text-center text-[11px] sm:text-sm">
+                        {toTitleCase(recommendation.category)}
+                      </p>
+
+                      <div className="flex items-center justify-between">
+                        <button
+                          onClick={() => handleCopyClick(recommendation)}
+                          className="text-[#62d3c2] transition-colors hover:text-[#59bbac]"
+                          aria-label="Add to my recommendations"
+                        >
+                          <i className="fa-solid fa-plus text-[10px] sm:text-sm"></i>
+                        </button>
+
+                        <p className="truncate px-0.5 text-center text-[9px] text-gray-600 sm:px-1 sm:text-xs">
+                          {recommendation.originalRecommendedBy
+                            ? `Originally by ${recommendation.originalRecommendedBy.username?.charAt(0).toUpperCase() + recommendation.originalRecommendedBy.username?.slice(1)}`
+                            : `By ${recommendation.user.username?.charAt(0).toUpperCase() + recommendation.user.username?.slice(1)}`}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right arrow - Hidden on mobile, visible on tablet+ */}
+          <button
+            className="z-10 hidden p-2 sm:ml-4 sm:block"
+            onClick={() =>
+              updateCarouselIndex(userId, Math.min(currentIndex + 1, maxIndex))
+            }
+            disabled={currentIndex >= maxIndex}
+            aria-label="Next"
+          >
+            <i className="fa-solid fa-circle-chevron-right text-coral hover:text-lightOrange text-5xl"></i>
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -122,22 +307,53 @@ const RecommendHome = () => {
     >
       <NavBar />
 
-      {/* Mobile and Desktop: Add Button - centered on mobile, right-aligned on desktop */}
-      <div className="mx-4 mt-4 flex justify-center sm:mx-8 sm:justify-end">
-        <button
-          className="bg-coral font-raleway hover:bg-hotCoralPink rounded-md px-3 py-2 text-sm text-white shadow-lg transition-colors sm:px-4"
-          onClick={() => setShowForm(true)}
-        >
-          Add recommendation
-        </button>
-      </div>
-
-      {/* Success Message */}
+      {/* Success Messages */}
       {copySuccess && (
         <div className="mx-8 mt-4 rounded bg-green-100 p-3 text-green-700">
           {copySuccess}
         </div>
       )}
+      {createShareSuccess && (
+        <div className="mx-8 mt-4 rounded bg-green-100 p-3 text-green-700">
+          {createShareSuccess}
+        </div>
+      )}
+
+      {/* Mobile and Desktop Button Layout */}
+      <div className="mx-4 mt-4 sm:mx-8">
+        {/* Mobile: Side by side with shorter text */}
+        <div className="flex justify-center gap-2 sm:hidden">
+          <button
+            className="bg-coral font-raleway hover:bg-hotCoralPink flex-1 rounded-md px-2 py-2 text-xs text-white shadow-lg transition-colors"
+            onClick={() => setShowForm(true)}
+          >
+            Add Recommendation
+          </button>
+          <button
+            className="font-raleway bg-lightOrange flex-1 rounded-md px-2 py-2 text-xs text-white shadow-lg transition-colors hover:bg-[#ff9e66]"
+            onClick={() => setShowCreateShareModal(true)}
+          >
+            Recommend to friend
+          </button>
+        </div>
+
+        {/* Desktop: layout */}
+        <div className="hidden sm:flex sm:justify-end">
+          <button
+            className="bg-coral font-raleway hover:bg-hotCoralPink mx-2 rounded-md px-4 py-2 text-white shadow-lg transition-colors"
+            onClick={() => setShowForm(true)}
+          >
+            Add recommendation
+          </button>
+
+          <button
+            className="font-raleway bg-lightOrange mx-2 rounded-md px-4 py-2 text-white shadow-lg transition-colors hover:bg-[#ff9e66]"
+            onClick={() => setShowCreateShareModal(true)}
+          >
+            Recommend to Friends
+          </button>
+        </div>
+      </div>
 
       {/* Main Content */}
       <div className="mx-4 mt-8 sm:mx-8">
@@ -171,176 +387,13 @@ const RecommendHome = () => {
         ) : (
           <div className="font-raleway">
             {Object.entries(friendsRecs).map(([userId, userdata]) => (
-              <div key={userId} className="mb-8">
-                {/* Friend's Username Header */}
-                <h2
-                  className={`font-boldRaleway mb-4 pb-4 text-2xl ${isDarkMode ? "text-white" : "text-darkBlue"}`}
-                >
-                  {userdata.username?.charAt(0).toUpperCase() +
-                    userdata.username?.slice(1)}
-                  's Recommendations
-                </h2>
-
-                {/* Carousel Container */}
-                <div className="relative flex items-center">
-                  {/* Left Arrow */}
-                  <button
-                    className="z-10 p-1 sm:mr-4 sm:p-2"
-                    onClick={() =>
-                      updateCarouselIndex(
-                        userId,
-                        Math.max((carouselIndex[userId] || 0) - 1, 0),
-                      )
-                    }
-                    disabled={(carouselIndex[userId] || 0) === 0}
-                    aria-label="Previous"
-                  >
-                    <i className="fa-solid fa-circle-chevron-left text-coral hover:text-lightOrange text-2xl sm:text-5xl"></i>
-                  </button>
-
-                  {/* Recommendations Carousel */}
-                  <div
-                    className="flex h-[260px] flex-grow items-center overflow-hidden rounded-xl px-4 py-4 shadow-xl sm:h-[340px] sm:justify-start sm:px-4 sm:py-6"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, #ff8a95, #fbbfa2, #23dee5)",
-                    }}
-                  >
-                    {/* Mobile and Desktop: show all cards with natural overflow */}
-                    <div
-                      className="flex gap-2 transition-transform duration-300 sm:gap-4"
-                      style={{
-                        transform: `translateX(-${(carouselIndex[userId] || 0) * (window.innerWidth >= 640 ? 272 : 184)}px)`,
-                      }}
-                    >
-                      {userdata.recommendations.map((recommendation) => (
-                        <div
-                          key={recommendation._id}
-                          className="w-44 flex-shrink-0 sm:w-64"
-                        >
-                          {/* ✅ CHANGED: Card height increased to h-[232px] mobile, h-[314px] desktop */}
-                          <div className="flex h-[232px] w-44 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg sm:h-[314px] sm:w-64">
-                            {/* Header section with title and stars - 2 LINES MAX */}
-                            <div className="relative h-[76px] flex-shrink-0 bg-[#f8ede6] px-1.5 pt-3.5 text-center sm:h-[84px] sm:px-2 sm:pt-2.5">
-                              {recommendation.title &&
-                              recommendation.title.length > 60 ? (
-                                <button
-                                  onClick={() =>
-                                    handleSeeTitleMore(recommendation.title)
-                                  }
-                                  className={`font-boldManrope text-darkBlue ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] font-bold break-words transition-colors hover:text-gray-600 sm:text-[15px] sm:leading-[1.3]`}
-                                  title="Click to see full title"
-                                >
-                                  {toTitleCase(recommendation.title)}
-                                </button>
-                              ) : (
-                                <h3
-                                  className={`font-boldManrope text-darkBlue ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] font-bold break-words sm:text-[15px] sm:leading-[1.3]`}
-                                  title={recommendation.title}
-                                >
-                                  {toTitleCase(recommendation.title)}
-                                </h3>
-                              )}
-
-                              <div className="flex justify-center gap-0.5 sm:gap-1">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                  <span
-                                    key={star}
-                                    className={
-                                      star <= recommendation.rating
-                                        ? "text-lighTeal text-[11px] sm:text-[15px]"
-                                        : "text-[11px] text-gray-300 sm:text-[15px]"
-                                    }
-                                  >
-                                    ★
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-
-                            {/* Description section - GROWS to fill available space */}
-                            <div className="relative m-1 flex flex-grow items-center justify-center bg-[#4a6a7d] p-1.5 text-white sm:m-2 sm:p-3">
-                              <p className="text-center text-[10px] leading-tight break-words sm:text-sm">
-                                {recommendation.description &&
-                                recommendation.description.length > 100
-                                  ? `${recommendation.description.substring(0, 100)}...`
-                                  : recommendation.description || "Description"}
-                              </p>
-
-                              {/* See more button - bottom right corner */}
-                              {recommendation.description &&
-                                recommendation.description.length > 100 && (
-                                  <button
-                                    onClick={() =>
-                                      handleSeeMore(
-                                        recommendation.title,
-                                        recommendation.description,
-                                      )
-                                    }
-                                    className="absolute right-1 bottom-1 text-[8px] text-white/80 underline hover:text-white sm:text-[10px]"
-                                  >
-                                    see more
-                                  </button>
-                                )}
-                            </div>
-
-                            {/* ✅ CHANGED: Footer section - 2 rows layout */}
-                            <div className="flex h-12 flex-shrink-0 flex-col justify-between bg-[#f8ede6] px-2 py-1 sm:h-14 sm:px-3 sm:py-1.5">
-                              {/* Row 1: Category - centered, dark blue, bold Manrope */}
-                              <p className="font-boldManrope text-darkBlue text-center text-[11px] sm:text-sm">
-                                {toTitleCase(recommendation.category)}
-                              </p>
-
-                              {/* Row 2: + icon and username */}
-                              <div className="flex items-center justify-between">
-                                <button
-                                  onClick={() =>
-                                    handleCopyClick(recommendation)
-                                  }
-                                  className="text-hotCoralPink transition-colors hover:text-pink-600"
-                                  aria-label="Add to my recommendations"
-                                >
-                                  <i className="fa-solid fa-plus text-[10px] sm:text-sm"></i>
-                                </button>
-
-                                <p className="truncate px-0.5 text-center text-[9px] text-gray-600 sm:px-1 sm:text-xs">
-                                  {recommendation.originalRecommendedBy
-                                    ? `Originally by ${recommendation.originalRecommendedBy.username?.charAt(0).toUpperCase() + recommendation.originalRecommendedBy.username?.slice(1)}`
-                                    : `By ${recommendation.user.username?.charAt(0).toUpperCase() + recommendation.user.username?.slice(1)}`}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Right Arrow */}
-                  <button
-                    className="z-10 p-1 sm:ml-4 sm:p-2"
-                    onClick={() =>
-                      updateCarouselIndex(
-                        userId,
-                        Math.min(
-                          (carouselIndex[userId] || 0) + 1,
-                          (userdata.recommendations?.length || 0) - 1,
-                        ),
-                      )
-                    }
-                    disabled={
-                      (carouselIndex[userId] || 0) >=
-                      (userdata.recommendations?.length || 0) - 1
-                    }
-                    aria-label="Next"
-                  >
-                    <i className="fa-solid fa-circle-chevron-right text-coral hover:text-lightOrange text-2xl sm:text-5xl"></i>
-                  </button>
-                </div>
-              </div>
+              <CarouselWithSwipe
+                key={userId}
+                userId={userId}
+                userdata={userdata}
+              />
             ))}
 
-            {/* Lazy Loading Trigger */}
             {hasMore && (
               <div ref={loadMoreRef} className="py-8 text-center">
                 <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
@@ -352,7 +405,6 @@ const RecommendHome = () => {
         )}
       </div>
 
-      {/* Add Recommendation Modal */}
       <Dialog
         open={showForm}
         onClose={() => setShowForm(false)}
@@ -367,7 +419,6 @@ const RecommendHome = () => {
         </DialogPanel>
       </Dialog>
 
-      {/* Copy Recommendation Modal */}
       <CopyRecommendationModal
         isOpen={showCopyModal}
         onClose={() => setShowCopyModal(false)}
@@ -375,7 +426,13 @@ const RecommendHome = () => {
         onCopy={handleCopySubmit}
       />
 
-      {/* Description modal - See more */}
+      {/* Create and share new recommendation modal */}
+      <CreateAndShareModal
+        isOpen={showCreateShareModal}
+        onClose={() => setShowCreateShareModal(false)}
+        onCreateAndShare={handleCreateAndShare}
+      />
+
       <Dialog
         open={showDescriptionModal}
         onClose={() => setShowDescriptionModal(false)}
@@ -399,7 +456,6 @@ const RecommendHome = () => {
         </DialogPanel>
       </Dialog>
 
-      {/* Title modal - See more */}
       <Dialog
         open={showTitleModal}
         onClose={() => setShowTitleModal(false)}

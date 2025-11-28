@@ -4,6 +4,14 @@ import { useTheme } from "../contexts/ThemeContext";
 import routes from "../routes";
 import { usePendingRecommendations } from "../hooks/usePendingRecommendations";
 import NavBar from "../shared-components/NavBar";
+import {
+  SwipeableList,
+  SwipeableListItem,
+  SwipeAction,
+  TrailingActions,
+  Type as ListType,
+} from "react-swipeable-list";
+import "react-swipeable-list/dist/styles.css";
 
 const PendingRecommendations = () => {
   const navigate = useNavigate();
@@ -48,6 +56,12 @@ const PendingRecommendations = () => {
 
       <main className="flex-1 px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
+          <h1
+            className={`mb-6 text-3xl font-bold ${isDarkMode ? "text-white" : "text-darkBlue"}`}
+          >
+            Pending Recommendations
+          </h1>
+
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <i className="fa-solid fa-spinner text-laguna animate-spin text-3xl"></i>
@@ -74,52 +88,88 @@ const PendingRecommendations = () => {
               </p>
             </div>
           ) : (
-            <div className="space-y-6">
+            <SwipeableList type={ListType.IOS} className="space-y-4">
               {pendingRecs.map((rec) => (
-                <div
+                <SwipeableListItem
                   key={rec._id}
-                  className="rounded-lg bg-white p-6 shadow-md"
+                  trailingActions={
+                    <TrailingActions>
+                      <SwipeAction onClick={() => handleAccept(rec._id)}>
+                        <div className="flex h-full items-center justify-center bg-green-500 px-6 text-white">
+                          <div className="flex flex-col items-center">
+                            <i className="fa-solid fa-check text-xl"></i>
+                            <span className="mt-1 text-xs font-semibold">
+                              Accept
+                            </span>
+                          </div>
+                        </div>
+                      </SwipeAction>
+                      <SwipeAction onClick={() => handleReject(rec._id)}>
+                        <div
+                          className="flex h-full items-center justify-center px-6 text-white"
+                          style={{
+                            backgroundColor: "var(--color-hotCoralPink)",
+                          }}
+                        >
+                          <div className="flex flex-col items-center">
+                            <i className="fa-solid fa-times text-xl"></i>
+                            <span className="mt-1 text-xs font-semibold">
+                              Reject
+                            </span>
+                          </div>
+                        </div>
+                      </SwipeAction>
+                    </TrailingActions>
+                  }
                 >
-                  <div className="mb-4">
-                    <h3 className="text-xl font-semibold text-gray-800">
-                      {rec.title}
-                    </h3>
-                    <p className="mt-2 text-gray-600">{rec.description}</p>
-                    <div className="mt-2 text-sm text-gray-500">
-                      Category: {rec.category}
+                  <div className="w-full rounded-lg bg-white p-6 shadow-md">
+                    <div className="mb-4">
+                      <h3 className="text-xl font-semibold text-gray-800">
+                        {rec.title}
+                      </h3>
+                      <p className="mt-2 text-gray-600">{rec.description}</p>
+                      <div className="mt-2 text-sm text-gray-500">
+                        Category: {rec.category}
+                      </div>
+                    </div>
+
+                    {/* Desktop buttons - hidden on mobile/tablet */}
+                    <div className="hidden space-x-3 lg:flex">
+                      <button
+                        onClick={() => handleAccept(rec._id)}
+                        disabled={processingId === rec._id}
+                        className="flex items-center space-x-2 rounded bg-green-500 px-4 py-2 text-white transition-colors hover:bg-green-600 disabled:opacity-50"
+                      >
+                        {processingId === rec._id ? (
+                          <i className="fa-solid fa-spinner animate-spin"></i>
+                        ) : (
+                          <i className="fa-solid fa-check"></i>
+                        )}
+                        <span>Accept</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleReject(rec._id)}
+                        disabled={processingId === rec._id}
+                        className="flex items-center space-x-2 rounded px-4 py-2 text-white transition-colors disabled:opacity-50"
+                        style={{
+                          backgroundColor: "var(--color-hotCoralPink)",
+                        }}
+                        onMouseEnter={(e) => (e.target.style.opacity = "0.9")}
+                        onMouseLeave={(e) => (e.target.style.opacity = "1")}
+                      >
+                        {processingId === rec._id ? (
+                          <i className="fa-solid fa-spinner animate-spin"></i>
+                        ) : (
+                          <i className="fa-solid fa-times"></i>
+                        )}
+                        <span>Reject</span>
+                      </button>
                     </div>
                   </div>
-
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={() => handleAccept(rec._id)}
-                      disabled={processingId === rec._id}
-                      className="flex items-center space-x-2 rounded bg-green-500 px-4 py-2 text-white transition-colors hover:bg-green-600 disabled:opacity-50"
-                    >
-                      {processingId === rec._id ? (
-                        <i className="fa-solid fa-spinner animate-spin"></i>
-                      ) : (
-                        <i className="fa-solid fa-check"></i>
-                      )}
-                      <span>Accept</span>
-                    </button>
-
-                    <button
-                      onClick={() => handleReject(rec._id)}
-                      disabled={processingId === rec._id}
-                      className="flex items-center space-x-2 rounded bg-red-500 px-4 py-2 text-white transition-colors hover:bg-red-600 disabled:opacity-50"
-                    >
-                      {processingId === rec._id ? (
-                        <i className="fa-solid fa-spinner animate-spin"></i>
-                      ) : (
-                        <i className="fa-solid fa-times"></i>
-                      )}
-                      <span>Reject</span>
-                    </button>
-                  </div>
-                </div>
+                </SwipeableListItem>
               ))}
-            </div>
+            </SwipeableList>
           )}
         </div>
       </main>
