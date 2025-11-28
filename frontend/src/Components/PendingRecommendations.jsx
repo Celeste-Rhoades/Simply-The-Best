@@ -131,6 +131,9 @@ const PendingRecommendations = () => {
                       <div className="mt-2 text-sm text-gray-500">
                         Category: {rec.category}
                       </div>
+                      <div className="mt-1 text-sm text-gray-500">
+                        Recommended by: {rec.user?.username || "Unknown"}
+                      </div>
                     </div>
 
                     {/* Desktop buttons - hidden on mobile/tablet */}
