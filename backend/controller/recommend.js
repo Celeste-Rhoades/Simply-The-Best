@@ -88,14 +88,22 @@ export const updateRecommendation = async (req, res) => {
       return res.status(404).json({ error: "Recommendation not found" });
     }
 
-    //  Verify the user owns this recommendation
-    if (recommendation.user.toString() !== req.user._id.toString()) {
+    // Allow editing if:
+    // 1. User owns this recommendation (created it)
+    // 2. OR recommendation is pending and sent to this user
+    const isOwner = recommendation.user.toString() === req.user._id.toString();
+    const isPendingRecipient =
+      recommendation.recommendedTo &&
+      recommendation.recommendedTo.toString() === req.user._id.toString() &&
+      recommendation.status === "pending";
+
+    if (!isOwner && !isPendingRecipient) {
       return res.status(403).json({
         error: "You are not authorized to edit this recommendation",
       });
     }
 
-    // User owns it - safe to update
+    // User can edit it - safe to update
     recommendation.title = title || recommendation.title;
     recommendation.description = description || recommendation.description;
     recommendation.category = category || recommendation.category;
@@ -396,17 +404,19 @@ export const recommendToFriend = async (req, res) => {
     }
 
     // Check if the RECIPIENT (friend) already has this recommendation
-    // Check both: recommendations they created AND recommendations sent to them that were approved
+    // Check both: recommendations they created AND recommendations sent to them that were approved/pending
+    // EXCLUDE rejected recommendations (they can receive it again after rejecting)
     const friendHasIt = await Recommend.findOne({
       $or: [
         {
           user: friendId,
           title: { $regex: new RegExp(`^${title}$`, "i") },
           category: category,
+          status: { $ne: "rejected" }, // Exclude rejected
         },
         {
           recommendedTo: friendId,
-          status: "approved",
+          status: { $in: ["approved", "pending"] }, // Only check approved/pending, not rejected
           title: { $regex: new RegExp(`^${title}$`, "i") },
           category: category,
         },
