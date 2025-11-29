@@ -13,7 +13,8 @@ import {
   getUsers,
   getFriendsRecommendations,
   copyRecommendation,
-  recommendToFriend, // Add this import
+  recommendToFriend,
+  togglePrivacy,
 } from "../controller/recommend.js";
 
 const router = express.Router();
@@ -31,10 +32,13 @@ router.put("/:id", protectRoute, updateRecommendation);
 //delete recommendations
 router.delete("/:id", protectRoute, deleteRecommendation);
 
+// Toggle privacy
+router.patch("/:id/privacy", protectRoute, togglePrivacy);
+
 //accepting and declining recommendation
 router.get("/pending", protectRoute, getPendingRecommendations);
-router.post("/approve/:id", protectRoute, approveRecommendation); // Changed to POST and moved :id
-router.post("/reject/:id", protectRoute, rejectRecommendation); // Changed to POST and moved :id
+router.post("/approve/:id", protectRoute, approveRecommendation);
+router.post("/reject/:id", protectRoute, rejectRecommendation);
 
 // Creating copy of friend recommendation
 router.get("/friends", protectRoute, getFriendsRecommendations);

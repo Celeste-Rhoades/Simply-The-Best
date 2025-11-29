@@ -62,6 +62,10 @@ const recommendSchema = new mongoose.Schema(
       enum: ["approved", "pending", "rejected"],
       default: "approved",
     },
+    isPrivate: {
+      type: Boolean,
+      default: false, // Public by default
+    },
   },
   {
     timestamps: true, // createdAt, updatedAt

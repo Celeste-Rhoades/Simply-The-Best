@@ -78,7 +78,7 @@ export const createRecommendation = async (req, res) => {
 
 export const updateRecommendation = async (req, res) => {
   const { id } = req.params;
-  const { title, description, category, rating } = req.body;
+  const { title, description, category, rating, isPrivate } = req.body;
 
   try {
     // Find the recommendation first
@@ -105,9 +105,12 @@ export const updateRecommendation = async (req, res) => {
 
     // User can edit it - safe to update
     recommendation.title = title || recommendation.title;
-    recommendation.description = description || recommendation.description;
+    recommendation.description =
+      description !== undefined ? description : recommendation.description;
     recommendation.category = category || recommendation.category;
     recommendation.rating = rating || recommendation.rating;
+    recommendation.isPrivate =
+      isPrivate !== undefined ? isPrivate : recommendation.isPrivate;
 
     await recommendation.save();
 
@@ -132,19 +135,34 @@ export const deleteRecommendation = async (req, res) => {
       return res.status(404).json({ error: "Recommendation not found" });
     }
 
-    // Only the creator can delete their recommendation
-    const isOwner = recommendation.user.toString() === req.user._id.toString();
+    // Debug logging
+    console.log("🗑️ Delete attempt:");
+    console.log("Recommendation user:", recommendation.user.toString());
+    console.log("Request user:", req.user._id.toString());
+    console.log("Recommendation status:", recommendation.status);
+    console.log("Recommendation recommendedTo:", recommendation.recommendedTo);
 
-    if (!isOwner) {
+    // Allow deletion if:
+    // 1. User created the recommendation (owns it)
+    // 2. OR recommendation was sent to them and is approved (they accepted it)
+    const isOwner = recommendation.user.toString() === req.user._id.toString();
+    const isRecipient =
+      recommendation.recommendedTo &&
+      recommendation.recommendedTo.toString() === req.user._id.toString() &&
+      recommendation.status === "approved";
+
+    if (!isOwner && !isRecipient) {
       return res.status(403).json({
         error: "You are not authorized to delete this recommendation",
       });
     }
 
-    // User owns it - safe to delete
+    // User owns it or received it - safe to delete
     await Recommend.findByIdAndDelete(id);
 
+    // Return 200 with success message
     res.status(200).json({
+      success: true,
       message: "Recommendation deleted successfully",
     });
   } catch (error) {
@@ -192,6 +210,7 @@ export const approveRecommendation = async (req, res) => {
       category: pendingRec.category,
       rating: pendingRec.rating,
       originalRecommendedBy: pendingRec.user._id, // Track who sent it
+      isPrivate: pendingRec.isPrivate || false, // Preserve privacy setting
       status: "approved",
     });
 
@@ -244,15 +263,18 @@ export const getFriendsRecommendations = async (req, res) => {
     const currentUser = await User.findById(req.user._id);
 
     // Find recommendations from friends - both created by them AND sent to them that were approved
+    // EXCLUDE private recommendations (isPrivate: true)
     const recommendations = await Recommend.find({
       $or: [
         {
           user: { $in: currentUser.following },
           status: "approved",
+          isPrivate: { $ne: true }, // Exclude private recommendations
         },
         {
           recommendedTo: { $in: currentUser.following },
           status: "approved",
+          isPrivate: { $ne: true }, // Exclude private recommendations
         },
       ],
     })
@@ -462,5 +484,36 @@ export const recommendToFriend = async (req, res) => {
   } catch (error) {
     console.error("Error recommending to friend:", error.message);
     res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+export const togglePrivacy = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const recommendation = await Recommend.findById(id);
+
+    if (!recommendation) {
+      return res.status(404).json({ error: "Recommendation not found" });
+    }
+
+    // Only owner can toggle privacy
+    if (recommendation.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        error: "You are not authorized to change this recommendation's privacy",
+      });
+    }
+
+    // Toggle the privacy
+    recommendation.isPrivate = !recommendation.isPrivate;
+    await recommendation.save();
+
+    res.status(200).json({
+      message: "Privacy updated successfully",
+      data: recommendation,
+    });
+  } catch (error) {
+    console.error("Error toggling privacy:", error);
+    res.status(500).json({ error: "Failed to update privacy" });
   }
 };
