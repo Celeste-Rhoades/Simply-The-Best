@@ -13,6 +13,7 @@ export const getRecommendation = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
+
 export const getRecommendationsGroupedByCategory = async (req, res) => {
   try {
     const recommendations = await Recommend.find({
@@ -23,7 +24,9 @@ export const getRecommendationsGroupedByCategory = async (req, res) => {
           status: "approved", // Only show approved ones
         },
       ],
-    }).populate("user", "username");
+    })
+      .populate("user", "username")
+      .populate("originalRecommendedBy", "username");
 
     const grouped = recommendations.reduce((acc, rec) => {
       const category = rec.category.toLowerCase();
@@ -121,20 +124,16 @@ export const deleteRecommendation = async (req, res) => {
       return res.status(404).json({ error: "Recommendation not found" });
     }
 
-    // ✅ UPDATED: Allow deletion if you created it OR it was recommended to you and approved
+    // Only the creator can delete their recommendation
     const isOwner = recommendation.user.toString() === req.user._id.toString();
-    const isRecipient =
-      recommendation.recommendedTo &&
-      recommendation.recommendedTo.toString() === req.user._id.toString() &&
-      recommendation.status === "approved";
 
-    if (!isOwner && !isRecipient) {
+    if (!isOwner) {
       return res.status(403).json({
         error: "You are not authorized to delete this recommendation",
       });
     }
 
-    // User can delete it - safe to delete
+    // User owns it - safe to delete
     await Recommend.findByIdAndDelete(id);
 
     res.status(200).json({
@@ -145,6 +144,7 @@ export const deleteRecommendation = async (req, res) => {
     res.status(500).json({ error: "Failed to delete recommendation" });
   }
 };
+
 export const getPendingRecommendations = async (req, res) => {
   try {
     const pendingRecs = await Recommend.find({
@@ -158,23 +158,43 @@ export const getPendingRecommendations = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
+
 export const approveRecommendation = async (req, res) => {
   try {
     const { id } = req.params;
-    const recommendation = await Recommend.findOneAndUpdate(
-      { _id: id, recommendedTo: req.user._id },
-      { status: "approved" },
-      { new: true }
-    );
 
-    if (!recommendation) {
+    // Find the pending recommendation
+    const pendingRec = await Recommend.findOne({
+      _id: id,
+      recommendedTo: req.user._id,
+      status: "pending",
+    }).populate("user", "username");
+
+    if (!pendingRec) {
       return res
         .status(404)
-        .json({ success: false, message: "Recommendation not found" });
+        .json({ success: false, message: "Pending recommendation not found" });
     }
 
-    res.status(200).json({ success: true, data: recommendation });
+    // Create a NEW independent recommendation owned by the recipient
+    const newRecommendation = new Recommend({
+      user: req.user._id, // Recipient becomes the owner
+      title: pendingRec.title,
+      description: pendingRec.description,
+      category: pendingRec.category,
+      rating: pendingRec.rating,
+      originalRecommendedBy: pendingRec.user._id, // Track who sent it
+      status: "approved",
+    });
+
+    await newRecommendation.save();
+
+    // Delete the pending recommendation (cleanup)
+    await Recommend.findByIdAndDelete(id);
+
+    res.status(200).json({ success: true, data: newRecommendation });
   } catch (error) {
+    console.error("Error approving recommendation:", error);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
@@ -199,6 +219,7 @@ export const rejectRecommendation = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
+
 export const getUsers = async (req, res) => {
   try {
     const users = await User.find({}, "username");
@@ -208,48 +229,80 @@ export const getUsers = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
+
 export const getFriendsRecommendations = async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query;
-    const skip = (page - 1) * limit;
-
     // Get current user with friends list
     const currentUser = await User.findById(req.user._id);
 
-    // Find recommendations from friends only
+    // Find recommendations from friends - both created by them AND sent to them that were approved
     const recommendations = await Recommend.find({
-      user: { $in: currentUser.following },
-      status: "approved",
+      $or: [
+        {
+          user: { $in: currentUser.following },
+          status: "approved",
+        },
+        {
+          recommendedTo: { $in: currentUser.following },
+          status: "approved",
+        },
+      ],
     })
       .populate("user", "username")
+      .populate("recommendedTo", "username")
       .populate("originalRecommendedBy", "username")
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit));
+      .sort({ createdAt: -1 });
 
-    // Group by user
+    // Group by the friend (either creator or recipient)
     const groupedByUser = {};
     recommendations.forEach(rec => {
-      const userId = rec.user._id.toString();
-      if (!groupedByUser[userId]) {
-        groupedByUser[userId] = {
-          username: rec.user.username,
-          recommendations: [],
-        };
+      let friendId;
+      let friendUsername;
+
+      // Check if friend is the recipient (PRIORITY: show in recipient's section if they accepted it)
+      const isRecipient =
+        rec.recommendedTo &&
+        currentUser.following.some(
+          f => f.toString() === rec.recommendedTo._id.toString()
+        );
+
+      // Check if friend is the creator
+      const isCreator = currentUser.following.some(
+        f => f.toString() === rec.user._id.toString()
+      );
+
+      // IMPORTANT: If recommendation was sent TO a friend and approved, show ONLY in recipient's section
+      // This prevents duplicates when both sender and recipient are your friends
+      if (isRecipient) {
+        friendId = rec.recommendedTo._id.toString();
+        friendUsername = rec.recommendedTo.username;
+      } else if (isCreator && !rec.recommendedTo) {
+        // Only show in creator's section if they created it for themselves (no recommendedTo)
+        friendId = rec.user._id.toString();
+        friendUsername = rec.user.username;
       }
-      groupedByUser[userId].recommendations.push(rec);
+
+      if (friendId) {
+        if (!groupedByUser[friendId]) {
+          groupedByUser[friendId] = {
+            username: friendUsername,
+            recommendations: [],
+          };
+        }
+        groupedByUser[friendId].recommendations.push(rec);
+      }
     });
 
     res.status(200).json({
       success: true,
       data: groupedByUser,
-      hasMore: recommendations.length === parseInt(limit),
     });
   } catch (error) {
     console.error("Error fetching friends recommendations:", error.message);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
+
 export const copyRecommendation = async (req, res) => {
   try {
     const { id } = req.params;
@@ -312,7 +365,8 @@ export const copyRecommendation = async (req, res) => {
 export const recommendToFriend = async (req, res) => {
   try {
     const { friendId } = req.params;
-    const { title, description, category, rating } = req.body;
+    const { title, description, category, rating, existingRecommendationId } =
+      req.body;
 
     // Validate friend relationship
     const currentUser = await User.findById(req.user._id);
@@ -323,7 +377,51 @@ export const recommendToFriend = async (req, res) => {
       });
     }
 
-    // Create recommendation
+    // ONLY check for duplicates in SENDER's list when creating a BRAND NEW recommendation (not sharing existing)
+    // When sharing existing (existingRecommendationId is provided), skip this check
+    if (!existingRecommendationId) {
+      const existingRec = await Recommend.findOne({
+        user: req.user._id,
+        title: { $regex: new RegExp(`^${title}$`, "i") },
+        category: category,
+      });
+
+      if (existingRec) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "You already have a recommendation with this title in this category",
+        });
+      }
+    }
+
+    // Check if the RECIPIENT (friend) already has this recommendation
+    // Check both: recommendations they created AND recommendations sent to them that were approved
+    const friendHasIt = await Recommend.findOne({
+      $or: [
+        {
+          user: friendId,
+          title: { $regex: new RegExp(`^${title}$`, "i") },
+          category: category,
+        },
+        {
+          recommendedTo: friendId,
+          status: "approved",
+          title: { $regex: new RegExp(`^${title}$`, "i") },
+          category: category,
+        },
+      ],
+    });
+
+    if (friendHasIt) {
+      return res.status(400).json({
+        success: false,
+        message: "Your friend already has this recommendation",
+      });
+    }
+
+    // Create recommendation to send to friend
+    // Note: This is ONLY sent to the friend, not added to your list
     const newRecommendation = new Recommend({
       user: req.user._id, // You are the creator
       recommendedTo: friendId, // Friend receives it
