@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { useTheme } from "../contexts/ThemeContext";
 import { useSwipeable } from "react-swipeable";
@@ -110,6 +110,18 @@ const RecommendHome = () => {
   const CarouselWithSwipe = ({ userId, userdata }) => {
     const maxIndex = userdata.recommendations.length - 1;
     const currentIndex = carouselIndex[userId] || 0;
+    const [cardWidth, setCardWidth] = useState(
+      window.innerWidth >= 640 ? 272 : 184,
+    );
+
+    useEffect(() => {
+      const handleResize = () => {
+        setCardWidth(window.innerWidth >= 640 ? 272 : 184);
+      };
+
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     const handlers = useSwipeable({
       onSwipedLeft: () => {
@@ -161,7 +173,7 @@ const RecommendHome = () => {
             <div
               className="flex gap-2 transition-transform duration-300 sm:gap-4"
               style={{
-                transform: `translateX(-${currentIndex * (window.innerWidth >= 640 ? 272 : 184)}px)`,
+                transform: `translateX(-${currentIndex * cardWidth}px)`,
               }}
             >
               {userdata.recommendations.map((recommendation) => (

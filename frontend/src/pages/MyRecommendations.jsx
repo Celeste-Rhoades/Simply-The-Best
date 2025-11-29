@@ -192,6 +192,18 @@ const MyRecommendations = () => {
   const CarouselWithSwipe = ({ category, recommendations }) => {
     const maxIndex = recommendations.length - 1;
     const currentIndex = carouselIndex[category] || 0;
+    const [cardWidth, setCardWidth] = useState(
+      window.innerWidth >= 640 ? 272 : 184,
+    );
+
+    useEffect(() => {
+      const handleResize = () => {
+        setCardWidth(window.innerWidth >= 640 ? 272 : 184);
+      };
+
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     const handlers = useSwipeable({
       onSwipedLeft: () => {
@@ -241,7 +253,7 @@ const MyRecommendations = () => {
             <div
               className="flex gap-2 transition-transform duration-300 sm:gap-4"
               style={{
-                transform: `translateX(-${currentIndex * (window.innerWidth >= 640 ? 272 : 184)}px)`,
+                transform: `translateX(-${currentIndex * cardWidth}px)`,
               }}
             >
               {recommendations.map((recommendation) => (

@@ -48,9 +48,9 @@ const RecommendToFriendModal = ({
     "Pets",
   ];
 
-  // Populate form when recommendation changes
+  // Populate form when recommendation changes OR when modal opens
   useEffect(() => {
-    if (recommendation) {
+    if (isOpen && recommendation) {
       setFormData({
         title: recommendation.title || "",
         description: recommendation.description || "",
@@ -60,7 +60,7 @@ const RecommendToFriendModal = ({
       });
       setError("");
     }
-  }, [recommendation]);
+  }, [recommendation, isOpen]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

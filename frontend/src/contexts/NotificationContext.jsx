@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import socket from "../services/socket";
 import apiFetch from "../services/apiFetch";
+import { AppContext } from "../App";
 
 const NotificationContext = createContext();
 
@@ -15,6 +16,8 @@ export const useNotifications = () => {
 };
 
 export const NotificationProvider = ({ children }) => {
+  const { user } = useContext(AppContext);
+
   // Friend Requests State
   const [pendingRequests, setPendingRequests] = useState([]);
   const [friendRequestCount, setFriendRequestCount] = useState(0);
@@ -28,6 +31,9 @@ export const NotificationProvider = ({ children }) => {
 
   // Initial fetch of pending friend requests AND pending recommendations
   useEffect(() => {
+    // Only fetch if user is logged in
+    if (!user) return;
+
     const fetchInitialData = async () => {
       try {
         // Fetch pending friend requests
@@ -56,10 +62,13 @@ export const NotificationProvider = ({ children }) => {
     };
 
     fetchInitialData();
-  }, []);
+  }, [user]);
 
   // Listen for socket events
   useEffect(() => {
+    // Only register socket listeners if user is logged in
+    if (!user) return;
+
     console.log("🔔 NotificationContext socket listeners registered");
 
     // New friend request received
@@ -118,7 +127,7 @@ export const NotificationProvider = ({ children }) => {
       socket.off("newRecommendation");
       socket.off("friendRequestDeclined");
     };
-  }, []);
+  }, [user]);
 
   // Helper functions for accepting/declining
   const removeFriendRequest = (userId) => {

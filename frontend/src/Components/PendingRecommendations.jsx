@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Dialog, DialogPanel } from "@headlessui/react";
 import { useTheme } from "../contexts/ThemeContext";
 import { useNotifications } from "../contexts/NotificationContext";
 import routes from "../routes";
 import { usePendingRecommendations } from "../hooks/usePendingRecommendations";
 import NavBar from "../shared-components/NavBar";
+import apiFetch from "../services/apiFetch";
 import {
   SwipeableList,
   SwipeableListItem,
@@ -21,11 +23,47 @@ const PendingRecommendations = () => {
     isLoading,
     approveRecommendation,
     rejectRecommendation,
+    refreshRecs,
   } = usePendingRecommendations();
 
   const [processingId, setProcessingId] = useState(null);
   const { isDarkMode } = useTheme();
   const { setPendingRecommendationCount } = useNotifications();
+
+  // Edit modal state
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingRec, setEditingRec] = useState(null);
+  const [editForm, setEditForm] = useState({
+    title: "",
+    description: "",
+    category: "",
+    rating: 1,
+  });
+  const [isSaving, setIsSaving] = useState(false);
+
+  const categories = [
+    "Movies",
+    "TV Shows",
+    "Books",
+    "Video Games",
+    "Podcasts",
+    "Music",
+    "Recipes",
+    "YouTube",
+    "Restaurants",
+    "Better Than All The Rest",
+    "Other",
+    "Sports",
+    "Travel",
+    "Apps",
+    "Websites",
+    "Events",
+    "Services",
+    "Health",
+    "Fitness",
+    "Home",
+    "Pets",
+  ];
 
   // Clear notification badge when viewing pending recommendations
   useEffect(() => {
@@ -55,6 +93,52 @@ const PendingRecommendations = () => {
     setProcessingId(null);
   };
 
+  const handleEditClick = (rec) => {
+    setEditingRec(rec);
+    setEditForm({
+      title: rec.title,
+      description: rec.description || "",
+      category: rec.category,
+      rating: rec.rating,
+    });
+    setShowEditModal(true);
+  };
+
+  const handleEditSave = async () => {
+    if (!editingRec) return;
+
+    setIsSaving(true);
+
+    try {
+      const res = await apiFetch(
+        "PUT",
+        `/api/recommendations/${editingRec._id}`,
+        editForm,
+      );
+
+      if (res.ok) {
+        // Refresh pending recommendations to show updated data
+        await refreshRecs();
+        setShowEditModal(false);
+        setEditingRec(null);
+      } else {
+        alert("Failed to save changes. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error updating recommendation:", error);
+      alert("An error occurred while saving. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const toTitleCase = (str) => {
+    return str.replace(
+      /\w\S*/g,
+      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
+    );
+  };
+
   return (
     <div
       className={`flex min-h-screen flex-col ${isDarkMode ? "bg-gray-700" : "bg-lightTanGray"}`}
@@ -62,7 +146,7 @@ const PendingRecommendations = () => {
       <NavBar />
 
       <main className="flex-1 px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl">
+        <div className="mx-auto max-w-6xl">
           <h1
             className={`mb-6 text-3xl font-bold ${isDarkMode ? "text-white" : "text-darkBlue"}`}
           >
@@ -95,7 +179,7 @@ const PendingRecommendations = () => {
               </p>
             </div>
           ) : (
-            <SwipeableList type={ListType.IOS} className="space-y-4">
+            <SwipeableList type={ListType.IOS} className="space-y-6">
               {pendingRecs.map((rec) => (
                 <SwipeableListItem
                   key={rec._id}
@@ -129,52 +213,91 @@ const PendingRecommendations = () => {
                     </TrailingActions>
                   }
                 >
-                  <div className="w-full rounded-lg bg-white p-6 shadow-md">
-                    <div className="mb-4">
-                      <h3 className="text-xl font-semibold text-gray-800">
-                        {rec.title}
-                      </h3>
-                      <p className="mt-2 text-gray-600">{rec.description}</p>
-                      <div className="mt-2 text-sm text-gray-500">
-                        Category: {rec.category}
-                      </div>
-                      <div className="mt-1 text-sm text-gray-500">
-                        Recommended by: {rec.user?.username || "Unknown"}
-                      </div>
-                    </div>
+                  <div className="w-full">
+                    {/* Card Preview */}
+                    <div className="mx-auto flex max-w-md flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg">
+                      {/* Header section */}
+                      <div className="text-darkBlue relative bg-[#f8ede6] px-4 py-6 text-center">
+                        <h3 className="font-boldManrope mb-3 text-xl leading-tight font-bold">
+                          {toTitleCase(rec.title)}
+                        </h3>
 
-                    {/* Desktop buttons - hidden on mobile/tablet */}
-                    <div className="hidden space-x-3 lg:flex">
-                      <button
-                        onClick={() => handleAccept(rec._id)}
-                        disabled={processingId === rec._id}
-                        className="flex items-center space-x-2 rounded bg-green-500 px-4 py-2 text-white transition-colors hover:bg-green-600 disabled:opacity-50"
-                      >
-                        {processingId === rec._id ? (
-                          <i className="fa-solid fa-spinner animate-spin"></i>
-                        ) : (
-                          <i className="fa-solid fa-check"></i>
-                        )}
-                        <span>Accept</span>
-                      </button>
+                        <div className="flex justify-center gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <span
+                              key={star}
+                              className={
+                                star <= rec.rating
+                                  ? "text-cerulean text-2xl"
+                                  : "text-2xl text-gray-300"
+                              }
+                            >
+                              ★
+                            </span>
+                          ))}
+                        </div>
+                      </div>
 
-                      <button
-                        onClick={() => handleReject(rec._id)}
-                        disabled={processingId === rec._id}
-                        className="flex items-center space-x-2 rounded px-4 py-2 text-white transition-colors disabled:opacity-50"
-                        style={{
-                          backgroundColor: "var(--color-hotCoralPink)",
-                        }}
-                        onMouseEnter={(e) => (e.target.style.opacity = "0.9")}
-                        onMouseLeave={(e) => (e.target.style.opacity = "1")}
-                      >
-                        {processingId === rec._id ? (
-                          <i className="fa-solid fa-spinner animate-spin"></i>
-                        ) : (
-                          <i className="fa-solid fa-times"></i>
-                        )}
-                        <span>Reject</span>
-                      </button>
+                      {/* Description section */}
+                      <div className="min-h-[120px] bg-[#4a6a7d] p-6 text-white">
+                        <p className="text-center text-sm leading-relaxed">
+                          {rec.description || "No description provided"}
+                        </p>
+                      </div>
+
+                      {/* Footer section */}
+                      <div className="bg-[#f8ede6] px-4 py-3">
+                        <div className="mb-3 flex items-center justify-between text-sm text-gray-600">
+                          <span className="font-semibold">{rec.category}</span>
+                          <span>
+                            By{" "}
+                            {rec.user?.username?.charAt(0).toUpperCase() +
+                              rec.user?.username?.slice(1) || "Unknown"}
+                          </span>
+                        </div>
+
+                        {/* Desktop buttons */}
+                        <div className="hidden gap-2 lg:flex">
+                          <button
+                            onClick={() => handleAccept(rec._id)}
+                            disabled={processingId === rec._id}
+                            className="flex-1 rounded bg-green-500 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-600 disabled:opacity-50"
+                          >
+                            {processingId === rec._id ? (
+                              <i className="fa-solid fa-spinner animate-spin"></i>
+                            ) : (
+                              "Accept"
+                            )}
+                          </button>
+
+                          <button
+                            onClick={() => handleEditClick(rec)}
+                            className="bg-laguna hover:bg-lighTeal flex-1 rounded py-2.5 text-sm font-semibold text-white transition-colors"
+                          >
+                            Edit
+                          </button>
+
+                          <button
+                            onClick={() => handleReject(rec._id)}
+                            disabled={processingId === rec._id}
+                            className="text-hotCoralPink hover:bg-hotCoralPink border-hotCoralPink flex-1 rounded border-2 py-2.5 text-sm font-semibold transition-colors hover:text-white disabled:opacity-50"
+                          >
+                            {processingId === rec._id ? (
+                              <i className="fa-solid fa-spinner animate-spin"></i>
+                            ) : (
+                              "Reject"
+                            )}
+                          </button>
+                        </div>
+
+                        {/* Mobile tap to edit hint */}
+                        <button
+                          onClick={() => handleEditClick(rec)}
+                          className="bg-laguna hover:bg-lighTeal w-full rounded py-2.5 text-sm font-semibold text-white transition-colors lg:hidden"
+                        >
+                          Tap to Edit
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </SwipeableListItem>
@@ -183,6 +306,119 @@ const PendingRecommendations = () => {
           )}
         </div>
       </main>
+
+      {/* Edit Modal */}
+      <Dialog
+        open={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+      >
+        <DialogPanel className="mx-4 w-full max-w-md rounded-lg bg-white p-6">
+          <h2 className="mb-4 text-xl font-bold text-gray-800">
+            Edit Before Accepting
+          </h2>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Title
+              </label>
+              <input
+                type="text"
+                value={editForm.title}
+                onChange={(e) =>
+                  setEditForm((prev) => ({ ...prev, title: e.target.value }))
+                }
+                className="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Category
+              </label>
+              <select
+                value={editForm.category}
+                onChange={(e) =>
+                  setEditForm((prev) => ({ ...prev, category: e.target.value }))
+                }
+                className="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+              >
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Rating
+              </label>
+              <div className="flex gap-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() =>
+                      setEditForm((prev) => ({ ...prev, rating: star }))
+                    }
+                    className={`text-4xl transition-colors ${
+                      star <= editForm.rating
+                        ? "text-cerulean hover:text-cerulean/80"
+                        : "text-gray-300 hover:text-gray-400"
+                    }`}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Description
+              </label>
+              <textarea
+                value={editForm.description}
+                onChange={(e) =>
+                  setEditForm((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
+                className="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+                rows="4"
+              />
+            </div>
+          </div>
+
+          <div className="mt-6 flex gap-2">
+            <button
+              onClick={() => setShowEditModal(false)}
+              disabled={isSaving}
+              className="flex-1 rounded bg-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-400 disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleEditSave}
+              disabled={isSaving}
+              className="bg-laguna hover:bg-lighTeal flex-1 rounded px-4 py-2 text-white transition-colors disabled:opacity-50"
+            >
+              {isSaving ? (
+                <>
+                  <i className="fa-solid fa-spinner mr-2 animate-spin"></i>
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
+            </button>
+          </div>
+        </DialogPanel>
+      </Dialog>
     </div>
   );
 };
