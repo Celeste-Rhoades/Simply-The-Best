@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
+import { useNotifications } from "../contexts/NotificationContext";
 import routes from "../routes";
 import { usePendingRecommendations } from "../hooks/usePendingRecommendations";
 import NavBar from "../shared-components/NavBar";
@@ -24,6 +25,12 @@ const PendingRecommendations = () => {
 
   const [processingId, setProcessingId] = useState(null);
   const { isDarkMode } = useTheme();
+  const { setPendingRecommendationCount } = useNotifications();
+
+  // Clear notification badge when viewing pending recommendations
+  useEffect(() => {
+    setPendingRecommendationCount(0);
+  }, [setPendingRecommendationCount]);
 
   // Redirect when no pending recommendations
   useEffect(() => {

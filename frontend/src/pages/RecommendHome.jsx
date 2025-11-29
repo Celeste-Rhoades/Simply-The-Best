@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { useTheme } from "../contexts/ThemeContext";
 import { useSwipeable } from "react-swipeable";
@@ -33,36 +33,10 @@ const RecommendHome = () => {
   const [showTitleModal, setShowTitleModal] = useState(false);
   const [selectedTitle, setSelectedTitle] = useState("");
 
-  const loadMoreRef = useRef(null);
-
-  const {
-    friendsRecs,
-    isLoading,
-    error,
-    hasMore,
-    loadMoreFriends,
-    copyRecommendation,
-  } = useFriendsRecommendations();
+  const { friendsRecs, isLoading, error, copyRecommendation } =
+    useFriendsRecommendations();
 
   const { recommendToFriend } = useFriendRecommendations();
-
-  // Lazy loading intersection observer
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoading) {
-          loadMoreFriends();
-        }
-      },
-      { threshold: 0.1 },
-    );
-
-    if (loadMoreRef.current) {
-      observer.observe(loadMoreRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [hasMore, isLoading, loadMoreFriends]);
 
   const handleModalClose = () => {
     setShowForm(false);
@@ -393,14 +367,6 @@ const RecommendHome = () => {
                 userdata={userdata}
               />
             ))}
-
-            {hasMore && (
-              <div ref={loadMoreRef} className="py-8 text-center">
-                <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
-                  Loading more friends...
-                </p>
-              </div>
-            )}
           </div>
         )}
       </div>

@@ -9,7 +9,7 @@ import apiFetch from "services/apiFetch";
 import NavBar from "shared-components/NavBar";
 import RecommendAddModal from "./RecommendAddModal";
 import RecommendEditModal from "./RecommendEditModal";
-import RecommendToFriendModal from "../Components/RecommendFriendModal";
+import RecommendToFriendModal from "../Components/RecommendToFriendModal";
 import CreateAndShareModal from "../pages/CreateAndShareModal";
 import { useFriendRecommendations } from "../hooks/useFriendRecommendations";
 import routes from "../routes";
@@ -20,10 +20,10 @@ const MyRecommendations = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [errors, setErrors] = useState("");
   const [carouselIndex, setCarouselIndex] = useState({});
-  const [pendingCount, setPendingCount] = useState(0);
   const [currentUserId, setCurrentUserId] = useState(null);
   const { isDarkMode } = useTheme();
-  const { setPendingRecommendationCount } = useNotifications();
+  const { setPendingRecommendationCount, pendingRecommendationCount } =
+    useNotifications();
 
   // Share existing recommendation states
   const [showRecommendModal, setShowRecommendModal] = useState(false);
@@ -102,7 +102,6 @@ const MyRecommendations = () => {
   const handleModalClose = () => {
     setShowForm(false);
     fetchGroupRecs();
-    fetchPendingCount();
   };
 
   // Share existing recommendation functions
@@ -162,7 +161,6 @@ const MyRecommendations = () => {
 
   useEffect(() => {
     fetchGroupRecs();
-    fetchPendingCount();
     fetchCurrentUser();
   }, []);
 
@@ -187,18 +185,6 @@ const MyRecommendations = () => {
       return "mb-1.5 sm:mb-1.5";
     } else {
       return "mb-2 sm:mb-2.5";
-    }
-  };
-
-  const fetchPendingCount = async () => {
-    try {
-      const res = await apiFetch("GET", "/api/recommendations/pending");
-      if (res.ok) {
-        const data = await res.json();
-        setPendingCount(data.data.length);
-      }
-    } catch (error) {
-      console.log("Error fetching pending count:", error);
     }
   };
 
@@ -349,10 +335,12 @@ const MyRecommendations = () => {
                       </button>
 
                       <p className="truncate px-0.5 text-center text-[9px] text-gray-600 sm:px-1 sm:text-xs">
-                        {recommendation.user &&
-                        recommendation.user._id === currentUserId
-                          ? "Self"
-                          : `By ${recommendation.user?.username?.charAt(0).toUpperCase() + recommendation.user?.username?.slice(1) || "Unknown"}`}
+                        {recommendation.originalRecommendedBy
+                          ? `By ${recommendation.originalRecommendedBy.username?.charAt(0).toUpperCase() + recommendation.originalRecommendedBy.username?.slice(1) || "Unknown"}`
+                          : recommendation.user &&
+                              recommendation.user._id === currentUserId
+                            ? "Self"
+                            : `By ${recommendation.user?.username?.charAt(0).toUpperCase() + recommendation.user?.username?.slice(1) || "Unknown"}`}
                       </p>
 
                       <button
@@ -424,12 +412,14 @@ const MyRecommendations = () => {
             className="hover:bg-lighTeal font-raleway relative flex-1 rounded-md bg-[#69c8d4] px-2 py-2 text-xs text-white shadow-lg transition-colors"
           >
             Pending
-            {pendingCount > 0 && (
+            {pendingRecommendationCount > 0 && (
               <span
                 className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white"
                 style={{ backgroundColor: "var(--color-hotCoralPink)" }}
               >
-                {pendingCount > 9 ? "9+" : pendingCount}
+                {pendingRecommendationCount > 9
+                  ? "9+"
+                  : pendingRecommendationCount}
               </span>
             )}
           </button>
@@ -468,13 +458,15 @@ const MyRecommendations = () => {
             }}
             className="hover:bg-lighTeal font-raleway relative mx-2 rounded-md bg-[#69c8d4] px-4 py-2 text-white shadow-lg transition-colors"
           >
-            Pending ({pendingCount})
-            {pendingCount > 0 && (
+            Pending ({pendingRecommendationCount})
+            {pendingRecommendationCount > 0 && (
               <span
                 className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white"
                 style={{ backgroundColor: "var(--color-hotCoralPink)" }}
               >
-                {pendingCount > 9 ? "9+" : pendingCount}
+                {pendingRecommendationCount > 9
+                  ? "9+"
+                  : pendingRecommendationCount}
               </span>
             )}
           </button>

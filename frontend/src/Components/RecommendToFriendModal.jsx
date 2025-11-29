@@ -77,6 +77,7 @@ const RecommendToFriendModal = ({
       description: formData.description,
       category: formData.category,
       rating: formData.rating,
+      existingRecommendationId: recommendation?._id,
     };
 
     const result = await onRecommend(
