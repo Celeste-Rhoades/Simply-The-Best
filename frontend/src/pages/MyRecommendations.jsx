@@ -83,18 +83,45 @@ const MyRecommendations = () => {
   };
 
   const handleDeleteRecommendation = async (recommendationId) => {
+    if (!confirm("Are you sure you want to delete this recommendation?")) {
+      return;
+    }
+
+    setErrors(""); // Clear any previous errors
+
     try {
       const res = await apiFetch(
         "DELETE",
         `/api/recommendations/${recommendationId}`,
       );
+
       if (res.ok) {
-        fetchGroupRecs(); // Refresh the recommendations
+        // Success - refresh the recommendations
+        await fetchGroupRecs();
       } else {
-        setErrors("Failed to delete recommendation.");
+        const errorData = await res.json();
+        setErrors(errorData.error || "Failed to delete recommendation.");
       }
     } catch (error) {
       console.error("Error deleting recommendation:", error);
+      setErrors("Network error. Please try again.");
+    }
+  };
+
+  const handlePrivacyToggle = async (recommendationId) => {
+    try {
+      const res = await apiFetch(
+        "PATCH",
+        `/api/recommendations/${recommendationId}/privacy`,
+      );
+      if (res.ok) {
+        // Refresh recommendations to show updated privacy status
+        fetchGroupRecs();
+      } else {
+        setErrors("Failed to update privacy.");
+      }
+    } catch (error) {
+      console.error("Error toggling privacy:", error);
       setErrors("Network error. Please try again.");
     }
   };
@@ -265,10 +292,10 @@ const MyRecommendations = () => {
                     {/* EDIT BUTTON */}
                     <button
                       onClick={() => handleEditRecommendation(recommendation)}
-                      className="absolute top-0.5 right-1 z-10 text-gray-600 transition-colors hover:text-gray-800 sm:top-1 sm:right-2"
+                      className="absolute top-0.5 right-0.5 z-10 text-gray-600 transition-colors hover:text-gray-800 sm:top-1 sm:right-1"
                       aria-label="Edit recommendation"
                     >
-                      <i className="fa-solid fa-pencil text-[10px] sm:text-xs"></i>
+                      <i className="fa-solid fa-pencil text-[11px] sm:text-sm"></i>
                     </button>
 
                     {/* Header section */}
@@ -333,35 +360,86 @@ const MyRecommendations = () => {
                           </button>
                         )}
                     </div>
-
                     {/* Footer section */}
-                    <div className="flex h-8 flex-shrink-0 items-center justify-between bg-[#f8ede6] px-2 sm:h-10 sm:px-3">
-                      <button
-                        onClick={() =>
-                          handleDeleteRecommendation(recommendation._id)
-                        }
-                        className="text-hotCoralPink transition-colors hover:text-pink-600"
-                        aria-label="Delete recommendation"
-                      >
-                        <i className="fa-solid fa-trash text-[10px] sm:text-sm"></i>
-                      </button>
+                    <div className="flex h-12 flex-shrink-0 flex-col items-center justify-center bg-[#f8ede6] px-2 sm:h-14 sm:px-3">
+                      {/* Top row: Privacy Toggle - switch centered above name */}
+                      <div className="mb-0.5 grid w-full grid-cols-3 items-center">
+                        {/* Left side - show "Private" text only when private */}
+                        <div className="justify-self-start">
+                          {recommendation.isPrivate && (
+                            <span className="text-hotCoralPink px-1 text-[10px] font-semibold sm:text-xs">
+                              Private
+                            </span>
+                          )}
+                        </div>
 
-                      <p className="truncate px-0.5 text-center text-[9px] text-gray-600 sm:px-1 sm:text-xs">
-                        {recommendation.originalRecommendedBy
-                          ? `By ${recommendation.originalRecommendedBy.username?.charAt(0).toUpperCase() + recommendation.originalRecommendedBy.username?.slice(1) || "Unknown"}`
-                          : recommendation.user &&
-                              recommendation.user._id === currentUserId
-                            ? "Self"
-                            : `By ${recommendation.user?.username?.charAt(0).toUpperCase() + recommendation.user?.username?.slice(1) || "Unknown"}`}
-                      </p>
+                        {/* Center: Toggle switch - directly above name */}
+                        <button
+                          onClick={() =>
+                            handlePrivacyToggle(recommendation._id)
+                          }
+                          className="flex justify-center transition-colors"
+                          aria-label={`Toggle privacy - currently ${recommendation.isPrivate ? "private" : "public"}`}
+                        >
+                          <div
+                            className={`relative h-3 w-7 rounded-full transition-colors sm:h-3.5 sm:w-8 ${
+                              recommendation.isPrivate
+                                ? "bg-hotCoralPink"
+                                : "bg-green-500"
+                            }`}
+                          >
+                            <div
+                              className={`absolute top-0.5 h-2 w-2 rounded-full bg-white transition-transform sm:h-2.5 sm:w-2.5 ${
+                                recommendation.isPrivate
+                                  ? "right-0.5 sm:right-0.5"
+                                  : "left-0.5 sm:left-0.5"
+                              }`}
+                            />
+                          </div>
+                        </button>
 
-                      <button
-                        onClick={() => handleRecommendClick(recommendation)}
-                        className="text-[#62d3c2] transition-colors hover:text-[#59bbac]"
-                        aria-label="Recommend to friend"
-                      >
-                        <i className="fa-solid fa-share-from-square text-[10px] sm:text-sm"></i>
-                      </button>
+                        {/* Right side - show "Public" text only when public */}
+                        <div className="justify-self-end">
+                          {!recommendation.isPrivate && (
+                            <span className="px-1 text-[10px] font-semibold text-green-600 sm:text-xs">
+                              Public
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Bottom row: Delete, Name, Share - ONLY ONE ROW */}
+                      <div className="grid w-full grid-cols-3 items-center">
+                        {/* Left: Delete button */}
+                        <button
+                          onClick={() =>
+                            handleDeleteRecommendation(recommendation._id)
+                          }
+                          className="text-hotCoralPink justify-self-start transition-colors hover:text-pink-600"
+                          aria-label="Delete recommendation"
+                        >
+                          <i className="fa-solid fa-trash text-[10px] sm:text-sm"></i>
+                        </button>
+
+                        {/* Center: Name */}
+                        <p className="truncate text-center text-[9px] text-gray-600 sm:text-xs">
+                          {recommendation.originalRecommendedBy
+                            ? `By ${recommendation.originalRecommendedBy.username?.charAt(0).toUpperCase() + recommendation.originalRecommendedBy.username?.slice(1) || "Unknown"}`
+                            : recommendation.user &&
+                                recommendation.user._id === currentUserId
+                              ? "Self"
+                              : `By ${recommendation.user?.username?.charAt(0).toUpperCase() + recommendation.user?.username?.slice(1) || "Unknown"}`}
+                        </p>
+
+                        {/* Right: Share button */}
+                        <button
+                          onClick={() => handleRecommendClick(recommendation)}
+                          className="justify-self-end text-[#62d3c2] transition-colors hover:text-[#59bbac]"
+                          aria-label="Recommend to friend"
+                        >
+                          <i className="fa-solid fa-share-from-square text-[10px] sm:text-sm"></i>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

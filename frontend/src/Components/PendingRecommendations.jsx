@@ -38,6 +38,7 @@ const PendingRecommendations = () => {
     description: "",
     category: "",
     rating: 1,
+    isPrivate: false,
   });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -93,6 +94,30 @@ const PendingRecommendations = () => {
     setProcessingId(null);
   };
 
+  const handlePrivacyToggle = async (recId) => {
+    try {
+      // Find the current recommendation to get its current privacy state
+      const currentRec = pendingRecs.find((rec) => rec._id === recId);
+      if (!currentRec) return;
+
+      // Update only the isPrivate field
+      const res = await apiFetch("PUT", `/api/recommendations/${recId}`, {
+        isPrivate: !currentRec.isPrivate, // Toggle the privacy
+      });
+
+      if (res.ok) {
+        // Refresh pending recommendations to show updated privacy status
+        await refreshRecs();
+      } else {
+        const errorData = await res.json();
+        console.error("Privacy toggle error:", errorData);
+        alert("Failed to update privacy. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error toggling privacy:", error);
+      alert("An error occurred while updating privacy. Please try again.");
+    }
+  };
   const handleEditClick = (rec) => {
     setEditingRec(rec);
     setEditForm({
@@ -100,6 +125,7 @@ const PendingRecommendations = () => {
       description: rec.description || "",
       category: rec.category,
       rating: rec.rating,
+      isPrivate: rec.isPrivate || false,
     });
     setShowEditModal(true);
   };
@@ -238,16 +264,48 @@ const PendingRecommendations = () => {
                         </div>
                       </div>
 
-                      {/* Description section */}
-                      <div className="min-h-[120px] bg-[#4a6a7d] p-6 text-white">
+                      {/* Description section - matches MyRecommendations style */}
+                      <div className="relative m-2 flex min-h-[120px] items-center justify-center bg-[#4a6a7d] p-6 text-white">
                         <p className="text-center text-sm leading-relaxed">
                           {rec.description || "No description provided"}
                         </p>
                       </div>
+                      {/* Footer section - matches MyRecommendations style */}
+                      <div className="flex flex-col items-center justify-center bg-[#f8ede6] px-4 py-3">
+                        {/* Top row: Privacy Toggle - Centered */}
+                        <div className="mb-2 flex w-full justify-center">
+                          <button
+                            onClick={() => handlePrivacyToggle(rec._id)}
+                            className="flex items-center gap-1.5 transition-colors"
+                            aria-label={`Toggle privacy - currently ${rec.isPrivate ? "private" : "public"}`}
+                          >
+                            <div
+                              className={`relative h-3.5 w-8 rounded-full transition-colors ${
+                                rec.isPrivate
+                                  ? "bg-hotCoralPink"
+                                  : "bg-green-500"
+                              }`}
+                            >
+                              <div
+                                className={`absolute top-0.5 h-2.5 w-2.5 rounded-full bg-white transition-transform ${
+                                  rec.isPrivate ? "right-0.5" : "left-0.5"
+                                }`}
+                              />
+                            </div>
+                            <span
+                              className={`text-[9px] font-semibold ${
+                                rec.isPrivate
+                                  ? "text-hotCoralPink"
+                                  : "text-green-600"
+                              }`}
+                            >
+                              {rec.isPrivate ? "Private" : "Public"}
+                            </span>
+                          </button>
+                        </div>
 
-                      {/* Footer section */}
-                      <div className="bg-[#f8ede6] px-4 py-3">
-                        <div className="mb-3 flex items-center justify-between text-sm text-gray-600">
+                        {/* Bottom row: Category and Sender */}
+                        <div className="mb-3 flex w-full items-center justify-between text-sm text-gray-600">
                           <span className="font-semibold">{rec.category}</span>
                           <span>
                             By{" "}
@@ -261,7 +319,7 @@ const PendingRecommendations = () => {
                           <button
                             onClick={() => handleAccept(rec._id)}
                             disabled={processingId === rec._id}
-                            className="flex-1 rounded bg-green-500 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-600 disabled:opacity-50"
+                            className="flex-1 rounded border-2 border-transparent bg-green-500 p-3 text-sm font-semibold text-white transition-colors hover:bg-green-600 disabled:opacity-50"
                           >
                             {processingId === rec._id ? (
                               <i className="fa-solid fa-spinner animate-spin"></i>
@@ -272,7 +330,7 @@ const PendingRecommendations = () => {
 
                           <button
                             onClick={() => handleEditClick(rec)}
-                            className="bg-laguna hover:bg-lighTeal flex-1 rounded py-2.5 text-sm font-semibold text-white transition-colors"
+                            className="bg-laguna hover:bg-lighTeal flex-1 rounded border-2 border-transparent p-3 text-sm font-semibold text-white transition-colors"
                           >
                             Edit
                           </button>
@@ -280,7 +338,7 @@ const PendingRecommendations = () => {
                           <button
                             onClick={() => handleReject(rec._id)}
                             disabled={processingId === rec._id}
-                            className="text-hotCoralPink hover:bg-hotCoralPink border-hotCoralPink flex-1 rounded border-2 py-2.5 text-sm font-semibold transition-colors hover:text-white disabled:opacity-50"
+                            className="bg-hotCoralPink border-hotCoralPink hover:text-hotCoralPink flex-1 rounded border-2 p-3 text-sm font-semibold text-white transition-colors hover:bg-white disabled:opacity-50"
                           >
                             {processingId === rec._id ? (
                               <i className="fa-solid fa-spinner animate-spin"></i>
@@ -293,7 +351,7 @@ const PendingRecommendations = () => {
                         {/* Mobile tap to edit hint */}
                         <button
                           onClick={() => handleEditClick(rec)}
-                          className="bg-laguna hover:bg-lighTeal w-full rounded py-2.5 text-sm font-semibold text-white transition-colors lg:hidden"
+                          className="bg-laguna hover:bg-lighTeal w-full rounded p-3 py-3 text-sm font-semibold text-white transition-colors lg:hidden"
                         >
                           Tap to Edit
                         </button>
@@ -375,6 +433,34 @@ const PendingRecommendations = () => {
                 ))}
               </div>
             </div>
+
+            {/* Privacy Toggle */}
+            <div className="flex items-center justify-between rounded border border-gray-300 p-3">
+              <label className="flex cursor-pointer items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={editForm.isPrivate}
+                  onChange={(e) =>
+                    setEditForm((prev) => ({
+                      ...prev,
+                      isPrivate: e.target.checked,
+                    }))
+                  }
+                  className="h-4 w-4 cursor-pointer"
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  Private
+                </span>
+              </label>
+              <span
+                className={`text-sm font-semibold ${editForm.isPrivate ? "text-hotCoralPink" : "text-green-600"}`}
+              >
+                {editForm.isPrivate ? "Private" : "Public"}
+              </span>
+            </div>
+            <p className="text-xs text-gray-500">
+              Private recommendations are only visible to you
+            </p>
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
