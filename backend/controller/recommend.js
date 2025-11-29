@@ -88,16 +88,29 @@ export const updateRecommendation = async (req, res) => {
       return res.status(404).json({ error: "Recommendation not found" });
     }
 
+    // Debug logging for privacy toggle
+    console.log("🔄 Update attempt:");
+    console.log("Recommendation user:", recommendation.user.toString());
+    console.log("Request user:", req.user._id.toString());
+    console.log("Recommendation status:", recommendation.status);
+    console.log("Recommendation recommendedTo:", recommendation.recommendedTo);
+    console.log("Is updating isPrivate?", isPrivate !== undefined);
+
     // Allow editing if:
     // 1. User owns this recommendation (created it)
     // 2. OR recommendation is pending and sent to this user
+    // 3. OR recommendation was sent to them and is approved (they accepted it)
     const isOwner = recommendation.user.toString() === req.user._id.toString();
     const isPendingRecipient =
       recommendation.recommendedTo &&
       recommendation.recommendedTo.toString() === req.user._id.toString() &&
       recommendation.status === "pending";
+    const isApprovedRecipient =
+      recommendation.recommendedTo &&
+      recommendation.recommendedTo.toString() === req.user._id.toString() &&
+      recommendation.status === "approved";
 
-    if (!isOwner && !isPendingRecipient) {
+    if (!isOwner && !isPendingRecipient && !isApprovedRecipient) {
       return res.status(403).json({
         error: "You are not authorized to edit this recommendation",
       });
