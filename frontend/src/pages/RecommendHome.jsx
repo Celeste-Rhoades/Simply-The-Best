@@ -106,6 +106,39 @@ const RecommendHome = () => {
     }
   };
 
+  // Helper function to render text with clickable links in laguna color
+  const renderTextWithLinks = (text) => {
+    if (!text) return text;
+
+    // Regex to detect URLs (http://, https://, www.)
+    const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/g;
+    const parts = text.split(urlRegex);
+
+    return parts.map((part, index) => {
+      if (!part) return null;
+
+      // Check if this part is a URL
+      if (part.match(urlRegex)) {
+        const href = part.startsWith("http") ? part : `https://${part}`;
+        return (
+          <a
+            key={index}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="break-all underline transition-opacity hover:opacity-80"
+            style={{ color: "#00b8c4" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {part}
+          </a>
+        );
+      }
+
+      return <span key={index}>{part}</span>;
+    });
+  };
+
   // Component for individual carousel with swipe
   const CarouselWithSwipe = ({ userId, userdata }) => {
     const maxIndex = userdata.recommendations.length - 1;
@@ -223,9 +256,17 @@ const RecommendHome = () => {
                     <div className="relative m-1 flex flex-grow items-center justify-center bg-[#4a6a7d] p-1.5 text-white sm:m-2 sm:p-3">
                       <p className="text-center text-[10px] leading-tight break-words sm:text-sm">
                         {recommendation.description &&
-                        recommendation.description.length > 100
-                          ? `${recommendation.description.substring(0, 100)}...`
-                          : recommendation.description || "Description"}
+                        recommendation.description.length > 100 ? (
+                          <>
+                            {renderTextWithLinks(
+                              recommendation.description.substring(0, 100),
+                            )}
+                            ...
+                          </>
+                        ) : (
+                          renderTextWithLinks(recommendation.description) ||
+                          "Description"
+                        )}
                       </p>
 
                       {recommendation.description &&
@@ -422,7 +463,7 @@ const RecommendHome = () => {
           </h3>
           <div className="flex-1 overflow-y-auto pr-2">
             <p className="whitespace-pre-wrap text-gray-700">
-              {selectedDescription.description}
+              {renderTextWithLinks(selectedDescription.description)}
             </p>
           </div>
           <button
