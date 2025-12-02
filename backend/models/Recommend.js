@@ -43,6 +43,8 @@ const recommendSchema = new mongoose.Schema(
         "Fitness",
         "Home",
         "Pets",
+        "Fashion",
+        "Art",
       ],
       required: true,
     },
