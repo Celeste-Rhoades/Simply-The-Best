@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AppContext } from "../../App";
 import routes from "../../routes";
@@ -14,6 +14,7 @@ const NavBar = () => {
   const [userOpenMenu, setUserOpenMenu] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const navigate = useNavigate();
+  const dropdownRef = useRef(null);
 
   const logout = async () => {
     const response = await apiFetch("POST", "/api/auth/logout");
@@ -24,21 +25,37 @@ const NavBar = () => {
     }
   };
 
+  // Close dropdown on Escape key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === "Escape" && userOpenMenu) {
+        setUserOpenMenu(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [userOpenMenu]);
+
   return (
-    <nav className="bg-laguna relative z-40 flex justify-center">
+    <nav
+      className="bg-laguna relative z-40 flex justify-center"
+      role="navigation"
+      aria-label="Main navigation"
+    >
       <div className="relative flex w-full max-w-7xl items-center justify-between px-2 py-2 sm:px-4 md:px-6">
-        {/* Left Section - Logo */}
+        {/* Logo */}
         <div className="font-header flex items-center text-xl text-white">
-          <Link to={routes.recommendations}>
+          <Link to={routes.recommendations} aria-label="Home">
             <img
               className="h-16 w-16 object-contain sm:h-20 sm:w-20 md:h-24 md:w-24 lg:h-28 lg:w-28"
-              alt="starfish"
+              alt="Simply The Best logo"
               src={logo1}
             />
           </Link>
         </div>
 
-        {/* Center Section - Title (Absolutely Positioned, Always Centered) */}
+        {/* Center title */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
           <Link to={routes.recommendations}>
             <h1 className="font-header text-center text-2xl whitespace-nowrap text-white select-none sm:text-3xl md:text-4xl lg:text-5xl xl:text-5xl">
@@ -47,36 +64,44 @@ const NavBar = () => {
           </Link>
         </div>
 
-        {/* Right Section - Navigation */}
+        {/* Right navigation */}
         <div className="font-body flex items-center justify-end gap-1 text-white sm:gap-4 md:gap-6">
-          {/* Bell Notification - Always Visible */}
+          {/* Friend requests notification */}
           <FriendRequestsDropdown />
 
-          {/* Desktop Navigation - XL+ screens */}
+          {/* Desktop navigation (XL+) */}
           <div className="hidden items-center space-x-6 xl:flex">
-            {/* User Dropdown */}
-            <div className="relative">
+            {/* User dropdown */}
+            <div className="relative" ref={dropdownRef}>
               <button
                 type="button"
                 className="flex items-center space-x-2 text-base transition-colors hover:text-gray-200"
                 onClick={() => setUserOpenMenu(!userOpenMenu)}
+                aria-expanded={userOpenMenu}
+                aria-haspopup="true"
+                aria-label="User menu"
               >
                 <span>
                   {user === null ? "Loading..." : user?.username || "Guest"}
                 </span>
-                <i className="fa-solid fa-caret-down"></i>
+                <i className="fa-solid fa-caret-down" aria-hidden="true"></i>
               </button>
 
               {userOpenMenu && (
                 <>
-                  {/* Backdrop - click to close */}
+                  {/* Click backdrop to close */}
                   <div
                     className="fixed inset-0 z-[9998]"
                     onClick={() => setUserOpenMenu(false)}
+                    aria-hidden="true"
                   ></div>
 
-                  {/* Dropdown Menu */}
-                  <div className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex min-w-48 flex-col rounded-md px-6 py-4 text-base text-stone-800 shadow-md">
+                  {/* Dropdown menu */}
+                  <div
+                    className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex min-w-48 flex-col rounded-md px-6 py-4 text-base text-stone-800 shadow-md"
+                    role="menu"
+                    aria-label="User menu"
+                  >
                     <div className="mb-3 border-b border-stone-300 pb-2">
                       <span className="font-body text-sm text-stone-600">
                         Signed in as:
@@ -94,8 +119,12 @@ const NavBar = () => {
                         setUserOpenMenu(false);
                         navigate(routes.recommendations);
                       }}
+                      role="menuitem"
                     >
-                      <i className="fa-solid fa-house mr-2"></i>
+                      <i
+                        className="fa-solid fa-house mr-2"
+                        aria-hidden="true"
+                      ></i>
                       Home
                     </button>
                     <button
@@ -104,8 +133,12 @@ const NavBar = () => {
                         setUserOpenMenu(false);
                         navigate(routes.myRecommendations);
                       }}
+                      role="menuitem"
                     >
-                      <i className="fa-solid fa-user mr-2"></i>
+                      <i
+                        className="fa-solid fa-user mr-2"
+                        aria-hidden="true"
+                      ></i>
                       My Recommendations
                     </button>
                     <button
@@ -114,8 +147,12 @@ const NavBar = () => {
                         setUserOpenMenu(false);
                         navigate(routes.friends);
                       }}
+                      role="menuitem"
                     >
-                      <i className="fa-solid fa-user-group mr-2"></i>
+                      <i
+                        className="fa-solid fa-user-group mr-2"
+                        aria-hidden="true"
+                      ></i>
                       Friends
                     </button>
 
@@ -125,8 +162,12 @@ const NavBar = () => {
                         setUserOpenMenu(false);
                         logout();
                       }}
+                      role="menuitem"
                     >
-                      <i className="fa-solid fa-arrow-right-from-bracket mr-2"></i>
+                      <i
+                        className="fa-solid fa-arrow-right-from-bracket mr-2"
+                        aria-hidden="true"
+                      ></i>
                       Sign out
                     </button>
                   </div>
@@ -134,35 +175,49 @@ const NavBar = () => {
               )}
             </div>
 
-            {/* Theme Toggle - Desktop */}
             <ThemeToggle />
-
-            {/* SearchBar Modal */}
             <SearchBar />
           </div>
 
-          {/* Mobile Hamburger Menu - XS to L screens */}
+          {/* Mobile hamburger menu (below XL) */}
           <div className="relative z-50 xl:hidden">
             <button
               type="button"
               className="flex h-8 w-8 flex-col items-center justify-center space-y-1"
               onClick={() => setUserOpenMenu(!userOpenMenu)}
+              aria-expanded={userOpenMenu}
+              aria-haspopup="true"
+              aria-label="Open menu"
             >
-              <span className="h-0.5 w-6 bg-white transition-all duration-300"></span>
-              <span className="h-0.5 w-6 bg-white transition-all duration-300"></span>
-              <span className="h-0.5 w-6 bg-white transition-all duration-300"></span>
+              <span
+                className="h-0.5 w-6 bg-white transition-all duration-300"
+                aria-hidden="true"
+              ></span>
+              <span
+                className="h-0.5 w-6 bg-white transition-all duration-300"
+                aria-hidden="true"
+              ></span>
+              <span
+                className="h-0.5 w-6 bg-white transition-all duration-300"
+                aria-hidden="true"
+              ></span>
             </button>
 
             {userOpenMenu && (
               <>
-                {/* Backdrop - click to close */}
+                {/* Click backdrop to close */}
                 <div
                   className="fixed inset-0 z-[9998]"
                   onClick={() => setUserOpenMenu(false)}
+                  aria-hidden="true"
                 ></div>
 
-                {/* Dropdown Menu */}
-                <div className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex min-w-48 flex-col rounded-md px-6 py-4 text-lg text-stone-800 shadow-md">
+                {/* Mobile dropdown menu */}
+                <div
+                  className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex min-w-48 flex-col rounded-md px-6 py-4 text-lg text-stone-800 shadow-md"
+                  role="menu"
+                  aria-label="Mobile menu"
+                >
                   <div className="mb-3 border-b border-stone-300 pb-2">
                     <span className="font-body text-sm text-stone-600">
                       Signed in as:
@@ -178,8 +233,12 @@ const NavBar = () => {
                       setUserOpenMenu(false);
                       setShowSearchModal(true);
                     }}
+                    role="menuitem"
                   >
-                    <i className="fa-solid fa-magnifying-glass mr-2 w-5"></i>
+                    <i
+                      className="fa-solid fa-magnifying-glass mr-2 w-5"
+                      aria-hidden="true"
+                    ></i>
                     <span>Find Friends</span>
                   </button>
 
@@ -189,8 +248,12 @@ const NavBar = () => {
                       setUserOpenMenu(false);
                       navigate(routes.recommendations);
                     }}
+                    role="menuitem"
                   >
-                    <i className="fa-solid fa-house mr-2 w-5"></i>
+                    <i
+                      className="fa-solid fa-house mr-2 w-5"
+                      aria-hidden="true"
+                    ></i>
                     <span>Home</span>
                   </button>
 
@@ -200,8 +263,12 @@ const NavBar = () => {
                       setUserOpenMenu(false);
                       navigate(routes.myRecommendations);
                     }}
+                    role="menuitem"
                   >
-                    <i className="fa-solid fa-user mr-2 w-5"></i>
+                    <i
+                      className="fa-solid fa-user mr-2 w-5"
+                      aria-hidden="true"
+                    ></i>
                     <span>My Recommendations</span>
                   </button>
 
@@ -211,12 +278,15 @@ const NavBar = () => {
                       setUserOpenMenu(false);
                       navigate(routes.friends);
                     }}
+                    role="menuitem"
                   >
-                    <i className="fa-solid fa-user-group mr-2 w-5"></i>
+                    <i
+                      className="fa-solid fa-user-group mr-2 w-5"
+                      aria-hidden="true"
+                    ></i>
                     <span>Friends</span>
                   </button>
 
-                  {/* Theme Toggle - Mobile */}
                   <ThemeToggle isMobile />
 
                   <button
@@ -225,8 +295,12 @@ const NavBar = () => {
                       setUserOpenMenu(false);
                       logout();
                     }}
+                    role="menuitem"
                   >
-                    <i className="fa-solid fa-arrow-right-from-bracket mr-2 w-5"></i>
+                    <i
+                      className="fa-solid fa-arrow-right-from-bracket mr-2 w-5"
+                      aria-hidden="true"
+                    ></i>
                     <span>Sign out</span>
                   </button>
                 </div>
@@ -236,7 +310,7 @@ const NavBar = () => {
         </div>
       </div>
 
-      {/* Mobile Search Modal - XL screens and below */}
+      {/* Mobile search modal */}
       <SearchBar
         isVisible={showSearchModal}
         onClose={() => setShowSearchModal(false)}

@@ -51,6 +51,20 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
     }
   }, [recommendation]);
 
+  // Keyboard support for star rating navigation
+  const handleStarKeyDown = (e, star) => {
+    if (e.key === " " || e.key === "Enter") {
+      e.preventDefault();
+      setFormData((prev) => ({ ...prev, rating: star }));
+    } else if (e.key === "ArrowRight" && star < 5) {
+      e.preventDefault();
+      document.getElementById(`edit-star-${star + 1}`)?.focus();
+    } else if (e.key === "ArrowLeft" && star > 1) {
+      e.preventDefault();
+      document.getElementById(`edit-star-${star - 1}`)?.focus();
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title.trim()) {
@@ -74,12 +88,13 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
       );
 
       if (res.ok) {
-        onClose(true); // true indicates success
+        onClose(true);
       } else {
         const data = await res.json();
         setError(data.message || "Failed to update recommendation.");
       }
-    } catch (err) {
+    } catch (error) {
+      console.error("Error updating recommendation:", error);
       setError("Network error. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -99,21 +114,34 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
       onClose={handleClose}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
     >
-      <DialogPanel className="mx-4 w-full max-w-md rounded-lg bg-white p-6">
-        <h2 className="font-header mb-4 text-xl">Edit Recommendation</h2>
+      <DialogPanel
+        className="mx-4 w-full max-w-md rounded-lg bg-white p-6"
+        aria-labelledby="edit-recommendation-title"
+      >
+        <h2 id="edit-recommendation-title" className="font-header mb-4 text-xl">
+          Edit Recommendation
+        </h2>
 
         {error && (
-          <div className="font-body text-hotCoralPink mb-4 rounded bg-red-100 p-3">
+          <div
+            className="font-body text-hotCoralPink mb-4 rounded bg-red-100 p-3"
+            role="alert"
+            aria-live="assertive"
+          >
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="font-body block text-sm text-gray-700">
+            <label
+              htmlFor="edit-title"
+              className="font-body block text-sm text-gray-700"
+            >
               Title <span className="text-hotCoralPink">*</span>
             </label>
             <input
+              id="edit-title"
               type="text"
               value={formData.title}
               onChange={(e) =>
@@ -122,20 +150,26 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
               className="font-body w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
               placeholder="What are you recommending?"
               required
+              aria-required="true"
             />
           </div>
 
           <div className="mb-4">
-            <label className="font-body block text-sm text-gray-700">
+            <label
+              htmlFor="edit-category"
+              className="font-body block text-sm text-gray-700"
+            >
               Category
             </label>
             <select
+              id="edit-category"
               value={formData.category}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, category: e.target.value }))
               }
               className="font-body w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
               required
+              aria-required="true"
             >
               {categories.map((cat) => (
                 <option key={cat} value={cat}>
@@ -146,22 +180,39 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
           </div>
 
           <div className="mb-4">
-            <label className="font-body mb-2 block text-sm text-gray-700">
+            <label
+              id="edit-rating-label"
+              className="font-body mb-2 block text-sm text-gray-700"
+            >
               Your Rating <span className="text-hotCoralPink">*</span>
             </label>
-            <div className="flex gap-1">
+            {/* Accessible star rating with keyboard support */}
+            <div
+              className="flex gap-1"
+              role="radiogroup"
+              aria-labelledby="edit-rating-label"
+              aria-required="true"
+            >
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
+                  id={`edit-star-${star}`}
                   type="button"
                   onClick={() =>
                     setFormData((prev) => ({ ...prev, rating: star }))
                   }
-                  className={`text-3xl transition-colors ${
-                    star <= formData.rating ? "text-cerulean" : "text-gray-300"
+                  onKeyDown={(e) => handleStarKeyDown(e, star)}
+                  className={`focus:ring-cerulean text-3xl transition-colors focus:ring-2 focus:ring-offset-1 focus:outline-none ${
+                    star <= formData.rating
+                      ? "text-cerulean hover:text-[#0a8aa3]"
+                      : "text-gray-300 hover:text-gray-400"
                   }`}
+                  role="radio"
+                  aria-checked={formData.rating === star}
+                  aria-label={`Rate ${star} out of 5 stars`}
+                  tabIndex={formData.rating === star ? 0 : -1}
                 >
-                  ★
+                  <span aria-hidden="true">★</span>
                 </button>
               ))}
             </div>
@@ -171,10 +222,14 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
           </div>
 
           <div className="mb-6">
-            <label className="font-body block text-sm text-gray-700">
+            <label
+              htmlFor="edit-description"
+              className="font-body block text-sm text-gray-700"
+            >
               Description
             </label>
             <textarea
+              id="edit-description"
               value={formData.description}
               onChange={(e) =>
                 setFormData((prev) => ({
@@ -185,6 +240,7 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
               className="font-body w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
               rows="4"
               placeholder="Why do you recommend this?"
+              aria-required="false"
             />
           </div>
 
@@ -201,6 +257,7 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
               type="submit"
               className="font-body bg-coral hover:bg-hotCoralPink flex-1 rounded px-4 py-2 text-white transition-colors disabled:opacity-50"
               disabled={isSubmitting}
+              aria-busy={isSubmitting}
             >
               {isSubmitting ? "Saving..." : "Save Changes"}
             </button>

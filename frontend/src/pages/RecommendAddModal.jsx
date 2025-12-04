@@ -29,6 +29,20 @@ const RecommendAddModal = ({ onClose }) => {
     }));
   };
 
+  // Keyboard support for star rating navigation
+  const handleStarKeyDown = (e, star) => {
+    if (e.key === " " || e.key === "Enter") {
+      e.preventDefault();
+      handleStarClick(star);
+    } else if (e.key === "ArrowRight" && star < 5) {
+      e.preventDefault();
+      document.getElementById(`star-${star + 1}`)?.focus();
+    } else if (e.key === "ArrowLeft" && star > 1) {
+      e.preventDefault();
+      document.getElementById(`star-${star - 1}`)?.focus();
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {};
     if (!form.title.trim()) newErrors.title = "Title is required";
@@ -81,11 +95,20 @@ const RecommendAddModal = ({ onClose }) => {
     <form
       onSubmit={handleSubmit}
       className="space-y-4 rounded bg-white p-6 shadow"
+      aria-labelledby="add-recommendation-title"
     >
+      {/* Modal heading for screen readers */}
+      <h2
+        id="add-recommendation-title"
+        className="font-header mb-4 text-xl text-gray-800"
+      >
+        Add Recommendation
+      </h2>
+
       {/* Title */}
       <div>
         <label htmlFor="title" className="font-body mb-1 block">
-          Title
+          Title <span className="text-hotCoralPink">*</span>
         </label>
         <input
           id="title"
@@ -95,10 +118,17 @@ const RecommendAddModal = ({ onClose }) => {
           placeholder="Title"
           className="font-body w-full rounded border p-2"
           required
+          aria-required="true"
+          aria-invalid={errors.title ? "true" : "false"}
+          aria-describedby={errors.title ? "title-error" : undefined}
           data-autofocus
         />
         {errors.title && (
-          <p className="font-body text-hotCoralPink mt-1 text-sm">
+          <p
+            id="title-error"
+            className="font-body text-hotCoralPink mt-1 text-sm"
+            role="alert"
+          >
             {errors.title}
           </p>
         )}
@@ -106,15 +136,30 @@ const RecommendAddModal = ({ onClose }) => {
 
       {/* Rating */}
       <div>
-        <label className="font-body mb-1 block">Rating</label>
-        <div className="flex space-x-1">
+        <label id="rating-label" className="font-body mb-1 block">
+          Rating <span className="text-hotCoralPink">*</span>
+        </label>
+        {/* Accessible star rating with keyboard support */}
+        <div
+          className="flex space-x-1"
+          role="radiogroup"
+          aria-labelledby="rating-label"
+          aria-required="true"
+        >
           {[1, 2, 3, 4, 5].map((star) => (
             <button
-              type="button"
               key={star}
+              id={`star-${star}`}
+              type="button"
               onClick={() => handleStarClick(star)}
-              className="focus:outline-none"
-              aria-label={`Rate ${star} star${star > 1 ? "s" : ""}`}
+              onKeyDown={(e) => handleStarKeyDown(e, star)}
+              className="focus:ring-cerulean focus:ring-2 focus:ring-offset-1 focus:outline-none"
+              role="radio"
+              aria-checked={form.rating === star}
+              aria-label={`Rate ${star} out of 5 stars`}
+              tabIndex={
+                form.rating === star || (!form.rating && star === 1) ? 0 : -1
+              }
             >
               <span
                 className={
@@ -122,6 +167,7 @@ const RecommendAddModal = ({ onClose }) => {
                     ? "text-cerulean text-2xl"
                     : "text-2xl text-gray-300"
                 }
+                aria-hidden="true"
               >
                 ★
               </span>
@@ -129,7 +175,11 @@ const RecommendAddModal = ({ onClose }) => {
           ))}
         </div>
         {errors.rating && (
-          <p className="font-body text-hotCoralPink mt-1 text-sm">
+          <p
+            id="rating-error"
+            className="font-body text-hotCoralPink mt-1 text-sm"
+            role="alert"
+          >
             {errors.rating}
           </p>
         )}
@@ -147,13 +197,14 @@ const RecommendAddModal = ({ onClose }) => {
           onChange={handleChange}
           placeholder="Description"
           className="font-body w-full rounded border p-2"
+          aria-required="false"
         />
       </div>
 
       {/* Category */}
       <div>
         <label htmlFor="category" className="font-body mb-1 block">
-          Category
+          Category <span className="text-hotCoralPink">*</span>
         </label>
         <select
           id="category"
@@ -162,6 +213,9 @@ const RecommendAddModal = ({ onClose }) => {
           onChange={handleChange}
           className="font-body w-full rounded border p-2"
           required
+          aria-required="true"
+          aria-invalid={errors.category ? "true" : "false"}
+          aria-describedby={errors.category ? "category-error" : undefined}
         >
           <option value="">Select Category</option>
           {CATEGORY_OPTIONS.map((cat) => (
@@ -171,7 +225,11 @@ const RecommendAddModal = ({ onClose }) => {
           ))}
         </select>
         {errors.category && (
-          <p className="font-body text-hotCoralPink mt-1 text-sm">
+          <p
+            id="category-error"
+            className="font-body text-hotCoralPink mt-1 text-sm"
+            role="alert"
+          >
             {errors.category}
           </p>
         )}
@@ -179,7 +237,11 @@ const RecommendAddModal = ({ onClose }) => {
 
       {/* API error message */}
       {submitError && (
-        <div className="font-body bg-hotCoralPink mb-2 rounded px-3 py-2 text-sm text-white">
+        <div
+          className="font-body bg-hotCoralPink mb-2 rounded px-3 py-2 text-sm text-white"
+          role="alert"
+          aria-live="assertive"
+        >
           {submitError}
         </div>
       )}
@@ -189,7 +251,8 @@ const RecommendAddModal = ({ onClose }) => {
         <button
           type="submit"
           disabled={loading}
-          className="font-body bg-darkBlue rounded px-4 py-2 text-white"
+          className="font-body bg-darkBlue rounded px-4 py-2 text-white disabled:opacity-50"
+          aria-busy={loading}
         >
           {loading ? "Submitting..." : "Add Recommendation"}
         </button>
@@ -201,8 +264,13 @@ const RecommendAddModal = ({ onClose }) => {
           Cancel
         </button>
       </div>
+
       {success && (
-        <div className="font-body mt-2 text-green-600">
+        <div
+          className="font-body mt-2 text-green-600"
+          role="status"
+          aria-live="polite"
+        >
           Recommendation added!
         </div>
       )}

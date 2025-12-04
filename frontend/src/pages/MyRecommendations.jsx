@@ -25,27 +25,22 @@ const MyRecommendations = () => {
   const { setPendingRecommendationCount, pendingRecommendationCount } =
     useNotifications();
 
-  // Share existing recommendation states
   const [showRecommendModal, setShowRecommendModal] = useState(false);
   const [selectedRecommendation, setSelectedRecommendation] = useState(null);
   const [recommendSuccess, setRecommendSuccess] = useState("");
 
-  // Create and share new recommendation states
   const [showCreateShareModal, setShowCreateShareModal] = useState(false);
   const [createShareSuccess, setCreateShareSuccess] = useState("");
 
-  // See more modal state
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
   const [selectedDescription, setSelectedDescription] = useState({
     title: "",
     description: "",
   });
 
-  // See more title modal state
   const [showTitleModal, setShowTitleModal] = useState(false);
   const [selectedTitle, setSelectedTitle] = useState("");
 
-  // Edit modal state
   const [showEditModal, setShowEditModal] = useState(false);
   const [recommendationToEdit, setRecommendationToEdit] = useState(null);
 
@@ -63,7 +58,8 @@ const MyRecommendations = () => {
       } else {
         setErrors("Failed to fetch recommendations.");
       }
-    } catch {
+    } catch (error) {
+      console.error("Error fetching recommendations:", error);
       setErrors("Network error. Please try again.");
     } finally {
       setIsLoading(false);
@@ -87,7 +83,7 @@ const MyRecommendations = () => {
       return;
     }
 
-    setErrors(""); // Clear any previous errors
+    setErrors("");
 
     try {
       const res = await apiFetch(
@@ -96,7 +92,6 @@ const MyRecommendations = () => {
       );
 
       if (res.ok) {
-        // Success - refresh the recommendations
         await fetchGroupRecs();
       } else {
         const errorData = await res.json();
@@ -115,7 +110,6 @@ const MyRecommendations = () => {
         `/api/recommendations/${recommendationId}/privacy`,
       );
       if (res.ok) {
-        // Refresh recommendations to show updated privacy status
         fetchGroupRecs();
       } else {
         setErrors("Failed to update privacy.");
@@ -131,7 +125,6 @@ const MyRecommendations = () => {
     fetchGroupRecs();
   };
 
-  // Share existing recommendation functions
   const handleRecommendClick = (recommendation) => {
     setSelectedRecommendation(recommendation);
     setShowRecommendModal(true);
@@ -147,7 +140,6 @@ const MyRecommendations = () => {
     return result;
   };
 
-  // Create and share new recommendation function
   const handleCreateAndShare = async (friendId, recommendationData) => {
     const result = await recommendToFriend(friendId, recommendationData);
     if (result.success) {
@@ -160,29 +152,25 @@ const MyRecommendations = () => {
     return result;
   };
 
-  // See more description function
   const handleSeeMore = (title, description) => {
     setSelectedDescription({ title, description });
     setShowDescriptionModal(true);
   };
 
-  // See more title function
   const handleSeeTitleMore = (title) => {
     setSelectedTitle(title);
     setShowTitleModal(true);
   };
 
-  // Edit recommendation function
   const handleEditRecommendation = (recommendation) => {
     setRecommendationToEdit(recommendation);
     setShowEditModal(true);
   };
 
-  // Handle edit modal close
   const handleEditModalClose = (success) => {
     setShowEditModal(false);
     if (success) {
-      fetchGroupRecs(); // Refresh recommendations after edit
+      fetchGroupRecs();
     }
   };
 
@@ -205,7 +193,6 @@ const MyRecommendations = () => {
     );
   };
 
-  // Dynamic margin based on title length to keep consistent spacing to description
   const getTitleMargin = (title) => {
     const length = title.length;
     if (length > 40) {
@@ -215,18 +202,16 @@ const MyRecommendations = () => {
     }
   };
 
-  // Helper function to render text with clickable links in laguna color
+  // Render text with clickable links
   const renderTextWithLinks = (text) => {
     if (!text) return text;
 
-    // Regex to detect URLs (http://, https://, www.)
     const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/g;
     const parts = text.split(urlRegex);
 
     return parts.map((part, index) => {
       if (!part) return null;
 
-      // Check if this part is a URL
       if (part.match(urlRegex)) {
         const href = part.startsWith("http") ? part : `https://${part}`;
         return (
@@ -248,7 +233,7 @@ const MyRecommendations = () => {
     });
   };
 
-  // Component for individual carousel with swipe
+  // Carousel component with swipe support
   const CarouselWithSwipe = ({ category, recommendations }) => {
     const maxIndex = recommendations.length - 1;
     const currentIndex = carouselIndex[category] || 0;
@@ -282,33 +267,42 @@ const MyRecommendations = () => {
     });
 
     return (
-      <div className="mb-8">
+      <section
+        className="mb-8"
+        aria-labelledby={`category-${category.replace(/\s+/g, "-")}-heading`}
+      >
         <h2
+          id={`category-${category.replace(/\s+/g, "-")}-heading`}
           className={`font-header mb-4 pb-4 text-2xl ${isDarkMode ? "text-white" : "text-darkBlue"}`}
         >
           {toTitleCase(category)}
         </h2>
 
         <div className="relative flex items-center">
-          {/* Left arrow - Hidden on mobile, visible on tablet+ */}
+          {/* Previous button */}
           <button
             className="z-10 hidden p-2 sm:mr-4 sm:block"
             onClick={() =>
               updateCarouselIndex(category, Math.max(currentIndex - 1, 0))
             }
             disabled={currentIndex === 0}
-            aria-label="Previous"
+            aria-label={`Previous ${category} recommendation`}
           >
-            <i className="fa-solid fa-circle-chevron-left text-coral hover:text-lightOrange text-5xl"></i>
+            <i
+              className="fa-solid fa-circle-chevron-left text-coral hover:text-lightOrange text-5xl"
+              aria-hidden="true"
+            ></i>
           </button>
 
-          {/* Carousel container with swipe handlers */}
+          {/* Carousel container */}
           <div
             {...handlers}
             className="flex h-[236px] flex-grow items-center justify-start overflow-hidden rounded-xl p-4 shadow-lg sm:h-[316px] sm:p-4"
             style={{
               background: "linear-gradient(135deg, #ff8a95, #fbbfa2, #23dee5)",
             }}
+            role="region"
+            aria-label={`${category} recommendations carousel`}
           >
             <div
               className="flex gap-2 transition-transform duration-300 sm:gap-4"
@@ -316,22 +310,26 @@ const MyRecommendations = () => {
                 transform: `translateX(-${currentIndex * cardWidth}px)`,
               }}
             >
-              {recommendations.map((recommendation) => (
-                <div
+              {recommendations.map((recommendation, index) => (
+                <article
                   key={recommendation._id}
                   className="w-44 flex-shrink-0 sm:w-64"
+                  aria-label={`Recommendation ${index + 1} of ${recommendations.length}`}
                 >
                   <div className="relative flex h-[220px] w-44 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg sm:h-[300px] sm:w-64">
-                    {/* EDIT BUTTON */}
+                    {/* Edit button */}
                     <button
                       onClick={() => handleEditRecommendation(recommendation)}
                       className="absolute top-0.5 right-0.5 z-10 text-gray-600 transition-colors hover:text-gray-800 sm:top-1 sm:right-1"
-                      aria-label="Edit recommendation"
+                      aria-label={`Edit ${recommendation.title}`}
                     >
-                      <i className="fa-solid fa-pencil text-[11px] sm:text-sm"></i>
+                      <i
+                        className="fa-solid fa-pencil text-[11px] sm:text-sm"
+                        aria-hidden="true"
+                      ></i>
                     </button>
 
-                    {/* Header section */}
+                    {/* Card header */}
                     <div className="text-darkBlue relative h-[76px] flex-shrink-0 bg-[#f8ede6] px-1.5 pt-5 text-center sm:h-[84px] sm:px-2 sm:pt-5">
                       {recommendation.title &&
                       recommendation.title.length > 60 ? (
@@ -340,20 +338,23 @@ const MyRecommendations = () => {
                             handleSeeTitleMore(recommendation.title)
                           }
                           className={`font-header ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] break-words transition-colors hover:text-gray-600 sm:text-[15px] sm:leading-[1.3]`}
-                          title="Click to see full title"
+                          aria-label={`View full title: ${recommendation.title}`}
                         >
                           {toTitleCase(recommendation.title)}
                         </button>
                       ) : (
                         <h3
                           className={`font-header ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] break-words sm:text-[15px] sm:leading-[1.3]`}
-                          title={recommendation.title}
                         >
                           {toTitleCase(recommendation.title)}
                         </h3>
                       )}
 
-                      <div className="flex justify-center gap-0.5 sm:gap-1">
+                      <div
+                        className="flex justify-center gap-0.5 sm:gap-1"
+                        role="img"
+                        aria-label={`Rating: ${recommendation.rating} out of 5 stars`}
+                      >
                         {[1, 2, 3, 4, 5].map((star) => (
                           <span
                             key={star}
@@ -362,6 +363,7 @@ const MyRecommendations = () => {
                                 ? "text-cerulean text-[11px] sm:text-[15px]"
                                 : "text-[11px] text-gray-300 sm:text-[15px]"
                             }
+                            aria-hidden="true"
                           >
                             ★
                           </span>
@@ -369,7 +371,7 @@ const MyRecommendations = () => {
                       </div>
                     </div>
 
-                    {/* Description section */}
+                    {/* Card description */}
                     <div className="relative m-1 flex flex-grow items-center justify-center bg-[#4a6a7d] p-1.5 text-white sm:m-2 sm:p-3">
                       <p className="font-body text-center text-[10px] leading-tight break-words sm:text-sm">
                         {recommendation.description &&
@@ -396,16 +398,17 @@ const MyRecommendations = () => {
                               )
                             }
                             className="font-body absolute right-1 bottom-1 text-[8px] text-white/80 underline hover:text-white sm:text-[10px]"
+                            aria-label={`Read full description for ${recommendation.title}`}
                           >
                             see more
                           </button>
                         )}
                     </div>
-                    {/* Footer section */}
+
+                    {/* Card footer */}
                     <div className="flex h-12 flex-shrink-0 flex-col items-center justify-center bg-[#f8ede6] px-2 sm:h-14 sm:px-3">
-                      {/* Top row: Privacy Toggle - switch centered above name */}
+                      {/* Privacy toggle row */}
                       <div className="mb-0.5 grid w-full grid-cols-3 items-center">
-                        {/* Left side - show "Private" text only when private */}
                         <div className="justify-self-start">
                           {recommendation.isPrivate && (
                             <span className="font-body text-hotCoralPink px-1 text-[10px] sm:text-xs">
@@ -414,13 +417,15 @@ const MyRecommendations = () => {
                           )}
                         </div>
 
-                        {/* Center: Toggle switch - directly above name */}
+                        {/* Privacy toggle switch */}
                         <button
                           onClick={() =>
                             handlePrivacyToggle(recommendation._id)
                           }
                           className="flex justify-center transition-colors"
-                          aria-label={`Toggle privacy - currently ${recommendation.isPrivate ? "private" : "public"}`}
+                          aria-label={`Privacy: ${recommendation.isPrivate ? "private" : "public"}. Click to toggle`}
+                          role="switch"
+                          aria-checked={!recommendation.isPrivate}
                         >
                           <div
                             className={`relative h-3 w-7 rounded-full transition-colors sm:h-3.5 sm:w-8 ${
@@ -439,7 +444,6 @@ const MyRecommendations = () => {
                           </div>
                         </button>
 
-                        {/* Right side - show "Public" text only when public */}
                         <div className="justify-self-end">
                           {!recommendation.isPrivate && (
                             <span className="font-body px-1 text-[10px] text-green-600 sm:text-xs">
@@ -449,20 +453,23 @@ const MyRecommendations = () => {
                         </div>
                       </div>
 
-                      {/* Bottom row: Delete, Name, Share - ONLY ONE ROW */}
+                      {/* Actions row */}
                       <div className="grid w-full grid-cols-3 items-center">
-                        {/* Left: Delete button */}
+                        {/* Delete button */}
                         <button
                           onClick={() =>
                             handleDeleteRecommendation(recommendation._id)
                           }
                           className="text-hotCoralPink justify-self-start transition-colors hover:text-pink-600"
-                          aria-label="Delete recommendation"
+                          aria-label={`Delete ${recommendation.title}`}
                         >
-                          <i className="fa-solid fa-trash text-[10px] sm:text-sm"></i>
+                          <i
+                            className="fa-solid fa-trash text-[10px] sm:text-sm"
+                            aria-hidden="true"
+                          ></i>
                         </button>
 
-                        {/* Center: Name */}
+                        {/* Author name */}
                         <p className="font-body truncate text-center text-[9px] text-gray-600 sm:text-xs">
                           {recommendation.originalRecommendedBy
                             ? `By ${recommendation.originalRecommendedBy.username?.charAt(0).toUpperCase() + recommendation.originalRecommendedBy.username?.slice(1) || "Unknown"}`
@@ -472,23 +479,26 @@ const MyRecommendations = () => {
                               : `By ${recommendation.user?.username?.charAt(0).toUpperCase() + recommendation.user?.username?.slice(1) || "Unknown"}`}
                         </p>
 
-                        {/* Right: Share button */}
+                        {/* Share button */}
                         <button
                           onClick={() => handleRecommendClick(recommendation)}
                           className="justify-self-end text-[#62d3c2] transition-colors hover:text-[#59bbac]"
-                          aria-label="Recommend to friend"
+                          aria-label={`Share ${recommendation.title} with a friend`}
                         >
-                          <i className="fa-solid fa-share-from-square text-[10px] sm:text-sm"></i>
+                          <i
+                            className="fa-solid fa-share-from-square text-[10px] sm:text-sm"
+                            aria-hidden="true"
+                          ></i>
                         </button>
                       </div>
                     </div>
                   </div>
-                </div>
+                </article>
               ))}
             </div>
           </div>
 
-          {/* Right arrow - Hidden on mobile, visible on tablet+ */}
+          {/* Next button */}
           <button
             className="z-10 hidden p-2 sm:ml-4 sm:block"
             onClick={() =>
@@ -498,12 +508,15 @@ const MyRecommendations = () => {
               )
             }
             disabled={currentIndex >= maxIndex}
-            aria-label="Next"
+            aria-label={`Next ${category} recommendation`}
           >
-            <i className="fa-solid fa-circle-chevron-right text-coral hover:text-lightOrange text-5xl"></i>
+            <i
+              className="fa-solid fa-circle-chevron-right text-coral hover:text-lightOrange text-5xl"
+              aria-hidden="true"
+            ></i>
           </button>
         </div>
-      </div>
+      </section>
     );
   };
 
@@ -513,21 +526,29 @@ const MyRecommendations = () => {
     >
       <NavBar />
 
-      {/* Success Messages */}
+      {/* Success messages with live announcements */}
       {recommendSuccess && (
-        <div className="font-body mx-8 mt-4 rounded bg-green-100 p-3 text-green-700">
+        <div
+          className="font-body mx-8 mt-4 rounded bg-green-100 p-3 text-green-700"
+          role="status"
+          aria-live="polite"
+        >
           {recommendSuccess}
         </div>
       )}
       {createShareSuccess && (
-        <div className="font-body mx-8 mt-4 rounded bg-green-100 p-3 text-green-700">
+        <div
+          className="font-body mx-8 mt-4 rounded bg-green-100 p-3 text-green-700"
+          role="status"
+          aria-live="polite"
+        >
           {createShareSuccess}
         </div>
       )}
 
-      {/* Mobile: Two-row layout | Desktop: Single row */}
+      {/* Action buttons */}
       <div className="mx-4 mt-4 sm:mx-8">
-        {/* Row 1: Add recommendation + Pending (Mobile only) */}
+        {/* Mobile layout */}
         <div className="flex justify-center gap-2 sm:hidden">
           <button
             className="font-body bg-coral hover:bg-hotCoralPink flex-1 rounded-md px-2 py-2 text-xs text-white shadow-lg transition-colors"
@@ -541,12 +562,14 @@ const MyRecommendations = () => {
               navigate(routes.pendingRecommendations);
             }}
             className="font-body hover:bg-lighTeal relative flex-1 rounded-md bg-[#69c8d4] px-2 py-2 text-xs text-white shadow-lg transition-colors"
+            aria-label={`View pending recommendations. ${pendingRecommendationCount} pending`}
           >
             Pending
             {pendingRecommendationCount > 0 && (
               <span
                 className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white"
                 style={{ backgroundColor: "var(--color-hotCoralPink)" }}
+                aria-hidden="true"
               >
                 {pendingRecommendationCount > 9
                   ? "9+"
@@ -556,7 +579,7 @@ const MyRecommendations = () => {
           </button>
         </div>
 
-        {/* Row 2: Recommend to Friends (Mobile only) */}
+        {/* Mobile second row */}
         <div className="mt-2 flex justify-center sm:hidden">
           <button
             className="font-body bg-lightOrange w-full rounded-md px-2 py-2 text-xs text-white shadow-lg transition-colors hover:bg-[#ff9e66]"
@@ -566,7 +589,7 @@ const MyRecommendations = () => {
           </button>
         </div>
 
-        {/* Desktop: Single row */}
+        {/* Desktop layout */}
         <div className="hidden sm:flex sm:justify-end">
           <button
             className="font-body bg-coral hover:bg-hotCoralPink mx-2 rounded-md px-4 py-2 text-white shadow-lg transition-colors"
@@ -588,12 +611,14 @@ const MyRecommendations = () => {
               navigate(routes.pendingRecommendations);
             }}
             className="font-body hover:bg-lighTeal relative mx-2 rounded-md bg-[#69c8d4] px-4 py-2 text-white shadow-lg transition-colors"
+            aria-label={`View pending recommendations. ${pendingRecommendationCount} pending`}
           >
             Pending ({pendingRecommendationCount})
             {pendingRecommendationCount > 0 && (
               <span
                 className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white"
                 style={{ backgroundColor: "var(--color-hotCoralPink)" }}
+                aria-hidden="true"
               >
                 {pendingRecommendationCount > 9
                   ? "9+"
@@ -604,7 +629,7 @@ const MyRecommendations = () => {
         </div>
       </div>
 
-      {/* Add Recommendation Modal */}
+      {/* Add recommendation modal */}
       <Dialog
         open={showForm}
         onClose={() => setShowForm(false)}
@@ -619,9 +644,14 @@ const MyRecommendations = () => {
         </DialogPanel>
       </Dialog>
 
-      <div className="mx-4 mt-8 sm:mx-8">
+      {/* Main content area */}
+      <main className="mx-4 mt-8 sm:mx-8">
         {isLoading ? (
-          <div className="font-body flex items-center justify-center py-12">
+          <div
+            className="font-body flex items-center justify-center py-12"
+            role="status"
+            aria-live="polite"
+          >
             <p
               className={`text-lg ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
             >
@@ -629,7 +659,10 @@ const MyRecommendations = () => {
             </p>
           </div>
         ) : errors ? (
-          <div className="font-body border-hotCoralPink text-hotCoralPink rounded border bg-red-100 px-4 py-3">
+          <div
+            className="font-body border-hotCoralPink text-hotCoralPink rounded border bg-red-100 px-4 py-3"
+            role="alert"
+          >
             <p className="mb-2">{errors}</p>
             <button
               onClick={fetchGroupRecs}
@@ -663,7 +696,7 @@ const MyRecommendations = () => {
               ))}
           </div>
         )}
-      </div>
+      </main>
 
       {/* Modals */}
       <RecommendToFriendModal
@@ -685,13 +718,20 @@ const MyRecommendations = () => {
         recommendation={recommendationToEdit}
       />
 
+      {/* Description modal */}
       <Dialog
         open={showDescriptionModal}
         onClose={() => setShowDescriptionModal(false)}
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
       >
-        <DialogPanel className="mx-4 flex max-h-[85vh] w-full max-w-md flex-col rounded-lg bg-white p-6">
-          <h3 className="font-header mb-4 text-xl text-gray-800">
+        <DialogPanel
+          className="mx-4 flex max-h-[85vh] w-full max-w-md flex-col rounded-lg bg-white p-6"
+          aria-labelledby="description-modal-title"
+        >
+          <h3
+            id="description-modal-title"
+            className="font-header mb-4 text-xl text-gray-800"
+          >
             {toTitleCase(selectedDescription.title)}
           </h3>
           <div className="flex-1 overflow-y-auto pr-2">
@@ -708,13 +748,22 @@ const MyRecommendations = () => {
         </DialogPanel>
       </Dialog>
 
+      {/* Title modal */}
       <Dialog
         open={showTitleModal}
         onClose={() => setShowTitleModal(false)}
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
       >
-        <DialogPanel className="mx-4 flex max-h-[85vh] w-full max-w-md flex-col rounded-lg bg-white p-6">
-          <h3 className="font-header mb-4 text-xl text-gray-800">Full Title</h3>
+        <DialogPanel
+          className="mx-4 flex max-h-[85vh] w-full max-w-md flex-col rounded-lg bg-white p-6"
+          aria-labelledby="title-modal-heading"
+        >
+          <h3
+            id="title-modal-heading"
+            className="font-header mb-4 text-xl text-gray-800"
+          >
+            Full Title
+          </h3>
           <div className="flex-1 overflow-y-auto pr-2">
             <p className="font-body whitespace-pre-wrap text-gray-700">
               {toTitleCase(selectedTitle)}
