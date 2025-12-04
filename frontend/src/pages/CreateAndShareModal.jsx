@@ -41,6 +41,8 @@ const CreateAndShareModal = ({ isOpen, onClose, onCreateAndShare }) => {
     "Fitness",
     "Home",
     "Pets",
+    "Fashion",
+    "Art",
   ];
 
   // Reset form when modal opens
@@ -109,35 +111,35 @@ const CreateAndShareModal = ({ isOpen, onClose, onCreateAndShare }) => {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
     >
       <DialogPanel className="w-full max-w-md rounded-lg bg-white p-6">
-        <h2 className="mb-4 text-xl font-bold">
+        <h2 className="font-header mb-4 text-xl">
           Create & Share Recommendation
         </h2>
 
-        <div className="mb-4 rounded bg-green-50 p-3">
+        <div className="font-body mb-4 rounded bg-green-50 p-3">
           <p className="text-sm text-gray-600">
             Create a new recommendation and share it directly with a friend
           </p>
         </div>
 
         {error && (
-          <div className="mb-4 rounded bg-red-100 p-3 text-red-700">
+          <div className="font-body text-hotCoralPink mb-4 rounded bg-red-100 p-3">
             {error}
           </div>
         )}
 
         {friendsError && (
-          <div className="mb-4 rounded bg-red-100 p-3 text-red-700">
+          <div className="font-body text-hotCoralPink mb-4 rounded bg-red-100 p-3">
             {friendsError}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Share with Friend <span className="text-red-500">*</span>
+            <label className="font-body block text-sm text-gray-700">
+              Share with Friend <span className="text-hotCoralPink">*</span>
             </label>
             {friendsLoading ? (
-              <div className="w-full rounded border border-gray-300 p-2 text-gray-500">
+              <div className="font-body w-full rounded border border-gray-300 p-2 text-gray-500">
                 Loading friends...
               </div>
             ) : (
@@ -149,7 +151,7 @@ const CreateAndShareModal = ({ isOpen, onClose, onCreateAndShare }) => {
                     selectedFriendId: e.target.value,
                   }))
                 }
-                className="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+                className="font-body w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
                 required
               >
                 <option value="">Choose a friend...</option>
@@ -163,8 +165,8 @@ const CreateAndShareModal = ({ isOpen, onClose, onCreateAndShare }) => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Title <span className="text-red-500">*</span>
+            <label className="font-body block text-sm text-gray-700">
+              Title <span className="text-hotCoralPink">*</span>
             </label>
             <input
               type="text"
@@ -172,14 +174,14 @@ const CreateAndShareModal = ({ isOpen, onClose, onCreateAndShare }) => {
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, title: e.target.value }))
               }
-              className="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+              className="font-body w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
               placeholder="What are you recommending?"
               required
             />
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="font-body block text-sm text-gray-700">
               Category
             </label>
             <select
@@ -187,7 +189,7 @@ const CreateAndShareModal = ({ isOpen, onClose, onCreateAndShare }) => {
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, category: e.target.value }))
               }
-              className="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+              className="font-body w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
               required
             >
               {categories.map((cat) => (
@@ -199,8 +201,8 @@ const CreateAndShareModal = ({ isOpen, onClose, onCreateAndShare }) => {
           </div>
 
           <div className="mb-4">
-            <label className="mb-2 block text-sm font-medium text-gray-700">
-              Your Rating <span className="text-red-500">*</span>
+            <label className="font-body mb-2 block text-sm text-gray-700">
+              Your Rating <span className="text-hotCoralPink">*</span>
             </label>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -212,7 +214,7 @@ const CreateAndShareModal = ({ isOpen, onClose, onCreateAndShare }) => {
                   }
                   className={`text-3xl transition-colors ${
                     star <= formData.rating
-                      ? "text-yellow-400 hover:text-yellow-500"
+                      ? "text-cerulean hover:text-[#0a8aa3]"
                       : "text-gray-300 hover:text-gray-400"
                   }`}
                 >
@@ -220,13 +222,13 @@ const CreateAndShareModal = ({ isOpen, onClose, onCreateAndShare }) => {
                 </button>
               ))}
             </div>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="font-body mt-1 text-xs text-gray-500">
               How much do you recommend this?
             </p>
           </div>
 
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="font-body block text-sm text-gray-700">
               Description
             </label>
             <textarea
@@ -237,7 +239,7 @@ const CreateAndShareModal = ({ isOpen, onClose, onCreateAndShare }) => {
                   description: e.target.value,
                 }))
               }
-              className="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+              className="font-body w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
               rows="4"
               placeholder="Tell your friend why you recommend this..."
             />
@@ -247,14 +249,14 @@ const CreateAndShareModal = ({ isOpen, onClose, onCreateAndShare }) => {
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 rounded bg-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-400"
+              className="font-body flex-1 rounded bg-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-400"
               disabled={isSubmitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 rounded bg-green-500 px-4 py-2 text-white transition-colors hover:bg-green-600 disabled:opacity-50"
+              className="font-body flex-1 rounded bg-green-500 px-4 py-2 text-white transition-colors hover:bg-green-600 disabled:opacity-50"
               disabled={isSubmitting || friends.length === 0}
             >
               {isSubmitting

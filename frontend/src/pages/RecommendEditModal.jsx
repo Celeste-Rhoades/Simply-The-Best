@@ -34,6 +34,8 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
     "Fitness",
     "Home",
     "Pets",
+    "Fashion",
+    "Art",
   ];
 
   // Populate form when recommendation changes
@@ -98,18 +100,18 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
     >
       <DialogPanel className="mx-4 w-full max-w-md rounded-lg bg-white p-6">
-        <h2 className="mb-4 text-xl font-bold">Edit Recommendation</h2>
+        <h2 className="font-header mb-4 text-xl">Edit Recommendation</h2>
 
         {error && (
-          <div className="mb-4 rounded bg-red-100 p-3 text-red-700">
+          <div className="font-body text-hotCoralPink mb-4 rounded bg-red-100 p-3">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Title <span className="text-red-500">*</span>
+            <label className="font-body block text-sm text-gray-700">
+              Title <span className="text-hotCoralPink">*</span>
             </label>
             <input
               type="text"
@@ -117,14 +119,14 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, title: e.target.value }))
               }
-              className="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+              className="font-body w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
               placeholder="What are you recommending?"
               required
             />
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="font-body block text-sm text-gray-700">
               Category
             </label>
             <select
@@ -132,7 +134,7 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, category: e.target.value }))
               }
-              className="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+              className="font-body w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
               required
             >
               {categories.map((cat) => (
@@ -144,8 +146,8 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
           </div>
 
           <div className="mb-4">
-            <label className="mb-2 block text-sm font-medium text-gray-700">
-              Your Rating <span className="text-red-500">*</span>
+            <label className="font-body mb-2 block text-sm text-gray-700">
+              Your Rating <span className="text-hotCoralPink">*</span>
             </label>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -156,22 +158,20 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
                     setFormData((prev) => ({ ...prev, rating: star }))
                   }
                   className={`text-3xl transition-colors ${
-                    star <= formData.rating
-                      ? "text-yellow-400 hover:text-yellow-500"
-                      : "text-gray-300 hover:text-gray-400"
+                    star <= formData.rating ? "text-cerulean" : "text-gray-300"
                   }`}
                 >
                   ★
                 </button>
               ))}
             </div>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="font-body mt-1 text-xs text-gray-500">
               How much do you recommend this?
             </p>
           </div>
 
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="font-body block text-sm text-gray-700">
               Description
             </label>
             <textarea
@@ -182,7 +182,7 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
                   description: e.target.value,
                 }))
               }
-              className="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+              className="font-body w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
               rows="4"
               placeholder="Why do you recommend this?"
             />
@@ -192,14 +192,14 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 rounded bg-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-400"
+              className="font-body flex-1 rounded bg-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-400"
               disabled={isSubmitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-coral hover:bg-hotCoralPink flex-1 rounded px-4 py-2 text-white transition-colors disabled:opacity-50"
+              className="font-body bg-coral hover:bg-hotCoralPink flex-1 rounded px-4 py-2 text-white transition-colors disabled:opacity-50"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Saving..." : "Save Changes"}

@@ -7,6 +7,7 @@ import routes from "@/routes";
 import GuestRoutes from "./middlewares/GuestRoutes";
 import ProtectedRoutes from "./middlewares/ProtectedRoutes";
 
+import LandingPage from "./pages/LandingPage";
 import SignInPage from "./pages/auth/SignInPage";
 import SignUpPage from "./pages/auth/SignUpPage";
 import RecommendHome from "./pages/RecommendHome";
@@ -29,6 +30,9 @@ const App = () => {
       <AppContext.Provider value={{ user, setUser }}>
         <NotificationProvider>
           <Routes>
+            {/* Landing Page - Public route */}
+            <Route path={routes.landing} element={<LandingPage />} />
+
             <Route element={<GuestRoutes />}>
               <Route path={routes.signIn} element={<SignInPage />} />
               <Route path={routes.signUp} element={<SignUpPage />} />

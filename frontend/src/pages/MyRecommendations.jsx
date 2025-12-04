@@ -284,7 +284,7 @@ const MyRecommendations = () => {
     return (
       <div className="mb-8">
         <h2
-          className={`font-boldRaleway mb-4 pb-4 text-2xl ${isDarkMode ? "text-white" : "text-darkBlue"}`}
+          className={`font-header mb-4 pb-4 text-2xl ${isDarkMode ? "text-white" : "text-darkBlue"}`}
         >
           {toTitleCase(category)}
         </h2>
@@ -339,14 +339,14 @@ const MyRecommendations = () => {
                           onClick={() =>
                             handleSeeTitleMore(recommendation.title)
                           }
-                          className={`font-boldManrope ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] font-bold break-words transition-colors hover:text-gray-600 sm:text-[15px] sm:leading-[1.3]`}
+                          className={`font-header ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] break-words transition-colors hover:text-gray-600 sm:text-[15px] sm:leading-[1.3]`}
                           title="Click to see full title"
                         >
                           {toTitleCase(recommendation.title)}
                         </button>
                       ) : (
                         <h3
-                          className={`font-boldManrope ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] font-bold break-words sm:text-[15px] sm:leading-[1.3]`}
+                          className={`font-header ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] break-words sm:text-[15px] sm:leading-[1.3]`}
                           title={recommendation.title}
                         >
                           {toTitleCase(recommendation.title)}
@@ -371,7 +371,7 @@ const MyRecommendations = () => {
 
                     {/* Description section */}
                     <div className="relative m-1 flex flex-grow items-center justify-center bg-[#4a6a7d] p-1.5 text-white sm:m-2 sm:p-3">
-                      <p className="text-center text-[10px] leading-tight break-words sm:text-sm">
+                      <p className="font-body text-center text-[10px] leading-tight break-words sm:text-sm">
                         {recommendation.description &&
                         recommendation.description.length > 100 ? (
                           <>
@@ -395,7 +395,7 @@ const MyRecommendations = () => {
                                 recommendation.description,
                               )
                             }
-                            className="absolute right-1 bottom-1 text-[8px] text-white/80 underline hover:text-white sm:text-[10px]"
+                            className="font-body absolute right-1 bottom-1 text-[8px] text-white/80 underline hover:text-white sm:text-[10px]"
                           >
                             see more
                           </button>
@@ -408,7 +408,7 @@ const MyRecommendations = () => {
                         {/* Left side - show "Private" text only when private */}
                         <div className="justify-self-start">
                           {recommendation.isPrivate && (
-                            <span className="text-hotCoralPink px-1 text-[10px] font-semibold sm:text-xs">
+                            <span className="font-body text-hotCoralPink px-1 text-[10px] sm:text-xs">
                               Private
                             </span>
                           )}
@@ -442,7 +442,7 @@ const MyRecommendations = () => {
                         {/* Right side - show "Public" text only when public */}
                         <div className="justify-self-end">
                           {!recommendation.isPrivate && (
-                            <span className="px-1 text-[10px] font-semibold text-green-600 sm:text-xs">
+                            <span className="font-body px-1 text-[10px] text-green-600 sm:text-xs">
                               Public
                             </span>
                           )}
@@ -463,7 +463,7 @@ const MyRecommendations = () => {
                         </button>
 
                         {/* Center: Name */}
-                        <p className="truncate text-center text-[9px] text-gray-600 sm:text-xs">
+                        <p className="font-body truncate text-center text-[9px] text-gray-600 sm:text-xs">
                           {recommendation.originalRecommendedBy
                             ? `By ${recommendation.originalRecommendedBy.username?.charAt(0).toUpperCase() + recommendation.originalRecommendedBy.username?.slice(1) || "Unknown"}`
                             : recommendation.user &&
@@ -515,12 +515,12 @@ const MyRecommendations = () => {
 
       {/* Success Messages */}
       {recommendSuccess && (
-        <div className="mx-8 mt-4 rounded bg-green-100 p-3 text-green-700">
+        <div className="font-body mx-8 mt-4 rounded bg-green-100 p-3 text-green-700">
           {recommendSuccess}
         </div>
       )}
       {createShareSuccess && (
-        <div className="mx-8 mt-4 rounded bg-green-100 p-3 text-green-700">
+        <div className="font-body mx-8 mt-4 rounded bg-green-100 p-3 text-green-700">
           {createShareSuccess}
         </div>
       )}
@@ -530,7 +530,7 @@ const MyRecommendations = () => {
         {/* Row 1: Add recommendation + Pending (Mobile only) */}
         <div className="flex justify-center gap-2 sm:hidden">
           <button
-            className="bg-coral font-raleway hover:bg-hotCoralPink flex-1 rounded-md px-2 py-2 text-xs text-white shadow-lg transition-colors"
+            className="font-body bg-coral hover:bg-hotCoralPink flex-1 rounded-md px-2 py-2 text-xs text-white shadow-lg transition-colors"
             onClick={() => setShowForm(true)}
           >
             Add Recommendation
@@ -540,7 +540,7 @@ const MyRecommendations = () => {
               setPendingRecommendationCount(0);
               navigate(routes.pendingRecommendations);
             }}
-            className="hover:bg-lighTeal font-raleway relative flex-1 rounded-md bg-[#69c8d4] px-2 py-2 text-xs text-white shadow-lg transition-colors"
+            className="font-body hover:bg-lighTeal relative flex-1 rounded-md bg-[#69c8d4] px-2 py-2 text-xs text-white shadow-lg transition-colors"
           >
             Pending
             {pendingRecommendationCount > 0 && (
@@ -559,7 +559,7 @@ const MyRecommendations = () => {
         {/* Row 2: Recommend to Friends (Mobile only) */}
         <div className="mt-2 flex justify-center sm:hidden">
           <button
-            className="font-raleway bg-lightOrange w-full rounded-md px-2 py-2 text-xs text-white shadow-lg transition-colors hover:bg-[#ff9e66]"
+            className="font-body bg-lightOrange w-full rounded-md px-2 py-2 text-xs text-white shadow-lg transition-colors hover:bg-[#ff9e66]"
             onClick={() => setShowCreateShareModal(true)}
           >
             Recommend to friend
@@ -569,14 +569,14 @@ const MyRecommendations = () => {
         {/* Desktop: Single row */}
         <div className="hidden sm:flex sm:justify-end">
           <button
-            className="bg-coral font-raleway hover:bg-hotCoralPink mx-2 rounded-md px-4 py-2 text-white shadow-lg transition-colors"
+            className="font-body bg-coral hover:bg-hotCoralPink mx-2 rounded-md px-4 py-2 text-white shadow-lg transition-colors"
             onClick={() => setShowForm(true)}
           >
             Add recommendation
           </button>
 
           <button
-            className="font-raleway bg-lightOrange mx-2 rounded-md px-4 py-2 text-white shadow-lg transition-colors hover:bg-[#ff9e66]"
+            className="font-body bg-lightOrange mx-2 rounded-md px-4 py-2 text-white shadow-lg transition-colors hover:bg-[#ff9e66]"
             onClick={() => setShowCreateShareModal(true)}
           >
             Recommend to Friends
@@ -587,7 +587,7 @@ const MyRecommendations = () => {
               setPendingRecommendationCount(0);
               navigate(routes.pendingRecommendations);
             }}
-            className="hover:bg-lighTeal font-raleway relative mx-2 rounded-md bg-[#69c8d4] px-4 py-2 text-white shadow-lg transition-colors"
+            className="font-body hover:bg-lighTeal relative mx-2 rounded-md bg-[#69c8d4] px-4 py-2 text-white shadow-lg transition-colors"
           >
             Pending ({pendingRecommendationCount})
             {pendingRecommendationCount > 0 && (
@@ -621,7 +621,7 @@ const MyRecommendations = () => {
 
       <div className="mx-4 mt-8 sm:mx-8">
         {isLoading ? (
-          <div className="font-manrope flex items-center justify-center py-12">
+          <div className="font-body flex items-center justify-center py-12">
             <p
               className={`text-lg ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
             >
@@ -629,11 +629,11 @@ const MyRecommendations = () => {
             </p>
           </div>
         ) : errors ? (
-          <div className="rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
+          <div className="font-body border-hotCoralPink text-hotCoralPink rounded border bg-red-100 px-4 py-3">
             <p className="mb-2">{errors}</p>
             <button
               onClick={fetchGroupRecs}
-              className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+              className="bg-hotCoralPink rounded px-4 py-2 text-white hover:bg-[#e85a77]"
             >
               Try Again
             </button>
@@ -641,13 +641,13 @@ const MyRecommendations = () => {
         ) : Object.keys(showRec).length === 0 ? (
           <div className="py-12 text-center">
             <p
-              className={`font-rale text-lg ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+              className={`font-body text-lg ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
             >
               No recommendations yet. Add your first one!
             </p>
           </div>
         ) : (
-          <div className="font-raleway">
+          <div className="font-body">
             {Object.keys(showRec)
               .sort((a, b) => {
                 if (a === "better than all the rest") return -1;
@@ -691,17 +691,17 @@ const MyRecommendations = () => {
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
       >
         <DialogPanel className="mx-4 flex max-h-[85vh] w-full max-w-md flex-col rounded-lg bg-white p-6">
-          <h3 className="mb-4 text-xl font-bold text-gray-800">
+          <h3 className="font-header mb-4 text-xl text-gray-800">
             {toTitleCase(selectedDescription.title)}
           </h3>
           <div className="flex-1 overflow-y-auto pr-2">
-            <p className="whitespace-pre-wrap text-gray-700">
+            <p className="font-body whitespace-pre-wrap text-gray-700">
               {renderTextWithLinks(selectedDescription.description)}
             </p>
           </div>
           <button
             onClick={() => setShowDescriptionModal(false)}
-            className="bg-lightOrange hover:bg-hotCoralPink mt-4 w-full rounded px-4 py-2 text-white"
+            className="font-body bg-lightOrange hover:bg-hotCoralPink mt-4 w-full rounded px-4 py-2 text-white"
           >
             Close
           </button>
@@ -714,15 +714,15 @@ const MyRecommendations = () => {
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
       >
         <DialogPanel className="mx-4 flex max-h-[85vh] w-full max-w-md flex-col rounded-lg bg-white p-6">
-          <h3 className="mb-4 text-xl font-bold text-gray-800">Full Title</h3>
+          <h3 className="font-header mb-4 text-xl text-gray-800">Full Title</h3>
           <div className="flex-1 overflow-y-auto pr-2">
-            <p className="whitespace-pre-wrap text-gray-700">
+            <p className="font-body whitespace-pre-wrap text-gray-700">
               {toTitleCase(selectedTitle)}
             </p>
           </div>
           <button
             onClick={() => setShowTitleModal(false)}
-            className="bg-lightOrange hover:bg-hotCoralPink mt-4 w-full rounded px-4 py-2 text-white"
+            className="font-body bg-lightOrange hover:bg-hotCoralPink mt-4 w-full rounded px-4 py-2 text-white"
           >
             Close
           </button>

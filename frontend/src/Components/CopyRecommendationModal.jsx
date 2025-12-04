@@ -33,6 +33,8 @@ const CopyRecommendationModal = ({ isOpen, onClose, originalRec, onCopy }) => {
     "Fitness",
     "Home",
     "Pets",
+    "Fashion",
+    "Art",
   ];
 
   const handleSubmit = async (e) => {
@@ -56,8 +58,9 @@ const CopyRecommendationModal = ({ isOpen, onClose, originalRec, onCopy }) => {
     }
     return originalRec?.user?.username;
   };
+
   useEffect(() => {
-    console.log("originalRec changed:", originalRec); // Add this line
+    console.log("originalRec changed:", originalRec);
     if (originalRec) {
       setFormData({
         title: originalRec.title || "",
@@ -75,9 +78,9 @@ const CopyRecommendationModal = ({ isOpen, onClose, originalRec, onCopy }) => {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
     >
       <DialogPanel className="w-full max-w-md rounded-lg bg-white p-6">
-        <h2 className="mb-4 text-xl font-bold">Add to My Recommendations</h2>
+        <h2 className="font-header mb-4 text-xl">Add to My Recommendations</h2>
 
-        <div className="mb-4 rounded bg-blue-50 p-3">
+        <div className="font-body mb-4 rounded bg-blue-50 p-3">
           <p className="text-sm text-gray-600">
             Originally recommended by:{" "}
             <span className="font-semibold">{getOriginalRecommender()}</span>
@@ -85,33 +88,33 @@ const CopyRecommendationModal = ({ isOpen, onClose, originalRec, onCopy }) => {
         </div>
 
         {error && (
-          <div className="mb-4 rounded bg-red-100 p-3 text-red-700">
+          <div className="font-body text-hotCoralPink mb-4 rounded bg-red-100 p-3">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-sm font-medium">Title</label>
+            <label className="font-body block text-sm">Title</label>
             <input
               type="text"
               value={formData.title}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, title: e.target.value }))
               }
-              className="w-full rounded border p-2"
+              className="font-body w-full rounded border p-2"
               required
             />
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium">Category</label>
+            <label className="font-body block text-sm">Category</label>
             <select
               value={formData.category}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, category: e.target.value }))
               }
-              className="w-full rounded border p-2"
+              className="font-body w-full rounded border p-2"
               required
             >
               {categories.map((cat) => (
@@ -123,7 +126,7 @@ const CopyRecommendationModal = ({ isOpen, onClose, originalRec, onCopy }) => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium">Rating</label>
+            <label className="font-body block text-sm">Rating</label>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -132,7 +135,7 @@ const CopyRecommendationModal = ({ isOpen, onClose, originalRec, onCopy }) => {
                   onClick={() =>
                     setFormData((prev) => ({ ...prev, rating: star }))
                   }
-                  className={`text-2xl ${star <= formData.rating ? "text-yellow-400" : "text-gray-300"}`}
+                  className={`text-2xl ${star <= formData.rating ? "text-cerulean" : "text-gray-300"}`}
                 >
                   ★
                 </button>
@@ -141,7 +144,7 @@ const CopyRecommendationModal = ({ isOpen, onClose, originalRec, onCopy }) => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium">Description</label>
+            <label className="font-body block text-sm">Description</label>
             <textarea
               value={formData.description}
               onChange={(e) =>
@@ -150,7 +153,7 @@ const CopyRecommendationModal = ({ isOpen, onClose, originalRec, onCopy }) => {
                   description: e.target.value,
                 }))
               }
-              className="w-full rounded border p-2"
+              className="font-body w-full rounded border p-2"
               rows="3"
             />
           </div>
@@ -159,14 +162,14 @@ const CopyRecommendationModal = ({ isOpen, onClose, originalRec, onCopy }) => {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 rounded bg-gray-300 px-4 py-2"
+              className="font-body flex-1 rounded bg-gray-300 px-4 py-2"
               disabled={isSubmitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 rounded bg-blue-500 px-4 py-2 text-white"
+              className="font-body flex-1 rounded bg-blue-500 px-4 py-2 text-white"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Adding..." : "Add to My List"}

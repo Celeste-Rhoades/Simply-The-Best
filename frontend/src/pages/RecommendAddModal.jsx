@@ -45,19 +45,33 @@ const RecommendAddModal = ({ onClose }) => {
     setSubmitError("");
     setLoading(true);
     setSuccess(false);
+
     try {
       const res = await apiFetch("POST", "/api/recommendations", form);
+
+      let data;
+      try {
+        data = await res.json();
+      } catch (parseError) {
+        console.error("Failed to parse response:", parseError);
+        setSubmitError("Failed to save recommendation. Please try again.");
+        setLoading(false);
+        return;
+      }
+
       if (res.ok) {
         setSuccess(true);
         setForm({ title: "", rating: "", description: "", category: "" });
         setErrors({});
-        setTimeout(() => onClose(), 1500); // Auto-close modal after 1.5s
+        setTimeout(() => onClose(), 1500);
       } else {
-        setSubmitError("Failed to save recommendation. Please try again.");
+        setSubmitError(
+          data.message || "Failed to save recommendation. Please try again.",
+        );
       }
     } catch (err) {
+      console.error("Error submitting recommendation:", err);
       setSubmitError("Failed to save recommendation. Please try again.");
-      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -70,7 +84,7 @@ const RecommendAddModal = ({ onClose }) => {
     >
       {/* Title */}
       <div>
-        <label htmlFor="title" className="mb-1 block font-medium">
+        <label htmlFor="title" className="font-body mb-1 block">
           Title
         </label>
         <input
@@ -79,18 +93,20 @@ const RecommendAddModal = ({ onClose }) => {
           value={form.title}
           onChange={handleChange}
           placeholder="Title"
-          className="w-full rounded border p-2"
+          className="font-body w-full rounded border p-2"
           required
           data-autofocus
         />
         {errors.title && (
-          <p className="mt-1 text-sm text-red-500">{errors.title}</p>
+          <p className="font-body text-hotCoralPink mt-1 text-sm">
+            {errors.title}
+          </p>
         )}
       </div>
 
       {/* Rating */}
       <div>
-        <label className="mb-1 block font-medium">Rating</label>
+        <label className="font-body mb-1 block">Rating</label>
         <div className="flex space-x-1">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
@@ -103,7 +119,7 @@ const RecommendAddModal = ({ onClose }) => {
               <span
                 className={
                   star <= form.rating
-                    ? "text-2xl text-yellow-400"
+                    ? "text-cerulean text-2xl"
                     : "text-2xl text-gray-300"
                 }
               >
@@ -113,13 +129,15 @@ const RecommendAddModal = ({ onClose }) => {
           ))}
         </div>
         {errors.rating && (
-          <p className="mt-1 text-sm text-red-500">{errors.rating}</p>
+          <p className="font-body text-hotCoralPink mt-1 text-sm">
+            {errors.rating}
+          </p>
         )}
       </div>
 
       {/* Description */}
       <div>
-        <label htmlFor="description" className="mb-1 block font-medium">
+        <label htmlFor="description" className="font-body mb-1 block">
           Description
         </label>
         <textarea
@@ -128,13 +146,13 @@ const RecommendAddModal = ({ onClose }) => {
           value={form.description}
           onChange={handleChange}
           placeholder="Description"
-          className="w-full rounded border p-2"
+          className="font-body w-full rounded border p-2"
         />
       </div>
 
       {/* Category */}
       <div>
-        <label htmlFor="category" className="mb-1 block font-medium">
+        <label htmlFor="category" className="font-body mb-1 block">
           Category
         </label>
         <select
@@ -142,7 +160,7 @@ const RecommendAddModal = ({ onClose }) => {
           name="category"
           value={form.category}
           onChange={handleChange}
-          className="w-full rounded border p-2"
+          className="font-body w-full rounded border p-2"
           required
         >
           <option value="">Select Category</option>
@@ -153,13 +171,15 @@ const RecommendAddModal = ({ onClose }) => {
           ))}
         </select>
         {errors.category && (
-          <p className="mt-1 text-sm text-red-500">{errors.category}</p>
+          <p className="font-body text-hotCoralPink mt-1 text-sm">
+            {errors.category}
+          </p>
         )}
       </div>
 
       {/* API error message */}
       {submitError && (
-        <div className="mb-2 rounded bg-red-100 px-3 py-2 text-sm text-red-700">
+        <div className="font-body bg-hotCoralPink mb-2 rounded px-3 py-2 text-sm text-white">
           {submitError}
         </div>
       )}
@@ -169,20 +189,22 @@ const RecommendAddModal = ({ onClose }) => {
         <button
           type="submit"
           disabled={loading}
-          className="bg-darkBlue rounded px-4 py-2 text-white"
+          className="font-body bg-darkBlue rounded px-4 py-2 text-white"
         >
           {loading ? "Submitting..." : "Add Recommendation"}
         </button>
         <button
           type="button"
           onClick={onClose}
-          className="rounded bg-gray-300 px-4 py-2 text-gray-700"
+          className="font-body rounded bg-gray-300 px-4 py-2 text-gray-700"
         >
           Cancel
         </button>
       </div>
       {success && (
-        <div className="mt-2 text-green-600">Recommendation added!</div>
+        <div className="font-body mt-2 text-green-600">
+          Recommendation added!
+        </div>
       )}
     </form>
   );

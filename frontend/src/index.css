@@ -24,7 +24,10 @@
   --font-raleway: "raleway", "sans-serif";
   --font-boldRaleway: "boldRaleway", "sans-serif";
   --font-boldManrope: "boldManrope", "san-serif";
+  --font-poireOne: "poireOne", "san-serif";
+  --font-federo: "federo", "sans-serif";
 }
+
 @font-face {
   font-family: manrope;
   src: url("./fonts/Manrope/static/Manrope-Light.ttf");
@@ -34,11 +37,46 @@
   font-family: raleway;
   src: url("./fonts/Raleway/static/Raleway-Light.ttf");
 }
+
 @font-face {
   font-family: boldRaleway;
   src: url("./fonts/Raleway/static/Raleway-Bold.ttf");
 }
+
 @font-face {
   font-family: boldManrope;
   src: url("./fonts/Manrope/static/Manrope-Bold.ttf");
+}
+
+@font-face {
+  font-family: poireOne;
+  src: url("./fonts/Poiret_One/PoiretOne-Regular.ttf");
+}
+
+@font-face {
+  font-family: federo;
+  src: url("./fonts/Federo/Federo-Regular.ttf");
+}
+
+/* Custom Typography Classes */
+@layer utilities {
+  /* Header/Title Font - Raleway Uppercase */
+  .font-header {
+    font-family: var(--font-raleway);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .font-header-bold {
+    font-family: var(--font-boldRaleway);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Body Font - Poiret One Uppercase */
+  .font-body {
+    font-family: var(--font-poireOne);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
 }

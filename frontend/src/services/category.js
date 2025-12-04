@@ -20,4 +20,6 @@ export const CATEGORY_OPTIONS = [
   "Fitness",
   "Home",
   "Pets",
+  "Fashion",
+  "Art",
 ];

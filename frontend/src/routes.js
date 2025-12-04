@@ -1,5 +1,6 @@
 const routes = {
-  signIn: "/",
+  landing: "/",
+  signIn: "/signin", // Changed from "/"
   signUp: "/sign-up",
   recommendations: "/recommendations",
   myRecommendations: "/my-recommendations",

@@ -28,7 +28,7 @@ const NavBar = () => {
     <nav className="bg-laguna relative z-40 flex justify-center">
       <div className="relative flex w-full max-w-7xl items-center justify-between px-2 py-2 sm:px-4 md:px-6">
         {/* Left Section - Logo */}
-        <div className="font-playfair flex items-center text-xl text-white">
+        <div className="font-header flex items-center text-xl text-white">
           <Link to={routes.recommendations}>
             <img
               className="h-16 w-16 object-contain sm:h-20 sm:w-20 md:h-24 md:w-24 lg:h-28 lg:w-28"
@@ -41,14 +41,14 @@ const NavBar = () => {
         {/* Center Section - Title (Absolutely Positioned, Always Centered) */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
           <Link to={routes.recommendations}>
-            <h1 className="font-manrope text-center text-2xl whitespace-nowrap text-white select-none sm:text-3xl md:text-4xl lg:text-5xl xl:text-5xl">
+            <h1 className="font-header text-center text-2xl whitespace-nowrap text-white select-none sm:text-3xl md:text-4xl lg:text-5xl xl:text-5xl">
               Simply The Best
             </h1>
           </Link>
         </div>
 
         {/* Right Section - Navigation */}
-        <div className="font-raleway flex items-center justify-end gap-1 text-white sm:gap-4 md:gap-6">
+        <div className="font-body flex items-center justify-end gap-1 text-white sm:gap-4 md:gap-6">
           {/* Bell Notification - Always Visible */}
           <FriendRequestsDropdown />
 
@@ -78,10 +78,10 @@ const NavBar = () => {
                   {/* Dropdown Menu */}
                   <div className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex min-w-48 flex-col rounded-md px-6 py-4 text-base text-stone-800 shadow-md">
                     <div className="mb-3 border-b border-stone-300 pb-2">
-                      <span className="text-sm text-stone-600">
+                      <span className="font-body text-sm text-stone-600">
                         Signed in as:
                       </span>
-                      <div className="font-semibold">
+                      <div className="font-header">
                         {user === null
                           ? "Loading..."
                           : user?.username || "Guest"}
@@ -89,7 +89,7 @@ const NavBar = () => {
                     </div>
 
                     <button
-                      className="hover:text-cerulean mb-2 py-1 text-left"
+                      className="font-body hover:text-cerulean mb-2 py-1 text-left"
                       onClick={() => {
                         setUserOpenMenu(false);
                         navigate(routes.recommendations);
@@ -99,7 +99,7 @@ const NavBar = () => {
                       Home
                     </button>
                     <button
-                      className="hover:text-cerulean mb-2 py-1 text-left"
+                      className="font-body hover:text-cerulean mb-2 py-1 text-left"
                       onClick={() => {
                         setUserOpenMenu(false);
                         navigate(routes.myRecommendations);
@@ -109,7 +109,7 @@ const NavBar = () => {
                       My Recommendations
                     </button>
                     <button
-                      className="hover:text-cerulean mb-2 py-1 text-left"
+                      className="font-body hover:text-cerulean mb-2 py-1 text-left"
                       onClick={() => {
                         setUserOpenMenu(false);
                         navigate(routes.friends);
@@ -120,7 +120,7 @@ const NavBar = () => {
                     </button>
 
                     <button
-                      className="hover:text-cerulean py-1 text-left"
+                      className="font-body hover:text-cerulean py-1 text-left"
                       onClick={() => {
                         setUserOpenMenu(false);
                         logout();
@@ -164,16 +164,16 @@ const NavBar = () => {
                 {/* Dropdown Menu */}
                 <div className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex min-w-48 flex-col rounded-md px-6 py-4 text-lg text-stone-800 shadow-md">
                   <div className="mb-3 border-b border-stone-300 pb-2">
-                    <span className="text-sm text-stone-600">
+                    <span className="font-body text-sm text-stone-600">
                       Signed in as:
                     </span>
-                    <div className="font-semibold">
+                    <div className="font-header">
                       {user === null ? "Loading..." : user?.username || "Guest"}
                     </div>
                   </div>
 
                   <button
-                    className="hover:text-cerulean mb-2 py-1 text-left"
+                    className="font-body hover:text-cerulean mb-2 py-1 text-left"
                     onClick={() => {
                       setUserOpenMenu(false);
                       setShowSearchModal(true);
@@ -184,7 +184,7 @@ const NavBar = () => {
                   </button>
 
                   <button
-                    className="hover:text-cerulean mb-2 py-1 text-left"
+                    className="font-body hover:text-cerulean mb-2 py-1 text-left"
                     onClick={() => {
                       setUserOpenMenu(false);
                       navigate(routes.recommendations);
@@ -195,7 +195,7 @@ const NavBar = () => {
                   </button>
 
                   <button
-                    className="hover:text-cerulean mb-2 py-1 text-left"
+                    className="font-body hover:text-cerulean mb-2 py-1 text-left"
                     onClick={() => {
                       setUserOpenMenu(false);
                       navigate(routes.myRecommendations);
@@ -206,7 +206,7 @@ const NavBar = () => {
                   </button>
 
                   <button
-                    className="hover:text-cerulean mb-2 py-1 text-left"
+                    className="font-body hover:text-cerulean mb-2 py-1 text-left"
                     onClick={() => {
                       setUserOpenMenu(false);
                       navigate(routes.friends);
@@ -220,7 +220,7 @@ const NavBar = () => {
                   <ThemeToggle isMobile />
 
                   <button
-                    className="hover:text-cerulean py-1 text-left"
+                    className="font-body hover:text-cerulean py-1 text-left"
                     onClick={() => {
                       setUserOpenMenu(false);
                       logout();
