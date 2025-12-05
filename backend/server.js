@@ -1,7 +1,11 @@
-import express from "express";
 import dotenv from "dotenv";
+dotenv.config(); // ← Move this to the TOP, before any other imports
+
+import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import passport from "./config/passport.js";
+import session from "express-session";
 
 import recommendationRoutes from "./routes/recommendation.js";
 import notificationRoutes from "./routes/notification.js";
@@ -12,8 +16,6 @@ import { connectMongoDB } from "./db/connectMongoDB.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { initializeSocket } from "./socket/socket.js";
-
-dotenv.config();
 
 const app = express();
 
@@ -52,23 +54,25 @@ app.use(
 export { io };
 initializeSocket(io);
 
+// Session configuration
 app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
+  session({
+    secret: process.env.JWT_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },
-    credentials: true,
   })
 );
-app.use(express.json()); //allows express to read json on req.body
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);

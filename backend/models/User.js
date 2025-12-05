@@ -7,16 +7,31 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-
     password: {
       type: String,
-      required: true,
+      required: function () {
+        return !this.googleId;
+      },
       minLength: 12,
     },
     email: {
       type: String,
       required: true,
       unique: true,
+    },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
+    },
+    hasChosenUsername: {
+      type: Boolean,
+      default: true,
     },
     followers: [
       {
@@ -46,12 +61,10 @@ const userSchema = new mongoose.Schema(
         default: [],
       },
     ],
-
     bio: {
       type: String,
       default: "",
     },
-
     link: {
       type: String,
       default: "",

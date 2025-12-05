@@ -65,6 +65,21 @@ export const createRecommendation = async (req, res) => {
   // Add user association
   recommendation.user = req.user._id;
 
+  // ✅ CHECK FOR DUPLICATES - same title + category for this user
+  const existingRec = await Recommend.findOne({
+    user: req.user._id,
+    title: { $regex: new RegExp(`^${recommendation.title}$`, "i") },
+    category: recommendation.category,
+  });
+
+  if (existingRec) {
+    return res.status(400).json({
+      success: false,
+      message:
+        "You already have a recommendation with this title in this category",
+    });
+  }
+
   const newRecommendation = new Recommend(recommendation);
 
   try {
@@ -75,7 +90,6 @@ export const createRecommendation = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
-
 export const updateRecommendation = async (req, res) => {
   const { id } = req.params;
   const { title, description, category, rating, isPrivate } = req.body;
