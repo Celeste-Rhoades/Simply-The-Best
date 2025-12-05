@@ -191,7 +191,7 @@ const Friends = () => {
           </div>
         ) : (
           // Friends List - Grid layout with swipeable items
-          <SwipeableList type={ListType.IOS}>
+          <SwipeableList type={ListType.ANDROID}>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
               {friends.map((friend) => (
                 <SwipeableListItem
