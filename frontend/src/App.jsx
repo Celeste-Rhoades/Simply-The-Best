@@ -10,6 +10,7 @@ import ProtectedRoutes from "./middlewares/ProtectedRoutes";
 import LandingPage from "./pages/LandingPage";
 import SignInPage from "./pages/auth/SignInPage";
 import SignUpPage from "./pages/auth/SignUpPage";
+import ChooseUsernamePage from "./pages/auth/ChooseUsernamePage.jsx";
 import RecommendHome from "./pages/RecommendHome";
 import MyRecommendations from "./pages/MyRecommendations";
 import UserSearch from "Components/UserSearch";
@@ -38,6 +39,10 @@ const App = () => {
               <Route path={routes.signUp} element={<SignUpPage />} />
             </Route>
             <Route element={<ProtectedRoutes user={user} setUser={setUser} />}>
+              <Route
+                path={routes.chooseUsername}
+                element={<ChooseUsernamePage />}
+              />
               <Route
                 path={routes.recommendations}
                 element={<RecommendHome />}

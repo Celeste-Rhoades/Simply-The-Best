@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import AuthForm from "./AuthForm";
 import FormContainer from "./FormContainer";
+import GoogleSignInButton from "../../shared-components/GoogleSignInButton";
 import * as userService from "services/user";
 import routes from "@/routes";
 
@@ -20,6 +21,7 @@ const SignInPage = () => {
             Account created successfully. Please sign in.
           </div>
         )}
+
         <AuthForm
           fields={[
             { label: "username", type: "text" },
@@ -41,6 +43,22 @@ const SignInPage = () => {
             }
           }}
         />
+
+        {/* Divider */}
+        <div className="relative mt-1 mb-2">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-lightTanGray text-darkBlue px-2">OR</span>
+          </div>
+        </div>
+
+        {/* Google Sign In Button */}
+        <div className="mb-6">
+          <GoogleSignInButton />
+        </div>
+
         <Link to="/sign-up" className="text-sm text-[#006895] underline">
           Create an account
         </Link>

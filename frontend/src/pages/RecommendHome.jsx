@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { useTheme } from "../contexts/ThemeContext";
-import { useSwipeable } from "react-swipeable";
 
 import NavBar from "shared-components/NavBar";
 import StarRating from "../shared-components/StarRating";
 import ModalWrapper from "../shared-components/ModalWrapper";
-import RecommendAddModal from "./RecommendAddModal";
-import CopyRecommendationModal from "../Components/CopyRecommendationModal";
-import CreateAndShareModal from "../pages/CreateAndShareModal";
+import Carousel from "../shared-components/Carousel";
+import RecommendAddModal from "../shared-components/modals/RecommendAddModal";
+import CopyRecommendationModal from "../shared-components/modals/CopyRecommendationModal";
+import CreateAndShareModal from "../shared-components/modals/CreateAndShareModal";
 import { useFriendsRecommendations } from "../hooks/userFriendsRecommendations";
 import { useFriendRecommendations } from "../hooks/useFriendRecommendations";
 
@@ -102,7 +102,6 @@ const RecommendHome = () => {
     }
   };
 
-  // Render text with clickable links
   const renderTextWithLinks = (text) => {
     if (!text) return text;
 
@@ -133,198 +132,86 @@ const RecommendHome = () => {
     });
   };
 
-  // Carousel component with swipe support
-  const CarouselWithSwipe = ({ userId, userdata }) => {
-    const maxIndex = userdata.recommendations.length - 1;
-    const currentIndex = carouselIndex[userId] || 0;
-    const [cardWidth, setCardWidth] = useState(
-      window.innerWidth >= 640 ? 272 : 184,
-    );
-
-    useEffect(() => {
-      const handleResize = () => {
-        setCardWidth(window.innerWidth >= 640 ? 272 : 184);
-      };
-
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-    const handlers = useSwipeable({
-      onSwipedLeft: () => {
-        if (currentIndex < maxIndex) {
-          updateCarouselIndex(userId, currentIndex + 1);
-        }
-      },
-      onSwipedRight: () => {
-        if (currentIndex > 0) {
-          updateCarouselIndex(userId, currentIndex - 1);
-        }
-      },
-      trackMouse: false,
-      trackTouch: true,
-      preventScrollOnSwipe: true,
-    });
-
-    return (
-      <section className="mb-8" aria-labelledby={`user-${userId}-heading`}>
-        <h2
-          id={`user-${userId}-heading`}
-          className={`font-header mb-4 pb-4 text-2xl ${isDarkMode ? "text-white" : "text-darkBlue"}`}
-        >
-          {userdata.username?.charAt(0).toUpperCase() +
-            userdata.username?.slice(1)}
-          's Recommendations
-        </h2>
-
-        <div className="relative flex items-center">
-          {/* Previous button */}
+  const renderCard = (recommendation) => (
+    <div className="flex h-[232px] w-44 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg sm:h-[314px] sm:w-64">
+      {/* Card header */}
+      <div className="relative h-[76px] flex-shrink-0 bg-[#f8ede6] px-1.5 pt-5 text-center sm:h-[84px] sm:px-2 sm:pt-5">
+        {recommendation.title && recommendation.title.length > 60 ? (
           <button
-            className="z-10 hidden p-2 sm:mr-4 sm:block"
-            onClick={(e) => {
-              e.preventDefault();
-              updateCarouselIndex(userId, Math.max(currentIndex - 1, 0));
-            }}
-            disabled={currentIndex === 0}
-            aria-label={`Previous recommendation from ${userdata.username}`}
+            onClick={() => handleSeeTitleMore(recommendation.title)}
+            className={`font-header text-darkBlue ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] break-words transition-colors hover:text-gray-600 sm:text-[15px] sm:leading-[1.3]`}
+            aria-label={`View full title: ${recommendation.title}`}
           >
-            <i
-              className="fa-solid fa-circle-chevron-left text-coral hover:text-lightOrange text-5xl"
-              aria-hidden="true"
-            ></i>
+            {toTitleCase(recommendation.title)}
           </button>
-
-          {/* Carousel container */}
-          <div
-            {...handlers}
-            className="flex h-[260px] flex-grow items-center justify-start overflow-hidden rounded-xl px-4 py-4 shadow-xl sm:h-[340px] sm:px-4 sm:py-6"
-            style={{
-              background: "linear-gradient(135deg, #ff8a95, #fbbfa2, #23dee5)",
-            }}
-            role="region"
-            aria-label={`${userdata.username}'s recommendations carousel`}
+        ) : (
+          <h3
+            className={`font-header text-darkBlue ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] break-words sm:text-[15px] sm:leading-[1.3]`}
           >
-            <div
-              className="flex gap-2 transition-transform duration-300 sm:gap-4"
-              style={{
-                transform: `translateX(-${currentIndex * cardWidth}px)`,
-              }}
+            {toTitleCase(recommendation.title)}
+          </h3>
+        )}
+
+        <StarRating rating={recommendation.rating} size="small" />
+      </div>
+
+      {/* Card description */}
+      <div className="relative m-1 flex flex-grow items-center justify-center bg-[#4a6a7d] p-1.5 text-white sm:m-2 sm:p-3">
+        <p className="font-body text-center text-[10px] leading-tight break-words sm:text-sm">
+          {recommendation.description &&
+          recommendation.description.length > 100 ? (
+            <>
+              {renderTextWithLinks(
+                recommendation.description.substring(0, 100),
+              )}
+              ...
+            </>
+          ) : (
+            renderTextWithLinks(recommendation.description) || "Description"
+          )}
+        </p>
+
+        {recommendation.description &&
+          recommendation.description.length > 100 && (
+            <button
+              onClick={() =>
+                handleSeeMore(recommendation.title, recommendation.description)
+              }
+              className="font-body absolute right-1 bottom-1 text-[8px] text-white/80 underline hover:text-white sm:text-[10px]"
+              aria-label={`Read full description for ${recommendation.title}`}
             >
-              {userdata.recommendations.map((recommendation, index) => (
-                <article
-                  key={recommendation._id}
-                  className="w-44 flex-shrink-0 sm:w-64"
-                  aria-label={`Recommendation ${index + 1} of ${userdata.recommendations.length}`}
-                >
-                  <div className="flex h-[232px] w-44 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg sm:h-[314px] sm:w-64">
-                    {/* Card header */}
-                    <div className="relative h-[76px] flex-shrink-0 bg-[#f8ede6] px-1.5 pt-5 text-center sm:h-[84px] sm:px-2 sm:pt-5">
-                      {recommendation.title &&
-                      recommendation.title.length > 60 ? (
-                        <button
-                          onClick={() =>
-                            handleSeeTitleMore(recommendation.title)
-                          }
-                          className={`font-header text-darkBlue ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] break-words transition-colors hover:text-gray-600 sm:text-[15px] sm:leading-[1.3]`}
-                          aria-label={`View full title: ${recommendation.title}`}
-                        >
-                          {toTitleCase(recommendation.title)}
-                        </button>
-                      ) : (
-                        <h3
-                          className={`font-header text-darkBlue ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] break-words sm:text-[15px] sm:leading-[1.3]`}
-                        >
-                          {toTitleCase(recommendation.title)}
-                        </h3>
-                      )}
+              see more
+            </button>
+          )}
+      </div>
 
-                      <StarRating rating={recommendation.rating} size="small" />
-                    </div>
+      {/* Card footer */}
+      <div className="flex h-12 flex-shrink-0 flex-col justify-between bg-[#f8ede6] px-2 py-1 sm:h-14 sm:px-3 sm:py-1.5">
+        <p className="font-header text-darkBlue text-center text-[11px] sm:text-sm">
+          {toTitleCase(recommendation.category)}
+        </p>
 
-                    {/* Card description */}
-                    <div className="relative m-1 flex flex-grow items-center justify-center bg-[#4a6a7d] p-1.5 text-white sm:m-2 sm:p-3">
-                      <p className="font-body text-center text-[10px] leading-tight break-words sm:text-sm">
-                        {recommendation.description &&
-                        recommendation.description.length > 100 ? (
-                          <>
-                            {renderTextWithLinks(
-                              recommendation.description.substring(0, 100),
-                            )}
-                            ...
-                          </>
-                        ) : (
-                          renderTextWithLinks(recommendation.description) ||
-                          "Description"
-                        )}
-                      </p>
-
-                      {recommendation.description &&
-                        recommendation.description.length > 100 && (
-                          <button
-                            onClick={() =>
-                              handleSeeMore(
-                                recommendation.title,
-                                recommendation.description,
-                              )
-                            }
-                            className="font-body absolute right-1 bottom-1 text-[8px] text-white/80 underline hover:text-white sm:text-[10px]"
-                            aria-label={`Read full description for ${recommendation.title}`}
-                          >
-                            see more
-                          </button>
-                        )}
-                    </div>
-
-                    {/* Card footer */}
-                    <div className="flex h-12 flex-shrink-0 flex-col justify-between bg-[#f8ede6] px-2 py-1 sm:h-14 sm:px-3 sm:py-1.5">
-                      <p className="font-header text-darkBlue text-center text-[11px] sm:text-sm">
-                        {toTitleCase(recommendation.category)}
-                      </p>
-
-                      <div className="flex items-center justify-between">
-                        <button
-                          onClick={() => handleCopyClick(recommendation)}
-                          className="text-[#62d3c2] transition-colors hover:text-[#59bbac]"
-                          aria-label={`Add ${recommendation.title} to my recommendations`}
-                        >
-                          <i
-                            className="fa-solid fa-plus text-[10px] sm:text-sm"
-                            aria-hidden="true"
-                          ></i>
-                        </button>
-
-                        <p className="font-body truncate px-0.5 text-center text-[9px] text-gray-600 sm:px-1 sm:text-xs">
-                          {recommendation.originalRecommendedBy
-                            ? `Originally by ${recommendation.originalRecommendedBy.username?.charAt(0).toUpperCase() + recommendation.originalRecommendedBy.username?.slice(1)}`
-                            : `By ${recommendation.user.username?.charAt(0).toUpperCase() + recommendation.user.username?.slice(1)}`}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-
-          {/* Next button */}
+        <div className="flex items-center justify-between">
           <button
-            className="z-10 hidden p-2 sm:ml-4 sm:block"
-            onClick={(e) => {
-              e.preventDefault();
-              updateCarouselIndex(userId, Math.min(currentIndex + 1, maxIndex));
-            }}
-            disabled={currentIndex >= maxIndex}
-            aria-label={`Next recommendation from ${userdata.username}`}
+            onClick={() => handleCopyClick(recommendation)}
+            className="text-[#62d3c2] transition-colors hover:text-[#59bbac]"
+            aria-label={`Add ${recommendation.title} to my recommendations`}
           >
             <i
-              className="fa-solid fa-circle-chevron-right text-coral hover:text-lightOrange text-5xl"
+              className="fa-solid fa-plus text-[10px] sm:text-sm"
               aria-hidden="true"
             ></i>
           </button>
+
+          <p className="font-body truncate px-0.5 text-center text-[9px] text-gray-600 sm:px-1 sm:text-xs">
+            {recommendation.originalRecommendedBy
+              ? `Originally by ${recommendation.originalRecommendedBy.username?.charAt(0).toUpperCase() + recommendation.originalRecommendedBy.username?.slice(1)}`
+              : `By ${recommendation.user.username?.charAt(0).toUpperCase() + recommendation.user.username?.slice(1)}`}
+          </p>
         </div>
-      </section>
-    );
-  };
+      </div>
+    </div>
+  );
 
   return (
     <div
@@ -332,7 +219,6 @@ const RecommendHome = () => {
     >
       <NavBar />
 
-      {/* Success messages with live announcements */}
       {copySuccess && (
         <div
           className="mx-8 mt-4 rounded bg-green-100 p-3 text-green-700"
@@ -427,10 +313,15 @@ const RecommendHome = () => {
         ) : (
           <div className="font-body">
             {Object.entries(friendsRecs).map(([userId, userdata]) => (
-              <CarouselWithSwipe
+              <Carousel
                 key={userId}
-                userId={userId}
-                userdata={userdata}
+                items={userdata.recommendations}
+                sectionTitle={`${userdata.username?.charAt(0).toUpperCase() + userdata.username?.slice(1)}'s Recommendations`}
+                sectionId={`user-${userId}-heading`}
+                currentIndex={carouselIndex[userId] || 0}
+                onIndexChange={(newIdx) => updateCarouselIndex(userId, newIdx)}
+                renderCard={renderCard}
+                ariaLabel={`recommendation from ${userdata.username}`}
               />
             ))}
           </div>

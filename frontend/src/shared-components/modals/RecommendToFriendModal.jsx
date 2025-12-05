@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
-import { useFriendRecommendations } from "../hooks/useFriendRecommendations";
-
+import { useFriendRecommendations } from "../../hooks/useFriendRecommendations";
 const RecommendToFriendModal = ({
   isOpen,
   onClose,

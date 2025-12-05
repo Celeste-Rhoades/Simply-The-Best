@@ -6,6 +6,7 @@ import * as userService from "services/user";
 
 import AuthForm from "./AuthForm";
 import FormContainer from "./FormContainer";
+import GoogleSignInButton from "../../shared-components/GoogleSignInButton";
 
 const SignUpPage = () => {
   const [error, setError] = useState("");
@@ -15,6 +16,7 @@ const SignUpPage = () => {
     <div className="font-raleway flex items-center justify-center">
       <FormContainer>
         <div className="text-pink-600">{error}</div>
+
         <AuthForm
           fields={[
             {
@@ -65,6 +67,22 @@ const SignUpPage = () => {
             }
           }}
         />
+
+        {/* Divider */}
+        <div className="relative mt-1 mb-2">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-lightTanGray text-darkBlue px-2">OR</span>
+          </div>
+        </div>
+
+        {/* Google Sign In Button */}
+        <div className="mb-4">
+          <GoogleSignInButton />
+        </div>
+
         <Link to={routes.signIn} className="text-sm text-[#006895] underline">
           Sign in
         </Link>

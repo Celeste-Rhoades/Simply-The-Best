@@ -25,7 +25,6 @@ const NavBar = () => {
     }
   };
 
-  // Close dropdown on Escape key
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === "Escape" && userOpenMenu) {
@@ -36,6 +35,8 @@ const NavBar = () => {
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
   }, [userOpenMenu]);
+
+  const username = user === null ? "Loading..." : user?.username || "Guest";
 
   return (
     <nav
@@ -66,11 +67,8 @@ const NavBar = () => {
 
         {/* Right navigation */}
         <div className="font-body flex items-center justify-end gap-1 text-white sm:gap-4 md:gap-6">
-          {/* Friend requests notification */}
-          <FriendRequestsDropdown />
-
           {/* Desktop navigation (XL+) */}
-          <div className="hidden items-center space-x-6 xl:flex">
+          <div className="hidden items-center space-x-3 xl:flex">
             {/* User dropdown */}
             <div className="relative" ref={dropdownRef}>
               <button
@@ -80,23 +78,22 @@ const NavBar = () => {
                 aria-expanded={userOpenMenu}
                 aria-haspopup="true"
                 aria-label="User menu"
+                title={username}
               >
-                <span>
-                  {user === null ? "Loading..." : user?.username || "Guest"}
+                <span className="inline-block max-w-[88px] truncate">
+                  {username}
                 </span>
                 <i className="fa-solid fa-caret-down" aria-hidden="true"></i>
               </button>
 
               {userOpenMenu && (
                 <>
-                  {/* Click backdrop to close */}
                   <div
                     className="fixed inset-0 z-[9998]"
                     onClick={() => setUserOpenMenu(false)}
                     aria-hidden="true"
                   ></div>
 
-                  {/* Dropdown menu */}
                   <div
                     className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex min-w-48 flex-col rounded-md px-6 py-4 text-base text-stone-800 shadow-md"
                     role="menu"
@@ -106,11 +103,7 @@ const NavBar = () => {
                       <span className="font-body text-sm text-stone-600">
                         Signed in as:
                       </span>
-                      <div className="font-header">
-                        {user === null
-                          ? "Loading..."
-                          : user?.username || "Guest"}
-                      </div>
+                      <div className="font-header">{username}</div>
                     </div>
 
                     <button
@@ -175,137 +168,140 @@ const NavBar = () => {
               )}
             </div>
 
+            {/* Friend requests notification */}
+            <FriendRequestsDropdown />
+
             <ThemeToggle />
             <SearchBar />
           </div>
 
-          {/* Mobile hamburger menu (below XL) */}
-          <div className="relative z-50 xl:hidden">
-            <button
-              type="button"
-              className="flex h-8 w-8 flex-col items-center justify-center space-y-1"
-              onClick={() => setUserOpenMenu(!userOpenMenu)}
-              aria-expanded={userOpenMenu}
-              aria-haspopup="true"
-              aria-label="Open menu"
-            >
-              <span
-                className="h-0.5 w-6 bg-white transition-all duration-300"
-                aria-hidden="true"
-              ></span>
-              <span
-                className="h-0.5 w-6 bg-white transition-all duration-300"
-                aria-hidden="true"
-              ></span>
-              <span
-                className="h-0.5 w-6 bg-white transition-all duration-300"
-                aria-hidden="true"
-              ></span>
-            </button>
+          {/* Mobile navigation (below XL) */}
+          <div className="flex items-center gap-2 xl:hidden">
+            <FriendRequestsDropdown />
 
-            {userOpenMenu && (
-              <>
-                {/* Click backdrop to close */}
-                <div
-                  className="fixed inset-0 z-[9998]"
-                  onClick={() => setUserOpenMenu(false)}
+            <div className="relative z-50">
+              <button
+                type="button"
+                className="flex h-8 w-8 flex-col items-center justify-center space-y-1"
+                onClick={() => setUserOpenMenu(!userOpenMenu)}
+                aria-expanded={userOpenMenu}
+                aria-haspopup="true"
+                aria-label="Open menu"
+              >
+                <span
+                  className="h-0.5 w-6 bg-white transition-all duration-300"
                   aria-hidden="true"
-                ></div>
+                ></span>
+                <span
+                  className="h-0.5 w-6 bg-white transition-all duration-300"
+                  aria-hidden="true"
+                ></span>
+                <span
+                  className="h-0.5 w-6 bg-white transition-all duration-300"
+                  aria-hidden="true"
+                ></span>
+              </button>
 
-                {/* Mobile dropdown menu */}
-                <div
-                  className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex min-w-48 flex-col rounded-md px-6 py-4 text-lg text-stone-800 shadow-md"
-                  role="menu"
-                  aria-label="Mobile menu"
-                >
-                  <div className="mb-3 border-b border-stone-300 pb-2">
-                    <span className="font-body text-sm text-stone-600">
-                      Signed in as:
-                    </span>
-                    <div className="font-header">
-                      {user === null ? "Loading..." : user?.username || "Guest"}
+              {userOpenMenu && (
+                <>
+                  <div
+                    className="fixed inset-0 z-[9998]"
+                    onClick={() => setUserOpenMenu(false)}
+                    aria-hidden="true"
+                  ></div>
+
+                  <div
+                    className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex min-w-48 flex-col rounded-md px-6 py-4 text-lg text-stone-800 shadow-md"
+                    role="menu"
+                    aria-label="Mobile menu"
+                  >
+                    <div className="mb-3 border-b border-stone-300 pb-2">
+                      <span className="font-body text-sm text-stone-600">
+                        Signed in as:
+                      </span>
+                      <div className="font-header">{username}</div>
                     </div>
+
+                    <button
+                      className="font-body hover:text-cerulean mb-2 py-1 text-left"
+                      onClick={() => {
+                        setUserOpenMenu(false);
+                        setShowSearchModal(true);
+                      }}
+                      role="menuitem"
+                    >
+                      <i
+                        className="fa-solid fa-magnifying-glass mr-2 w-5"
+                        aria-hidden="true"
+                      ></i>
+                      <span>Find Friends</span>
+                    </button>
+
+                    <button
+                      className="font-body hover:text-cerulean mb-2 py-1 text-left"
+                      onClick={() => {
+                        setUserOpenMenu(false);
+                        navigate(routes.recommendations);
+                      }}
+                      role="menuitem"
+                    >
+                      <i
+                        className="fa-solid fa-house mr-2 w-5"
+                        aria-hidden="true"
+                      ></i>
+                      <span>Home</span>
+                    </button>
+
+                    <button
+                      className="font-body hover:text-cerulean mb-2 py-1 text-left"
+                      onClick={() => {
+                        setUserOpenMenu(false);
+                        navigate(routes.myRecommendations);
+                      }}
+                      role="menuitem"
+                    >
+                      <i
+                        className="fa-solid fa-user mr-2 w-5"
+                        aria-hidden="true"
+                      ></i>
+                      <span>My Recommendations</span>
+                    </button>
+
+                    <button
+                      className="font-body hover:text-cerulean mb-2 py-1 text-left"
+                      onClick={() => {
+                        setUserOpenMenu(false);
+                        navigate(routes.friends);
+                      }}
+                      role="menuitem"
+                    >
+                      <i
+                        className="fa-solid fa-user-group mr-2 w-5"
+                        aria-hidden="true"
+                      ></i>
+                      <span>Friends</span>
+                    </button>
+
+                    <ThemeToggle isMobile />
+
+                    <button
+                      className="font-body hover:text-cerulean py-1 text-left"
+                      onClick={() => {
+                        setUserOpenMenu(false);
+                        logout();
+                      }}
+                      role="menuitem"
+                    >
+                      <i
+                        className="fa-solid fa-arrow-right-from-bracket mr-2 w-5"
+                        aria-hidden="true"
+                      ></i>
+                      <span>Sign out</span>
+                    </button>
                   </div>
-
-                  <button
-                    className="font-body hover:text-cerulean mb-2 py-1 text-left"
-                    onClick={() => {
-                      setUserOpenMenu(false);
-                      setShowSearchModal(true);
-                    }}
-                    role="menuitem"
-                  >
-                    <i
-                      className="fa-solid fa-magnifying-glass mr-2 w-5"
-                      aria-hidden="true"
-                    ></i>
-                    <span>Find Friends</span>
-                  </button>
-
-                  <button
-                    className="font-body hover:text-cerulean mb-2 py-1 text-left"
-                    onClick={() => {
-                      setUserOpenMenu(false);
-                      navigate(routes.recommendations);
-                    }}
-                    role="menuitem"
-                  >
-                    <i
-                      className="fa-solid fa-house mr-2 w-5"
-                      aria-hidden="true"
-                    ></i>
-                    <span>Home</span>
-                  </button>
-
-                  <button
-                    className="font-body hover:text-cerulean mb-2 py-1 text-left"
-                    onClick={() => {
-                      setUserOpenMenu(false);
-                      navigate(routes.myRecommendations);
-                    }}
-                    role="menuitem"
-                  >
-                    <i
-                      className="fa-solid fa-user mr-2 w-5"
-                      aria-hidden="true"
-                    ></i>
-                    <span>My Recommendations</span>
-                  </button>
-
-                  <button
-                    className="font-body hover:text-cerulean mb-2 py-1 text-left"
-                    onClick={() => {
-                      setUserOpenMenu(false);
-                      navigate(routes.friends);
-                    }}
-                    role="menuitem"
-                  >
-                    <i
-                      className="fa-solid fa-user-group mr-2 w-5"
-                      aria-hidden="true"
-                    ></i>
-                    <span>Friends</span>
-                  </button>
-
-                  <ThemeToggle isMobile />
-
-                  <button
-                    className="font-body hover:text-cerulean py-1 text-left"
-                    onClick={() => {
-                      setUserOpenMenu(false);
-                      logout();
-                    }}
-                    role="menuitem"
-                  >
-                    <i
-                      className="fa-solid fa-arrow-right-from-bracket mr-2 w-5"
-                      aria-hidden="true"
-                    ></i>
-                    <span>Sign out</span>
-                  </button>
-                </div>
-              </>
-            )}
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>

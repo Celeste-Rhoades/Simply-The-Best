@@ -1,16 +1,24 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
-import apiFetch from "services/apiFetch";
+import { useFriendRecommendations } from "../../hooks/useFriendRecommendations";
+import StarRating from "../StarRating";
 
-const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
+const CreateAndShareModal = ({ isOpen, onClose, onCreateAndShare }) => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     category: "Movies",
     rating: 1,
+    selectedFriendId: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  const {
+    friends,
+    isLoading: friendsLoading,
+    error: friendsError,
+  } = useFriendRecommendations();
 
   const categories = [
     "Movies",
@@ -38,35 +46,26 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
     "Art",
   ];
 
-  // Populate form when recommendation changes
   useEffect(() => {
-    if (recommendation) {
+    if (isOpen) {
       setFormData({
-        title: recommendation.title || "",
-        description: recommendation.description || "",
-        category: recommendation.category || "Movies",
-        rating: recommendation.rating || 1,
+        title: "",
+        description: "",
+        category: "Movies",
+        rating: 1,
+        selectedFriendId: "",
       });
       setError("");
     }
-  }, [recommendation]);
-
-  // Keyboard support for star rating navigation
-  const handleStarKeyDown = (e, star) => {
-    if (e.key === " " || e.key === "Enter") {
-      e.preventDefault();
-      setFormData((prev) => ({ ...prev, rating: star }));
-    } else if (e.key === "ArrowRight" && star < 5) {
-      e.preventDefault();
-      document.getElementById(`edit-star-${star + 1}`)?.focus();
-    } else if (e.key === "ArrowLeft" && star > 1) {
-      e.preventDefault();
-      document.getElementById(`edit-star-${star - 1}`)?.focus();
-    }
-  };
+  }, [isOpen]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.selectedFriendId) {
+      setError("Please select a friend to share with");
+      return;
+    }
+
     if (!formData.title.trim()) {
       setError("Please enter a title");
       return;
@@ -75,38 +74,34 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
     setIsSubmitting(true);
     setError("");
 
-    try {
-      const res = await apiFetch(
-        "PUT",
-        `/api/recommendations/${recommendation._id}`,
-        {
-          title: formData.title.trim(),
-          description: formData.description.trim(),
-          category: formData.category,
-          rating: formData.rating,
-        },
-      );
+    const recommendationData = {
+      title: formData.title.trim(),
+      description: formData.description.trim(),
+      category: formData.category,
+      rating: formData.rating,
+    };
 
-      if (res.ok) {
-        onClose(true);
-      } else {
-        const data = await res.json();
-        setError(data.message || "Failed to update recommendation.");
-      }
-    } catch (error) {
-      console.error("Error updating recommendation:", error);
-      setError("Network error. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+    const result = await onCreateAndShare(
+      formData.selectedFriendId,
+      recommendationData,
+    );
+
+    if (result.success) {
+      onClose();
+    } else {
+      setError(result.error);
     }
+    setIsSubmitting(false);
   };
 
   const handleClose = () => {
-    onClose(false);
+    onClose();
     setError("");
   };
 
-  if (!recommendation) return null;
+  const selectedFriend = friends.find(
+    (friend) => friend._id === formData.selectedFriendId,
+  );
 
   return (
     <Dialog
@@ -115,12 +110,18 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
     >
       <DialogPanel
-        className="mx-4 w-full max-w-md rounded-lg bg-white p-6"
-        aria-labelledby="edit-recommendation-title"
+        className="w-full max-w-md rounded-lg bg-white p-6"
+        aria-labelledby="create-share-title"
       >
-        <h2 id="edit-recommendation-title" className="font-header mb-4 text-xl">
-          Edit Recommendation
+        <h2 id="create-share-title" className="font-header mb-4 text-xl">
+          Create & Share Recommendation
         </h2>
+
+        <div className="font-body mb-4 rounded bg-green-50 p-3">
+          <p className="text-sm text-gray-600">
+            Create a new recommendation and share it directly with a friend
+          </p>
+        </div>
 
         {error && (
           <div
@@ -132,16 +133,60 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
           </div>
         )}
 
+        {friendsError && (
+          <div
+            className="font-body text-hotCoralPink mb-4 rounded bg-red-100 p-3"
+            role="alert"
+          >
+            {friendsError}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label
-              htmlFor="edit-title"
+              htmlFor="create-friend"
+              className="font-body block text-sm text-gray-700"
+            >
+              Share with Friend <span className="text-hotCoralPink">*</span>
+            </label>
+            {friendsLoading ? (
+              <div className="font-body w-full rounded border border-gray-300 p-2 text-gray-500">
+                Loading friends...
+              </div>
+            ) : (
+              <select
+                id="create-friend"
+                value={formData.selectedFriendId}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    selectedFriendId: e.target.value,
+                  }))
+                }
+                className="font-body w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+                required
+                aria-required="true"
+              >
+                <option value="">Choose a friend...</option>
+                {friends.map((friend) => (
+                  <option key={friend._id} value={friend._id}>
+                    {friend.username}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          <div className="mb-4">
+            <label
+              htmlFor="create-title"
               className="font-body block text-sm text-gray-700"
             >
               Title <span className="text-hotCoralPink">*</span>
             </label>
             <input
-              id="edit-title"
+              id="create-title"
               type="text"
               value={formData.title}
               onChange={(e) =>
@@ -156,13 +201,13 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
 
           <div className="mb-4">
             <label
-              htmlFor="edit-category"
+              htmlFor="create-category"
               className="font-body block text-sm text-gray-700"
             >
               Category
             </label>
             <select
-              id="edit-category"
+              id="create-category"
               value={formData.category}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, category: e.target.value }))
@@ -181,41 +226,21 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
 
           <div className="mb-4">
             <label
-              id="edit-rating-label"
+              id="create-rating-label"
               className="font-body mb-2 block text-sm text-gray-700"
             >
               Your Rating <span className="text-hotCoralPink">*</span>
             </label>
-            {/* Accessible star rating with keyboard support */}
-            <div
-              className="flex gap-1"
-              role="radiogroup"
-              aria-labelledby="edit-rating-label"
-              aria-required="true"
-            >
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  id={`edit-star-${star}`}
-                  type="button"
-                  onClick={() =>
-                    setFormData((prev) => ({ ...prev, rating: star }))
-                  }
-                  onKeyDown={(e) => handleStarKeyDown(e, star)}
-                  className={`focus:ring-cerulean text-3xl transition-colors focus:ring-2 focus:ring-offset-1 focus:outline-none ${
-                    star <= formData.rating
-                      ? "text-cerulean hover:text-[#0a8aa3]"
-                      : "text-gray-300 hover:text-gray-400"
-                  }`}
-                  role="radio"
-                  aria-checked={formData.rating === star}
-                  aria-label={`Rate ${star} out of 5 stars`}
-                  tabIndex={formData.rating === star ? 0 : -1}
-                >
-                  <span aria-hidden="true">★</span>
-                </button>
-              ))}
-            </div>
+            <StarRating
+              rating={formData.rating}
+              onChange={(star) =>
+                setFormData((prev) => ({ ...prev, rating: star }))
+              }
+              size="large"
+              idPrefix="create-star"
+              label="create-rating-label"
+              required
+            />
             <p className="font-body mt-1 text-xs text-gray-500">
               How much do you recommend this?
             </p>
@@ -223,13 +248,13 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
 
           <div className="mb-6">
             <label
-              htmlFor="edit-description"
+              htmlFor="create-description"
               className="font-body block text-sm text-gray-700"
             >
               Description
             </label>
             <textarea
-              id="edit-description"
+              id="create-description"
               value={formData.description}
               onChange={(e) =>
                 setFormData((prev) => ({
@@ -239,7 +264,7 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
               }
               className="font-body w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
               rows="4"
-              placeholder="Why do you recommend this?"
+              placeholder="Tell your friend why you recommend this..."
               aria-required="false"
             />
           </div>
@@ -248,7 +273,7 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
             <button
               type="button"
               onClick={handleClose}
-              className="font-body flex-1 rounded bg-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-400"
+              className="font-body flex-1 rounded bg-gray-300 px-4 py-2 text-white transition-colors hover:bg-gray-400"
               disabled={isSubmitting}
             >
               Cancel
@@ -256,10 +281,14 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
             <button
               type="submit"
               className="font-body bg-coral hover:bg-hotCoralPink flex-1 rounded px-4 py-2 text-white transition-colors disabled:opacity-50"
-              disabled={isSubmitting}
+              disabled={isSubmitting || friends.length === 0}
               aria-busy={isSubmitting}
             >
-              {isSubmitting ? "Saving..." : "Save Changes"}
+              {isSubmitting
+                ? "Sharing..."
+                : selectedFriend
+                  ? `Share with ${selectedFriend.username}`
+                  : "Share Recommendation"}
             </button>
           </div>
         </form>
@@ -268,4 +297,4 @@ const RecommendEditModal = ({ isOpen, onClose, recommendation }) => {
   );
 };
 
-export default RecommendEditModal;
+export default CreateAndShareModal;

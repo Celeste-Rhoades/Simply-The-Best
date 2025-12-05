@@ -3,14 +3,15 @@ import { Dialog, DialogPanel } from "@headlessui/react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { useNotifications } from "../contexts/NotificationContext";
-import { useSwipeable } from "react-swipeable";
 
 import apiFetch from "services/apiFetch";
 import NavBar from "shared-components/NavBar";
-import RecommendAddModal from "./RecommendAddModal";
-import RecommendEditModal from "./RecommendEditModal";
-import RecommendToFriendModal from "../Components/RecommendToFriendModal";
-import CreateAndShareModal from "../pages/CreateAndShareModal";
+import StarRating from "../shared-components/StarRating";
+import Carousel from "../shared-components/Carousel";
+import RecommendAddModal from "../shared-components/modals/RecommendAddModal";
+import RecommendEditModal from "../shared-components/modals/RecommendEditModal";
+import RecommendToFriendModal from "../shared-components/modals/RecommendToFriendModal";
+import CreateAndShareModal from "../shared-components/modals/CreateAndShareModal";
 import { useFriendRecommendations } from "../hooks/useFriendRecommendations";
 import routes from "../routes";
 
@@ -202,7 +203,6 @@ const MyRecommendations = () => {
     }
   };
 
-  // Render text with clickable links
   const renderTextWithLinks = (text) => {
     if (!text) return text;
 
@@ -233,292 +233,153 @@ const MyRecommendations = () => {
     });
   };
 
-  // Carousel component with swipe support
-  const CarouselWithSwipe = ({ category, recommendations }) => {
-    const maxIndex = recommendations.length - 1;
-    const currentIndex = carouselIndex[category] || 0;
-    const [cardWidth, setCardWidth] = useState(
-      window.innerWidth >= 640 ? 272 : 184,
-    );
-
-    useEffect(() => {
-      const handleResize = () => {
-        setCardWidth(window.innerWidth >= 640 ? 272 : 184);
-      };
-
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-    const handlers = useSwipeable({
-      onSwipedLeft: () => {
-        if (currentIndex < maxIndex) {
-          updateCarouselIndex(category, currentIndex + 1);
-        }
-      },
-      onSwipedRight: () => {
-        if (currentIndex > 0) {
-          updateCarouselIndex(category, currentIndex - 1);
-        }
-      },
-      trackMouse: false,
-      trackTouch: true,
-      preventScrollOnSwipe: true,
-    });
-
-    return (
-      <section
-        className="mb-8"
-        aria-labelledby={`category-${category.replace(/\s+/g, "-")}-heading`}
+  const renderCard = (recommendation) => (
+    <div className="relative flex h-[220px] w-44 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg sm:h-[300px] sm:w-64">
+      {/* Edit button */}
+      <button
+        onClick={() => handleEditRecommendation(recommendation)}
+        className="absolute top-0.5 right-0.5 z-10 text-gray-600 transition-colors hover:text-gray-800 sm:top-1 sm:right-1"
+        aria-label={`Edit ${recommendation.title}`}
       >
-        <h2
-          id={`category-${category.replace(/\s+/g, "-")}-heading`}
-          className={`font-header mb-4 pb-4 text-2xl ${isDarkMode ? "text-white" : "text-darkBlue"}`}
-        >
-          {toTitleCase(category)}
-        </h2>
+        <i
+          className="fa-solid fa-pencil text-[11px] sm:text-sm"
+          aria-hidden="true"
+        ></i>
+      </button>
 
-        <div className="relative flex items-center">
-          {/* Previous button */}
+      {/* Card header */}
+      <div className="text-darkBlue relative h-[76px] flex-shrink-0 bg-[#f8ede6] px-1.5 pt-5 text-center sm:h-[84px] sm:px-2 sm:pt-5">
+        {recommendation.title && recommendation.title.length > 60 ? (
           <button
-            className="z-10 hidden p-2 sm:mr-4 sm:block"
-            onClick={() =>
-              updateCarouselIndex(category, Math.max(currentIndex - 1, 0))
-            }
-            disabled={currentIndex === 0}
-            aria-label={`Previous ${category} recommendation`}
+            onClick={() => handleSeeTitleMore(recommendation.title)}
+            className={`font-header ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] break-words transition-colors hover:text-gray-600 sm:text-[15px] sm:leading-[1.3]`}
+            aria-label={`View full title: ${recommendation.title}`}
+          >
+            {toTitleCase(recommendation.title)}
+          </button>
+        ) : (
+          <h3
+            className={`font-header ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] break-words sm:text-[15px] sm:leading-[1.3]`}
+          >
+            {toTitleCase(recommendation.title)}
+          </h3>
+        )}
+
+        <StarRating rating={recommendation.rating} size="small" />
+      </div>
+
+      {/* Card description */}
+      <div className="relative m-1 flex flex-grow items-center justify-center bg-[#4a6a7d] p-1.5 text-white sm:m-2 sm:p-3">
+        <p className="font-body text-center text-[10px] leading-tight break-words sm:text-sm">
+          {recommendation.description &&
+          recommendation.description.length > 100 ? (
+            <>
+              {renderTextWithLinks(
+                recommendation.description.substring(0, 100),
+              )}
+              ...
+            </>
+          ) : (
+            renderTextWithLinks(recommendation.description) || "Description"
+          )}
+        </p>
+
+        {recommendation.description &&
+          recommendation.description.length > 100 && (
+            <button
+              onClick={() =>
+                handleSeeMore(recommendation.title, recommendation.description)
+              }
+              className="font-body absolute right-1 bottom-1 text-[8px] text-white/80 underline hover:text-white sm:text-[10px]"
+              aria-label={`Read full description for ${recommendation.title}`}
+            >
+              see more
+            </button>
+          )}
+      </div>
+
+      {/* Card footer */}
+      <div className="flex h-12 flex-shrink-0 flex-col items-center justify-center bg-[#f8ede6] px-2 sm:h-14 sm:px-3">
+        {/* Privacy toggle row */}
+        <div className="mb-0.5 grid w-full grid-cols-3 items-center">
+          <div className="justify-self-start">
+            {recommendation.isPrivate && (
+              <span className="font-body text-hotCoralPink px-1 text-[10px] sm:text-xs">
+                Private
+              </span>
+            )}
+          </div>
+
+          {/* Privacy toggle switch */}
+          <button
+            onClick={() => handlePrivacyToggle(recommendation._id)}
+            className="flex justify-center transition-colors"
+            aria-label={`Privacy: ${recommendation.isPrivate ? "private" : "public"}. Click to toggle`}
+            role="switch"
+            aria-checked={!recommendation.isPrivate}
+          >
+            <div
+              className={`relative h-3 w-7 rounded-full transition-colors sm:h-3.5 sm:w-8 ${
+                recommendation.isPrivate ? "bg-hotCoralPink" : "bg-green-500"
+              }`}
+            >
+              <div
+                className={`absolute top-0.5 h-2 w-2 rounded-full bg-white transition-transform sm:h-2.5 sm:w-2.5 ${
+                  recommendation.isPrivate
+                    ? "right-0.5 sm:right-0.5"
+                    : "left-0.5 sm:left-0.5"
+                }`}
+              />
+            </div>
+          </button>
+
+          <div className="justify-self-end">
+            {!recommendation.isPrivate && (
+              <span className="font-body px-1 text-[10px] text-green-600 sm:text-xs">
+                Public
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Actions row */}
+        <div className="grid w-full grid-cols-3 items-center">
+          {/* Delete button */}
+          <button
+            onClick={() => handleDeleteRecommendation(recommendation._id)}
+            className="text-hotCoralPink justify-self-start transition-colors hover:text-pink-600"
+            aria-label={`Delete ${recommendation.title}`}
           >
             <i
-              className="fa-solid fa-circle-chevron-left text-coral hover:text-lightOrange text-5xl"
+              className="fa-solid fa-trash text-[10px] sm:text-sm"
               aria-hidden="true"
             ></i>
           </button>
 
-          {/* Carousel container */}
-          <div
-            {...handlers}
-            className="flex h-[236px] flex-grow items-center justify-start overflow-hidden rounded-xl p-4 shadow-lg sm:h-[316px] sm:p-4"
-            style={{
-              background: "linear-gradient(135deg, #ff8a95, #fbbfa2, #23dee5)",
-            }}
-            role="region"
-            aria-label={`${category} recommendations carousel`}
-          >
-            <div
-              className="flex gap-2 transition-transform duration-300 sm:gap-4"
-              style={{
-                transform: `translateX(-${currentIndex * cardWidth}px)`,
-              }}
-            >
-              {recommendations.map((recommendation, index) => (
-                <article
-                  key={recommendation._id}
-                  className="w-44 flex-shrink-0 sm:w-64"
-                  aria-label={`Recommendation ${index + 1} of ${recommendations.length}`}
-                >
-                  <div className="relative flex h-[220px] w-44 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg sm:h-[300px] sm:w-64">
-                    {/* Edit button */}
-                    <button
-                      onClick={() => handleEditRecommendation(recommendation)}
-                      className="absolute top-0.5 right-0.5 z-10 text-gray-600 transition-colors hover:text-gray-800 sm:top-1 sm:right-1"
-                      aria-label={`Edit ${recommendation.title}`}
-                    >
-                      <i
-                        className="fa-solid fa-pencil text-[11px] sm:text-sm"
-                        aria-hidden="true"
-                      ></i>
-                    </button>
+          {/* Author name */}
+          <p className="font-body truncate text-center text-[9px] text-gray-600 sm:text-xs">
+            {recommendation.originalRecommendedBy
+              ? `By ${recommendation.originalRecommendedBy.username?.charAt(0).toUpperCase() + recommendation.originalRecommendedBy.username?.slice(1) || "Unknown"}`
+              : recommendation.user && recommendation.user._id === currentUserId
+                ? "Self"
+                : `By ${recommendation.user?.username?.charAt(0).toUpperCase() + recommendation.user?.username?.slice(1) || "Unknown"}`}
+          </p>
 
-                    {/* Card header */}
-                    <div className="text-darkBlue relative h-[76px] flex-shrink-0 bg-[#f8ede6] px-1.5 pt-5 text-center sm:h-[84px] sm:px-2 sm:pt-5">
-                      {recommendation.title &&
-                      recommendation.title.length > 60 ? (
-                        <button
-                          onClick={() =>
-                            handleSeeTitleMore(recommendation.title)
-                          }
-                          className={`font-header ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] break-words transition-colors hover:text-gray-600 sm:text-[15px] sm:leading-[1.3]`}
-                          aria-label={`View full title: ${recommendation.title}`}
-                        >
-                          {toTitleCase(recommendation.title)}
-                        </button>
-                      ) : (
-                        <h3
-                          className={`font-header ${getTitleMargin(recommendation.title)} line-clamp-2 text-[10.5px] leading-[1.35] break-words sm:text-[15px] sm:leading-[1.3]`}
-                        >
-                          {toTitleCase(recommendation.title)}
-                        </h3>
-                      )}
-
-                      <div
-                        className="flex justify-center gap-0.5 sm:gap-1"
-                        role="img"
-                        aria-label={`Rating: ${recommendation.rating} out of 5 stars`}
-                      >
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <span
-                            key={star}
-                            className={
-                              star <= recommendation.rating
-                                ? "text-cerulean text-[11px] sm:text-[15px]"
-                                : "text-[11px] text-gray-300 sm:text-[15px]"
-                            }
-                            aria-hidden="true"
-                          >
-                            ★
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Card description */}
-                    <div className="relative m-1 flex flex-grow items-center justify-center bg-[#4a6a7d] p-1.5 text-white sm:m-2 sm:p-3">
-                      <p className="font-body text-center text-[10px] leading-tight break-words sm:text-sm">
-                        {recommendation.description &&
-                        recommendation.description.length > 100 ? (
-                          <>
-                            {renderTextWithLinks(
-                              recommendation.description.substring(0, 100),
-                            )}
-                            ...
-                          </>
-                        ) : (
-                          renderTextWithLinks(recommendation.description) ||
-                          "Description"
-                        )}
-                      </p>
-
-                      {recommendation.description &&
-                        recommendation.description.length > 100 && (
-                          <button
-                            onClick={() =>
-                              handleSeeMore(
-                                recommendation.title,
-                                recommendation.description,
-                              )
-                            }
-                            className="font-body absolute right-1 bottom-1 text-[8px] text-white/80 underline hover:text-white sm:text-[10px]"
-                            aria-label={`Read full description for ${recommendation.title}`}
-                          >
-                            see more
-                          </button>
-                        )}
-                    </div>
-
-                    {/* Card footer */}
-                    <div className="flex h-12 flex-shrink-0 flex-col items-center justify-center bg-[#f8ede6] px-2 sm:h-14 sm:px-3">
-                      {/* Privacy toggle row */}
-                      <div className="mb-0.5 grid w-full grid-cols-3 items-center">
-                        <div className="justify-self-start">
-                          {recommendation.isPrivate && (
-                            <span className="font-body text-hotCoralPink px-1 text-[10px] sm:text-xs">
-                              Private
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Privacy toggle switch */}
-                        <button
-                          onClick={() =>
-                            handlePrivacyToggle(recommendation._id)
-                          }
-                          className="flex justify-center transition-colors"
-                          aria-label={`Privacy: ${recommendation.isPrivate ? "private" : "public"}. Click to toggle`}
-                          role="switch"
-                          aria-checked={!recommendation.isPrivate}
-                        >
-                          <div
-                            className={`relative h-3 w-7 rounded-full transition-colors sm:h-3.5 sm:w-8 ${
-                              recommendation.isPrivate
-                                ? "bg-hotCoralPink"
-                                : "bg-green-500"
-                            }`}
-                          >
-                            <div
-                              className={`absolute top-0.5 h-2 w-2 rounded-full bg-white transition-transform sm:h-2.5 sm:w-2.5 ${
-                                recommendation.isPrivate
-                                  ? "right-0.5 sm:right-0.5"
-                                  : "left-0.5 sm:left-0.5"
-                              }`}
-                            />
-                          </div>
-                        </button>
-
-                        <div className="justify-self-end">
-                          {!recommendation.isPrivate && (
-                            <span className="font-body px-1 text-[10px] text-green-600 sm:text-xs">
-                              Public
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Actions row */}
-                      <div className="grid w-full grid-cols-3 items-center">
-                        {/* Delete button */}
-                        <button
-                          onClick={() =>
-                            handleDeleteRecommendation(recommendation._id)
-                          }
-                          className="text-hotCoralPink justify-self-start transition-colors hover:text-pink-600"
-                          aria-label={`Delete ${recommendation.title}`}
-                        >
-                          <i
-                            className="fa-solid fa-trash text-[10px] sm:text-sm"
-                            aria-hidden="true"
-                          ></i>
-                        </button>
-
-                        {/* Author name */}
-                        <p className="font-body truncate text-center text-[9px] text-gray-600 sm:text-xs">
-                          {recommendation.originalRecommendedBy
-                            ? `By ${recommendation.originalRecommendedBy.username?.charAt(0).toUpperCase() + recommendation.originalRecommendedBy.username?.slice(1) || "Unknown"}`
-                            : recommendation.user &&
-                                recommendation.user._id === currentUserId
-                              ? "Self"
-                              : `By ${recommendation.user?.username?.charAt(0).toUpperCase() + recommendation.user?.username?.slice(1) || "Unknown"}`}
-                        </p>
-
-                        {/* Share button */}
-                        <button
-                          onClick={() => handleRecommendClick(recommendation)}
-                          className="justify-self-end text-[#62d3c2] transition-colors hover:text-[#59bbac]"
-                          aria-label={`Share ${recommendation.title} with a friend`}
-                        >
-                          <i
-                            className="fa-solid fa-share-from-square text-[10px] sm:text-sm"
-                            aria-hidden="true"
-                          ></i>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-
-          {/* Next button */}
+          {/* Share button */}
           <button
-            className="z-10 hidden p-2 sm:ml-4 sm:block"
-            onClick={() =>
-              updateCarouselIndex(
-                category,
-                Math.min(currentIndex + 1, maxIndex),
-              )
-            }
-            disabled={currentIndex >= maxIndex}
-            aria-label={`Next ${category} recommendation`}
+            onClick={() => handleRecommendClick(recommendation)}
+            className="justify-self-end text-[#62d3c2] transition-colors hover:text-[#59bbac]"
+            aria-label={`Share ${recommendation.title} with a friend`}
           >
             <i
-              className="fa-solid fa-circle-chevron-right text-coral hover:text-lightOrange text-5xl"
+              className="fa-solid fa-share-from-square text-[10px] sm:text-sm"
               aria-hidden="true"
             ></i>
           </button>
         </div>
-      </section>
-    );
-  };
+      </div>
+    </div>
+  );
 
   return (
     <div
@@ -526,7 +387,6 @@ const MyRecommendations = () => {
     >
       <NavBar />
 
-      {/* Success messages with live announcements */}
       {recommendSuccess && (
         <div
           className="font-body mx-8 mt-4 rounded bg-green-100 p-3 text-green-700"
@@ -688,10 +548,17 @@ const MyRecommendations = () => {
                 return a.localeCompare(b);
               })
               .map((category) => (
-                <CarouselWithSwipe
+                <Carousel
                   key={category}
-                  category={category}
-                  recommendations={showRec[category]}
+                  items={showRec[category]}
+                  sectionTitle={toTitleCase(category)}
+                  sectionId={`category-${category.replace(/\s+/g, "-")}-heading`}
+                  currentIndex={carouselIndex[category] || 0}
+                  onIndexChange={(newIdx) =>
+                    updateCarouselIndex(category, newIdx)
+                  }
+                  renderCard={renderCard}
+                  ariaLabel={`${category} recommendation`}
                 />
               ))}
           </div>

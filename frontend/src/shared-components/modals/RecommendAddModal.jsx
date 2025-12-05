@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { CATEGORY_OPTIONS } from "../services/category";
-import apiFetch from "../services/apiFetch";
+import { CATEGORY_OPTIONS } from "../../services/category";
+import apiFetch from "../../services/apiFetch";
+import StarRating from "../StarRating";
 
 const RecommendAddModal = ({ onClose }) => {
   const [form, setForm] = useState({
@@ -20,27 +21,6 @@ const RecommendAddModal = ({ onClose }) => {
       ...prev,
       [name]: name === "rating" ? Number(value) : value,
     }));
-  };
-
-  const handleStarClick = (star) => {
-    setForm((prev) => ({
-      ...prev,
-      rating: star,
-    }));
-  };
-
-  // Keyboard support for star rating navigation
-  const handleStarKeyDown = (e, star) => {
-    if (e.key === " " || e.key === "Enter") {
-      e.preventDefault();
-      handleStarClick(star);
-    } else if (e.key === "ArrowRight" && star < 5) {
-      e.preventDefault();
-      document.getElementById(`star-${star + 1}`)?.focus();
-    } else if (e.key === "ArrowLeft" && star > 1) {
-      e.preventDefault();
-      document.getElementById(`star-${star - 1}`)?.focus();
-    }
   };
 
   const validateForm = () => {
@@ -97,7 +77,6 @@ const RecommendAddModal = ({ onClose }) => {
       className="space-y-4 rounded bg-white p-6 shadow"
       aria-labelledby="add-recommendation-title"
     >
-      {/* Modal heading for screen readers */}
       <h2
         id="add-recommendation-title"
         className="font-header mb-4 text-xl text-gray-800"
@@ -105,7 +84,6 @@ const RecommendAddModal = ({ onClose }) => {
         Add Recommendation
       </h2>
 
-      {/* Title */}
       <div>
         <label htmlFor="title" className="font-body mb-1 block">
           Title <span className="text-hotCoralPink">*</span>
@@ -134,46 +112,18 @@ const RecommendAddModal = ({ onClose }) => {
         )}
       </div>
 
-      {/* Rating */}
       <div>
         <label id="rating-label" className="font-body mb-1 block">
           Rating <span className="text-hotCoralPink">*</span>
         </label>
-        {/* Accessible star rating with keyboard support */}
-        <div
-          className="flex space-x-1"
-          role="radiogroup"
-          aria-labelledby="rating-label"
-          aria-required="true"
-        >
-          {[1, 2, 3, 4, 5].map((star) => (
-            <button
-              key={star}
-              id={`star-${star}`}
-              type="button"
-              onClick={() => handleStarClick(star)}
-              onKeyDown={(e) => handleStarKeyDown(e, star)}
-              className="focus:ring-cerulean focus:ring-2 focus:ring-offset-1 focus:outline-none"
-              role="radio"
-              aria-checked={form.rating === star}
-              aria-label={`Rate ${star} out of 5 stars`}
-              tabIndex={
-                form.rating === star || (!form.rating && star === 1) ? 0 : -1
-              }
-            >
-              <span
-                className={
-                  star <= form.rating
-                    ? "text-cerulean text-2xl"
-                    : "text-2xl text-gray-300"
-                }
-                aria-hidden="true"
-              >
-                ★
-              </span>
-            </button>
-          ))}
-        </div>
+        <StarRating
+          rating={form.rating}
+          onChange={(star) => setForm((prev) => ({ ...prev, rating: star }))}
+          size="large"
+          idPrefix="star"
+          label="rating-label"
+          required
+        />
         {errors.rating && (
           <p
             id="rating-error"
@@ -185,7 +135,6 @@ const RecommendAddModal = ({ onClose }) => {
         )}
       </div>
 
-      {/* Description */}
       <div>
         <label htmlFor="description" className="font-body mb-1 block">
           Description
@@ -201,7 +150,6 @@ const RecommendAddModal = ({ onClose }) => {
         />
       </div>
 
-      {/* Category */}
       <div>
         <label htmlFor="category" className="font-body mb-1 block">
           Category <span className="text-hotCoralPink">*</span>
@@ -235,7 +183,6 @@ const RecommendAddModal = ({ onClose }) => {
         )}
       </div>
 
-      {/* API error message */}
       {submitError && (
         <div
           className="font-body bg-hotCoralPink mb-2 rounded px-3 py-2 text-sm text-white"
@@ -246,12 +193,11 @@ const RecommendAddModal = ({ onClose }) => {
         </div>
       )}
 
-      {/* Buttons */}
       <div className="flex items-center justify-between">
         <button
           type="submit"
           disabled={loading}
-          className="font-body bg-darkBlue rounded px-4 py-2 text-white disabled:opacity-50"
+          className="font-body bg-coral hover:bg-hotCoralPink rounded px-4 py-2 text-white disabled:opacity-50"
           aria-busy={loading}
         >
           {loading ? "Submitting..." : "Add Recommendation"}
@@ -259,7 +205,7 @@ const RecommendAddModal = ({ onClose }) => {
         <button
           type="button"
           onClick={onClose}
-          className="font-body rounded bg-gray-300 px-4 py-2 text-gray-700"
+          className="font-body rounded bg-gray-300 px-4 py-2 text-white hover:bg-gray-400"
         >
           Cancel
         </button>

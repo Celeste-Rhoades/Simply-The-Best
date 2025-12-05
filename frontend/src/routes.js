@@ -1,7 +1,8 @@
 const routes = {
   landing: "/",
-  signIn: "/signin", // Changed from "/"
+  signIn: "/signin",
   signUp: "/sign-up",
+  chooseUsername: "/choose-username", // Add this
   recommendations: "/recommendations",
   myRecommendations: "/my-recommendations",
   friendRequests: "/friend-requests",
