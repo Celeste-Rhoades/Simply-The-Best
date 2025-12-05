@@ -164,7 +164,7 @@ const CreateAndShareModal = ({ isOpen, onClose, onCreateAndShare }) => {
                     selectedFriendId: e.target.value,
                   }))
                 }
-                className="font-body w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+                className="font-body focus:border-darkBlue w-full rounded border border-gray-300 p-2 focus:outline-none"
                 required
                 aria-required="true"
               >
@@ -192,7 +192,7 @@ const CreateAndShareModal = ({ isOpen, onClose, onCreateAndShare }) => {
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, title: e.target.value }))
               }
-              className="font-body w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+              className="font-body focus:border-darkBlue w-full rounded border border-gray-300 p-2 focus:outline-none"
               placeholder="What are you recommending?"
               required
               aria-required="true"
@@ -212,7 +212,7 @@ const CreateAndShareModal = ({ isOpen, onClose, onCreateAndShare }) => {
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, category: e.target.value }))
               }
-              className="font-body w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+              className="font-body focus:border-darkBlue w-full rounded border border-gray-300 p-2 focus:outline-none"
               required
               aria-required="true"
             >
@@ -262,7 +262,7 @@ const CreateAndShareModal = ({ isOpen, onClose, onCreateAndShare }) => {
                   description: e.target.value,
                 }))
               }
-              className="font-body w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+              className="font-body focus:border-darkBlue w-full rounded border border-gray-300 p-2 focus:outline-none"
               rows="4"
               placeholder="Tell your friend why you recommend this..."
               aria-required="false"

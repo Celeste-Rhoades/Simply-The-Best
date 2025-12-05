@@ -115,7 +115,7 @@ const AcceptRecommendationModal = ({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, title: e.target.value }))
               }
-              className="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+              className="focus:border-darkBlue w-full rounded border border-gray-300 p-2 focus:outline-none"
               required
             />
           </div>
@@ -129,7 +129,7 @@ const AcceptRecommendationModal = ({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, category: e.target.value }))
               }
-              className="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+              className="focus:border-darkBlue w-full rounded border border-gray-300 p-2 focus:outline-none"
               required
             >
               {categories.map((cat) => (
@@ -179,7 +179,7 @@ const AcceptRecommendationModal = ({
                   description: e.target.value,
                 }))
               }
-              className="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+              className="focus:border-darkBlue w-full rounded border border-gray-300 p-2 focus:outline-none"
               rows="4"
               placeholder="You can edit the description or add your own thoughts..."
             />
