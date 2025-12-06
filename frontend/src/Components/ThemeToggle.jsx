@@ -12,7 +12,7 @@ const ThemeToggle = ({ isMobile = false }) => {
       >
         <div className="flex items-center">
           <i
-            className={`fa-solid ${isDarkMode ? "fa-sun" : "fa-moon"} mr-2 w-5`}
+            className={`fa-solid ${isDarkMode ? "fa-sun" : "fa-moon"} mr-2 text-lg`}
           ></i>
           <span>{isDarkMode ? "Light Mode" : "Dark Mode"}</span>
         </div>

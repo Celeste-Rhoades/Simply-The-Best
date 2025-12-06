@@ -190,74 +190,76 @@ const Friends = () => {
             </p>
           </div>
         ) : (
-          // Friends List - Grid layout with swipeable items
-          <SwipeableList type={ListType.ANDROID}>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {friends.map((friend) => (
-                <SwipeableListItem
-                  key={friend._id}
-                  trailingActions={
-                    <TrailingActions>
-                      <SwipeAction
+          // Friends List - Centered grid layout with swipeable items
+          <div className="mx-auto max-w-5xl">
+            <SwipeableList type={ListType.ANDROID}>
+              <div className="grid grid-cols-1 justify-items-center gap-3 md:grid-cols-2 lg:grid-cols-3">
+                {friends.map((friend) => (
+                  <SwipeableListItem
+                    key={friend._id}
+                    trailingActions={
+                      <TrailingActions>
+                        <SwipeAction
+                          onClick={() =>
+                            handleRemoveFriend(friend._id, friend.username)
+                          }
+                          destructive={true}
+                        >
+                          <div
+                            className="flex h-full items-center justify-center px-6 text-white"
+                            style={{
+                              backgroundColor: "var(--color-hotCoralPink)",
+                            }}
+                          >
+                            <div className="flex flex-col items-center">
+                              <i className="fa-solid fa-trash text-lg"></i>
+                              <span className="mt-1 text-xs">Remove</span>
+                            </div>
+                          </div>
+                        </SwipeAction>
+                      </TrailingActions>
+                    }
+                  >
+                    <div className="flex w-full items-center justify-between rounded-lg bg-white p-4 shadow transition-shadow hover:shadow-md">
+                      <div className="flex items-center gap-3">
+                        {/* Avatar Circle */}
+                        <div className="bg-cerulean flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full text-white">
+                          <span className="text-xl font-bold">
+                            {friend.username?.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+
+                        {/* Username */}
+                        <div className="min-w-0 flex-1">
+                          <p className="font-raleway text-darkBlue truncate text-lg font-semibold">
+                            {friend.username?.charAt(0).toUpperCase() +
+                              friend.username?.slice(1)}
+                          </p>
+                          <p className="text-sm text-gray-500">Friend</p>
+                        </div>
+                      </div>
+
+                      {/* Remove Button - Desktop only, always visible */}
+                      <button
                         onClick={() =>
                           handleRemoveFriend(friend._id, friend.username)
                         }
-                        destructive={true}
+                        disabled={processing[friend._id]}
+                        className="bg-lightOrange hover:bg-hotCoralPink hidden flex-shrink-0 rounded px-3 py-1.5 text-sm text-white transition-colors disabled:opacity-50 lg:block"
+                        aria-label="Remove friend"
                       >
-                        <div
-                          className="flex h-full items-center justify-center px-6 text-white"
-                          style={{
-                            backgroundColor: "var(--color-hotCoralPink)",
-                          }}
-                        >
-                          <div className="flex flex-col items-center">
-                            <i className="fa-solid fa-trash text-lg"></i>
-                            <span className="mt-1 text-xs">Remove</span>
-                          </div>
-                        </div>
-                      </SwipeAction>
-                    </TrailingActions>
-                  }
-                >
-                  <div className="flex w-full items-center justify-between rounded-lg bg-white p-4 shadow transition-shadow hover:shadow-md">
-                    <div className="flex items-center gap-3">
-                      {/* Avatar Circle */}
-                      <div className="bg-cerulean flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full text-white">
-                        <span className="text-xl font-bold">
-                          {friend.username?.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-
-                      {/* Username */}
-                      <div className="min-w-0 flex-1">
-                        <p className="font-raleway text-darkBlue truncate text-lg font-semibold">
-                          {friend.username?.charAt(0).toUpperCase() +
-                            friend.username?.slice(1)}
-                        </p>
-                        <p className="text-sm text-gray-500">Friend</p>
-                      </div>
+                        {processing[friend._id] ? (
+                          <i className="fa-solid fa-spinner animate-spin"></i>
+                        ) : (
+                          "Remove"
+                        )}
+                      </button>
                     </div>
-
-                    {/* Remove Button - Desktop only, always visible */}
-                    <button
-                      onClick={() =>
-                        handleRemoveFriend(friend._id, friend.username)
-                      }
-                      disabled={processing[friend._id]}
-                      className="bg-lightOrange hover:bg-hotCoralPink hidden flex-shrink-0 rounded px-3 py-1.5 text-sm text-white transition-colors disabled:opacity-50 lg:block"
-                      aria-label="Remove friend"
-                    >
-                      {processing[friend._id] ? (
-                        <i className="fa-solid fa-spinner animate-spin"></i>
-                      ) : (
-                        "Remove"
-                      )}
-                    </button>
-                  </div>
-                </SwipeableListItem>
-              ))}
-            </div>
-          </SwipeableList>
+                  </SwipeableListItem>
+                ))}
+              </div>
+            </SwipeableList>
+          </div>
         )}
 
         {/* Friends Count */}

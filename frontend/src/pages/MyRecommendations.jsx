@@ -106,18 +106,22 @@ const MyRecommendations = () => {
   };
 
   const handlePrivacyToggle = async (recommendationId) => {
+    setErrors("");
+
     try {
       const res = await apiFetch(
         "PATCH",
         `/api/recommendations/${recommendationId}/privacy`,
       );
+
       if (res.ok) {
-        fetchGroupRecs();
+        await fetchGroupRecs();
       } else {
-        setErrors("Failed to update privacy.");
+        const errorData = await res.json().catch(() => ({}));
+        setErrors(errorData.error || "Failed to update privacy.");
       }
     } catch (error) {
-      console.error("Error toggling privacy:", error);
+      console.error("Error updating privacy:", error);
       setErrors("Network error. Please try again.");
     }
   };
@@ -281,7 +285,7 @@ const MyRecommendations = () => {
               ...
             </>
           ) : (
-            renderTextWithLinks(recommendation.description) || "Description"
+            renderTextWithLinks(recommendation.description) || ""
           )}
         </p>
 
@@ -305,8 +309,8 @@ const MyRecommendations = () => {
         <div className="mb-0.5 grid w-full grid-cols-3 items-center">
           <div className="justify-self-start">
             {recommendation.isPrivate && (
-              <span className="font-body text-hotCoralPink px-1 text-[10px] sm:text-xs">
-                Private
+              <span className="font-body text-hotCoralPink px-1 text-[10px] whitespace-nowrap sm:text-xs">
+                keep private
               </span>
             )}
           </div>
@@ -315,7 +319,7 @@ const MyRecommendations = () => {
           <button
             onClick={() => handlePrivacyToggle(recommendation._id)}
             className="flex justify-center transition-colors"
-            aria-label={`Privacy: ${recommendation.isPrivate ? "private" : "public"}. Click to toggle`}
+            aria-label={`Privacy: ${recommendation.isPrivate ? "private" : "With Friends"}. Click to toggle`}
             role="switch"
             aria-checked={!recommendation.isPrivate}
           >
@@ -336,8 +340,8 @@ const MyRecommendations = () => {
 
           <div className="justify-self-end">
             {!recommendation.isPrivate && (
-              <span className="font-body px-1 text-[10px] text-green-600 sm:text-xs">
-                Public
+              <span className="font-body px-1 text-[10px] whitespace-nowrap text-green-600 sm:text-xs">
+                for friends
               </span>
             )}
           </div>
@@ -443,7 +447,7 @@ const MyRecommendations = () => {
         {/* Mobile second row */}
         <div className="mt-2 flex justify-center sm:hidden">
           <button
-            className="font-body bg-lightOrange w-full rounded-md px-2 py-2 text-xs text-white shadow-lg transition-colors hover:bg-[#ff9e66]"
+            className="font-body bg-lightOrange w-full rounded-md px-2 py-2 text-xs text-white shadow-lg transition-colors hover:bg-[#fe6a15]"
             onClick={() => setShowCreateShareModal(true)}
           >
             Recommend to friend

@@ -251,7 +251,7 @@ const RecommendToFriendModal = ({
             <button
               type="button"
               onClick={handleClose}
-              className="font-body flex-1 rounded bg-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-400"
+              className="font-body flex-1 rounded bg-gray-500 px-4 py-2 text-white transition-colors hover:bg-gray-600"
               disabled={isSubmitting}
             >
               Cancel

@@ -175,10 +175,10 @@ const SearchBar = ({
       <>
         <button
           onClick={handleOpenModal}
-          className="flex items-center space-x-2 text-white transition-colors hover:text-gray-200"
+          className="flex items-center space-x-2 rounded-md border border-white/30 bg-white/10 px-3 py-2 text-base text-white transition-colors hover:border-white/50 hover:bg-white/20"
         >
           <i className="fa-solid fa-magnifying-glass text-lg"></i>
-          <span className="text-base">Find Friends</span>
+          <span>Find Friends</span>
         </button>
 
         {isOpen && (
@@ -210,7 +210,7 @@ const SearchBar = ({
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search for friends by username..."
-                  className="focus:border-cerulean w-full rounded-lg border border-gray-300 bg-white px-4 py-4 pl-12 text-base text-gray-900 placeholder-gray-400 focus:outline-none"
+                  className="focus:border-cerulean w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-4 pl-12 text-base text-gray-900 placeholder-gray-400 focus:outline-none"
                   autoFocus
                 />
                 <i className="fa-solid fa-magnifying-glass absolute top-1/2 left-4 -translate-y-1/2 text-gray-400"></i>
@@ -330,7 +330,7 @@ const SearchBar = ({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search for friends by username..."
-            className="focus:border-cerulean w-full rounded-lg border border-gray-300 bg-white px-4 py-3 pl-12 text-base text-gray-900 placeholder-gray-400 focus:outline-none"
+            className="focus:border-cerulean w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 pl-12 text-base text-gray-900 placeholder-gray-400 focus:outline-none"
             autoFocus
           />
           <i className="fa-solid fa-magnifying-glass absolute top-1/2 left-4 -translate-y-1/2 text-gray-400"></i>

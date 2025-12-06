@@ -171,7 +171,7 @@ const CopyRecommendationModal = ({ isOpen, onClose, originalRec, onCopy }) => {
           <button
             type="button"
             onClick={onClose}
-            className="font-body flex-1 rounded bg-gray-300 px-4 py-2 text-white hover:bg-gray-400"
+            className="font-body flex-1 rounded bg-gray-500 px-4 py-2 text-white transition-colors hover:bg-gray-600"
             disabled={isSubmitting}
           >
             Cancel

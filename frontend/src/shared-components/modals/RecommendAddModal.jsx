@@ -205,7 +205,7 @@ const RecommendAddModal = ({ onClose }) => {
         <button
           type="button"
           onClick={onClose}
-          className="font-body rounded bg-gray-300 px-4 py-2 text-white hover:bg-gray-400"
+          className="font-body rounded bg-gray-500 px-4 py-2 text-white transition-colors hover:bg-gray-600"
         >
           Cancel
         </button>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
+import { useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 
 import NavBar from "shared-components/NavBar";
@@ -11,6 +12,7 @@ import CopyRecommendationModal from "../shared-components/modals/CopyRecommendat
 import CreateAndShareModal from "../shared-components/modals/CreateAndShareModal";
 import { useFriendsRecommendations } from "../hooks/userFriendsRecommendations";
 import { useFriendRecommendations } from "../hooks/useFriendRecommendations";
+import routes from "../routes";
 
 const RecommendHome = () => {
   const [showForm, setShowForm] = useState(false);
@@ -19,6 +21,7 @@ const RecommendHome = () => {
   const [carouselIndex, setCarouselIndex] = useState({});
   const [copySuccess, setCopySuccess] = useState("");
   const { isDarkMode } = useTheme();
+  const navigate = useNavigate();
 
   const [showCreateShareModal, setShowCreateShareModal] = useState(false);
   const [createShareSuccess, setCreateShareSuccess] = useState("");
@@ -167,7 +170,7 @@ const RecommendHome = () => {
               ...
             </>
           ) : (
-            renderTextWithLinks(recommendation.description) || "Description"
+            renderTextWithLinks(recommendation.description) || ""
           )}
         </p>
 
@@ -256,8 +259,24 @@ const RecommendHome = () => {
           </button>
         </div>
 
+        {/* Mobile second row */}
+        <div className="mt-2 flex justify-center sm:hidden">
+          <button
+            className="font-body bg-cerulean w-full rounded-md px-2 py-2 text-xs text-white shadow-lg transition-colors hover:bg-[#0799ba]"
+            onClick={() => navigate(routes.myRecommendations)}
+          >
+            My Recommendations
+          </button>
+        </div>
+
         {/* Desktop layout */}
         <div className="hidden sm:flex sm:justify-end">
+          <button
+            className="font-body bg-cerulean mx-2 rounded-md px-4 py-2 text-white shadow-lg transition-colors hover:bg-[#0799ba]"
+            onClick={() => navigate(routes.myRecommendations)}
+          >
+            My Recommendations
+          </button>
           <button
             className="font-body bg-coral hover:bg-hotCoralPink mx-2 rounded-md px-4 py-2 text-white shadow-lg transition-colors"
             onClick={() => setShowForm(true)}
@@ -306,8 +325,7 @@ const RecommendHome = () => {
             <p
               className={`font-body text-lg ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
             >
-              No recommendations from friends yet. Add some friends to see their
-              recommendations!
+              Add friends to see their recommendations
             </p>
           </div>
         ) : (
