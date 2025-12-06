@@ -1,11 +1,12 @@
 import dotenv from "dotenv";
-dotenv.config(); // ← Move this to the TOP, before any other imports
+dotenv.config();
 
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import passport from "./config/passport.js";
 import session from "express-session";
+import MongoStore from "connect-mongo";
 
 import recommendationRoutes from "./routes/recommendation.js";
 import notificationRoutes from "./routes/notification.js";
@@ -54,18 +55,24 @@ app.use(
 export { io };
 initializeSocket(io);
 
-// Session configuration
+// Session configuration with MongoDB store
 app.use(
   session({
     secret: process.env.JWT_SECRET,
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI,
+      touchAfter: 24 * 3600, // lazy session update (in seconds)
+    }),
     cookie: {
       secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },
   })
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -83,6 +90,7 @@ app.use((_, res) => {
 });
 
 connectMongoDB();
+
 // Server listen
 server.listen(PORT, () => {
   console.log(`Server started on ${PORT}`);
