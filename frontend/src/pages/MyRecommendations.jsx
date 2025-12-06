@@ -8,6 +8,7 @@ import apiFetch from "services/apiFetch";
 import NavBar from "shared-components/NavBar";
 import StarRating from "../shared-components/StarRating";
 import Carousel from "../shared-components/Carousel";
+import ModalWrapper from "../shared-components/ModalWrapper";
 import RecommendAddModal from "../shared-components/modals/RecommendAddModal";
 import RecommendEditModal from "../shared-components/modals/RecommendEditModal";
 import RecommendToFriendModal from "../shared-components/modals/RecommendToFriendModal";
@@ -586,64 +587,42 @@ const MyRecommendations = () => {
       />
 
       {/* Description modal */}
-      <Dialog
-        open={showDescriptionModal}
+      <ModalWrapper
+        isOpen={showDescriptionModal}
         onClose={() => setShowDescriptionModal(false)}
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+        title={toTitleCase(selectedDescription.title)}
       >
-        <DialogPanel
-          className="mx-4 flex max-h-[85vh] w-full max-w-md flex-col rounded-lg bg-white p-6"
-          aria-labelledby="description-modal-title"
+        <div className="flex-1 overflow-y-auto pr-2">
+          <p className="font-body whitespace-pre-wrap text-gray-700">
+            {renderTextWithLinks(selectedDescription.description)}
+          </p>
+        </div>
+        <button
+          onClick={() => setShowDescriptionModal(false)}
+          className="font-body bg-lightOrange hover:bg-hotCoralPink mt-4 w-full rounded px-4 py-2 text-white"
         >
-          <h3
-            id="description-modal-title"
-            className="font-header mb-4 text-xl text-gray-800"
-          >
-            {toTitleCase(selectedDescription.title)}
-          </h3>
-          <div className="flex-1 overflow-y-auto pr-2">
-            <p className="font-body whitespace-pre-wrap text-gray-700">
-              {renderTextWithLinks(selectedDescription.description)}
-            </p>
-          </div>
-          <button
-            onClick={() => setShowDescriptionModal(false)}
-            className="font-body bg-lightOrange hover:bg-hotCoralPink mt-4 w-full rounded px-4 py-2 text-white"
-          >
-            Close
-          </button>
-        </DialogPanel>
-      </Dialog>
+          Close
+        </button>
+      </ModalWrapper>
 
       {/* Title modal */}
-      <Dialog
-        open={showTitleModal}
+      <ModalWrapper
+        isOpen={showTitleModal}
         onClose={() => setShowTitleModal(false)}
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+        title="Full Title"
       >
-        <DialogPanel
-          className="mx-4 flex max-h-[85vh] w-full max-w-md flex-col rounded-lg bg-white p-6"
-          aria-labelledby="title-modal-heading"
+        <div className="flex-1 overflow-y-auto pr-2">
+          <p className="font-body whitespace-pre-wrap text-gray-700">
+            {toTitleCase(selectedTitle)}
+          </p>
+        </div>
+        <button
+          onClick={() => setShowTitleModal(false)}
+          className="font-body bg-lightOrange hover:bg-hotCoralPink mt-4 w-full rounded px-4 py-2 text-white"
         >
-          <h3
-            id="title-modal-heading"
-            className="font-header mb-4 text-xl text-gray-800"
-          >
-            Full Title
-          </h3>
-          <div className="flex-1 overflow-y-auto pr-2">
-            <p className="font-body whitespace-pre-wrap text-gray-700">
-              {toTitleCase(selectedTitle)}
-            </p>
-          </div>
-          <button
-            onClick={() => setShowTitleModal(false)}
-            className="font-body bg-lightOrange hover:bg-hotCoralPink mt-4 w-full rounded px-4 py-2 text-white"
-          >
-            Close
-          </button>
-        </DialogPanel>
-      </Dialog>
+          Close
+        </button>
+      </ModalWrapper>
     </div>
   );
 };
