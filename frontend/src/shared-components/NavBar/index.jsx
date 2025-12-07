@@ -59,7 +59,7 @@ const NavBar = () => {
         {/* Center title */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
           <Link to={routes.recommendations}>
-            <h1 className="font-header text-center text-2xl whitespace-nowrap text-white select-none sm:text-3xl md:text-4xl lg:text-5xl xl:text-5xl">
+            <h1 className="font-header text-center text-lg whitespace-nowrap text-white select-none sm:text-3xl md:text-4xl lg:text-5xl xl:text-5xl">
               Simply The Best
             </h1>
           </Link>
