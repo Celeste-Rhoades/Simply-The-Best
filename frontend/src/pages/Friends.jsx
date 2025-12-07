@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import NavBar from "shared-components/NavBar";
+import SearchBar from "../shared-components/SearchBar";
 import apiFetch from "../services/apiFetch";
 import socket from "../services/socket";
 import {
@@ -18,6 +19,7 @@ const Friends = () => {
   const [error, setError] = useState("");
   const [processing, setProcessing] = useState({});
   const [deleteSuccess, setDeleteSuccess] = useState("");
+  const [showSearchModal, setShowSearchModal] = useState(false);
   const { isDarkMode } = useTheme();
 
   // Fetch friends list
@@ -135,11 +137,24 @@ const Friends = () => {
       <NavBar />
 
       <div className="mx-4 mt-8 sm:mx-8">
-        <h1
-          className={`font-boldRaleway mb-6 text-3xl ${isDarkMode ? "text-white" : "text-darkBlue"}`}
-        >
-          My Friends
-        </h1>
+        <div className="mb-6 flex items-center justify-between">
+          <h1
+            className={`font-boldRaleway text-3xl ${isDarkMode ? "text-white" : "text-darkBlue"}`}
+          >
+            My Friends
+          </h1>
+          <button
+            onClick={() => setShowSearchModal(true)}
+            className="font-body bg-cerulean rounded-md px-4 py-2 text-white shadow-lg transition-colors hover:bg-[#0799ba]"
+          >
+            <i
+              className="fa-solid fa-magnifying-glass mr-2"
+              aria-hidden="true"
+            ></i>
+            <span className="hidden sm:inline">Find Friends</span>
+            <span className="sm:hidden">Find</span>
+          </button>
+        </div>
 
         {/* Success Message */}
         {deleteSuccess && (
@@ -274,6 +289,13 @@ const Friends = () => {
           </div>
         )}
       </div>
+
+      {/* Search modal */}
+      <SearchBar
+        isVisible={showSearchModal}
+        onClose={() => setShowSearchModal(false)}
+        externalControl={true}
+      />
     </div>
   );
 };

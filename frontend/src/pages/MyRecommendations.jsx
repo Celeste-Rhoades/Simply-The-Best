@@ -106,22 +106,61 @@ const MyRecommendations = () => {
   };
 
   const handlePrivacyToggle = async (recommendationId) => {
-    setErrors("");
+    // Find current privacy state
+    let originalIsPrivate = null;
+    Object.values(showRec).forEach((categoryRecs) => {
+      const rec = categoryRecs.find((r) => r._id === recommendationId);
+      if (rec) originalIsPrivate = rec.isPrivate;
+    });
 
+    // Optimistically update UI immediately
+    setShowRec((prev) => {
+      const newState = { ...prev };
+      Object.keys(newState).forEach((category) => {
+        newState[category] = newState[category].map((rec) =>
+          rec._id === recommendationId
+            ? { ...rec, isPrivate: !rec.isPrivate }
+            : rec,
+        );
+      });
+      return newState;
+    });
+
+    // Save to server
     try {
       const res = await apiFetch(
         "PATCH",
         `/api/recommendations/${recommendationId}/privacy`,
       );
 
-      if (res.ok) {
-        await fetchGroupRecs();
-      } else {
-        const errorData = await res.json().catch(() => ({}));
-        setErrors(errorData.error || "Failed to update privacy.");
+      if (!res.ok) {
+        // Revert on failure
+        setShowRec((prev) => {
+          const newState = { ...prev };
+          Object.keys(newState).forEach((category) => {
+            newState[category] = newState[category].map((rec) =>
+              rec._id === recommendationId
+                ? { ...rec, isPrivate: originalIsPrivate }
+                : rec,
+            );
+          });
+          return newState;
+        });
+        setErrors("Failed to update privacy.");
       }
     } catch (error) {
-      console.error("Error updating privacy:", error);
+      // Revert on error
+      setShowRec((prev) => {
+        const newState = { ...prev };
+        Object.keys(newState).forEach((category) => {
+          newState[category] = newState[category].map((rec) =>
+            rec._id === recommendationId
+              ? { ...rec, isPrivate: originalIsPrivate }
+              : rec,
+          );
+        });
+        return newState;
+      });
       setErrors("Network error. Please try again.");
     }
   };

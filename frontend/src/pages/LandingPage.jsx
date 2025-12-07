@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useSwipeable } from "react-swipeable";
+import { useNavigate, useLocation } from "react-router-dom";
+import { AppContext } from "../App";
 import routes from "../routes";
 import logo from "../images/logo.png";
 
@@ -160,6 +162,20 @@ const ExamplesCarousel = () => {
 };
 
 const LandingPage = () => {
+  const { user } = useContext(AppContext);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Allow demo mode via ?demo query parameter
+  const isDemo = new URLSearchParams(location.search).get("demo") === "true";
+
+  useEffect(() => {
+    // Redirect logged-in users to recommendations, unless in demo mode
+    if (user && !isDemo) {
+      navigate(routes.recommendations);
+    }
+  }, [user, navigate, isDemo]);
+
   // Helper function to render text with clickable links in laguna color
   const renderTextWithLinks = (text) => {
     if (!text) return text;

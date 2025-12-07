@@ -4,7 +4,7 @@ import { AppContext } from "../../App";
 import routes from "../../routes";
 import logo1 from "../../images/logo.png";
 import FriendRequestsDropdown from "../../Components/FriendRequestsDropdown";
-import SearchBar from "../../Components/SearchBar";
+import SearchBar from "../SearchBar";
 import ThemeToggle from "../../Components/ThemeToggle";
 import apiFetch from "../../services/apiFetch";
 import { disconnectSocket } from "../../services/socket";
@@ -73,7 +73,7 @@ const NavBar = () => {
             <div className="relative" ref={dropdownRef}>
               <button
                 type="button"
-                className="flex items-center space-x-2 rounded-md border border-white/30 bg-white/10 px-3 py-2 text-base transition-colors hover:border-white/50 hover:bg-white/20"
+                className="flex items-center space-x-2 rounded-md border border-white/30 bg-white/10 px-2 py-1 text-sm leading-tight transition-colors hover:border-white/50 hover:bg-white/20"
                 onClick={() => setUserOpenMenu(!userOpenMenu)}
                 aria-expanded={userOpenMenu}
                 aria-haspopup="true"
@@ -93,9 +93,9 @@ const NavBar = () => {
                     onClick={() => setUserOpenMenu(false)}
                     aria-hidden="true"
                   ></div>
-
                   <div
-                    className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex min-w-48 flex-col rounded-md px-6 py-4 text-base text-stone-800 shadow-md"
+                    className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex flex-col rounded-md px-3 py-4 text-base text-stone-800 shadow-md"
+                    style={{ minWidth: "160px" }}
                     role="menu"
                     aria-label="User menu"
                   >
@@ -209,9 +209,9 @@ const NavBar = () => {
                     onClick={() => setUserOpenMenu(false)}
                     aria-hidden="true"
                   ></div>
-
                   <div
-                    className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex min-w-48 flex-col rounded-md px-6 py-4 text-lg text-stone-800 shadow-md"
+                    className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex flex-col rounded-md px-3 py-4 text-lg text-stone-800 shadow-md"
+                    style={{ minWidth: "160px" }}
                     role="menu"
                     aria-label="Mobile menu"
                   >

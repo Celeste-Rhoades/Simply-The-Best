@@ -10,6 +10,7 @@ import Carousel from "../shared-components/Carousel";
 import RecommendAddModal from "../shared-components/modals/RecommendAddModal";
 import CopyRecommendationModal from "../shared-components/modals/CopyRecommendationModal";
 import CreateAndShareModal from "../shared-components/modals/CreateAndShareModal";
+import SearchBar from "../shared-components/SearchBar";
 import { useFriendsRecommendations } from "../hooks/userFriendsRecommendations";
 import { useFriendRecommendations } from "../hooks/useFriendRecommendations";
 import routes from "../routes";
@@ -22,6 +23,7 @@ const RecommendHome = () => {
   const [copySuccess, setCopySuccess] = useState("");
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
+  const [showSearchModal, setShowSearchModal] = useState(false);
 
   const [showCreateShareModal, setShowCreateShareModal] = useState(false);
   const [createShareSuccess, setCreateShareSuccess] = useState("");
@@ -38,7 +40,7 @@ const RecommendHome = () => {
   const { friendsRecs, isLoading, error, copyRecommendation } =
     useFriendsRecommendations();
 
-  const { recommendToFriend } = useFriendRecommendations();
+  const { recommendToFriend, friends } = useFriendRecommendations();
 
   const handleModalClose = () => {
     setShowForm(false);
@@ -320,6 +322,65 @@ const RecommendHome = () => {
               Try Again
             </button>
           </div>
+        ) : friends.length === 0 ? (
+          // Welcome message when user has no friends
+          <div className="flex items-center justify-center py-12">
+            <div className="max-w-md text-center">
+              <h2
+                className={`font-header mb-4 text-3xl ${isDarkMode ? "text-white" : "text-darkBlue"}`}
+              >
+                Welcome!
+              </h2>
+              <div
+                className={`font-body mb-6 space-y-3 text-base ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
+              >
+                <div className="flex items-start gap-3">
+                  <i
+                    className="fa-solid fa-user-plus text-cerulean mt-1 text-xl"
+                    aria-hidden="true"
+                  ></i>
+                  <p className="text-left">
+                    Start by <strong>finding your friends</strong> so you can
+                    see what they&apos;re loving.
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <i
+                    className="fa-solid fa-star text-cerulean mt-1 text-xl"
+                    aria-hidden="true"
+                  ></i>
+                  <p className="text-left">
+                    Once you add a few people, their recommendations will show
+                    up here on your <strong>Home feed</strong>.
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <i
+                    className="fa-solid fa-share-nodes text-cerulean mt-1 text-xl"
+                    aria-hidden="true"
+                  ></i>
+                  <p className="text-left">
+                    And you can add your own in{" "}
+                    <strong>My Recommendations.</strong> So it&apos;s easy to
+                    share the things you&apos;re into.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  console.log("Find Friends button clicked!");
+                  setShowSearchModal(true);
+                }}
+                className="font-body bg-cerulean rounded-md px-6 py-3 text-white shadow-lg transition-colors hover:bg-[#0799ba]"
+              >
+                <i
+                  className="fa-solid fa-magnifying-glass mr-2"
+                  aria-hidden="true"
+                ></i>
+                Find friends to follow
+              </button>
+            </div>
+          </div>
         ) : Object.keys(friendsRecs).length === 0 ? (
           <div className="py-12 text-center">
             <p
@@ -372,6 +433,13 @@ const RecommendHome = () => {
         isOpen={showCreateShareModal}
         onClose={() => setShowCreateShareModal(false)}
         onCreateAndShare={handleCreateAndShare}
+      />
+
+      {/* Search modal */}
+      <SearchBar
+        isVisible={showSearchModal}
+        onClose={() => setShowSearchModal(false)}
+        externalControl={true}
       />
 
       {/* Description modal */}

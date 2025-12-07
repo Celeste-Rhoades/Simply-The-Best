@@ -6,6 +6,7 @@ const SearchBar = ({
   isVisible = false,
   onClose = () => {},
   mobileOnly = false,
+  externalControl = false, // NEW PROP
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -20,15 +21,16 @@ const SearchBar = ({
     setIsOpen(false);
     setSearchTerm("");
     setSearchResults([]);
+    if (externalControl) onClose(); // Call parent's onClose too
   };
 
   // For mobile controlled modal
   useEffect(() => {
-    if (!isVisible && mobileOnly) {
+    if (!isVisible && (mobileOnly || externalControl)) {
       setSearchTerm("");
       setSearchResults([]);
     }
-  }, [isVisible, mobileOnly]);
+  }, [isVisible, mobileOnly, externalControl]);
 
   const handleSearch = useCallback(async () => {
     if (searchTerm.length < 2) {
@@ -169,13 +171,13 @@ const SearchBar = ({
     }
   }, []);
 
-  // Desktop version - self-contained button + modal
-  if (!mobileOnly) {
+  // Desktop version - self-contained button + modal (NavBar usage)
+  if (!mobileOnly && !externalControl) {
     return (
       <>
         <button
           onClick={handleOpenModal}
-          className="flex items-center space-x-2 rounded-md border border-white/30 bg-white/10 px-3 py-2 text-base text-white transition-colors hover:border-white/50 hover:bg-white/20"
+          className="flex items-center space-x-2 rounded-md border border-white/30 bg-white/10 px-2 py-1 text-sm leading-tight text-white transition-colors hover:border-white/50 hover:bg-white/20"
         >
           <i className="fa-solid fa-magnifying-glass text-lg"></i>
           <span>Find Friends</span>
@@ -300,26 +302,28 @@ const SearchBar = ({
     );
   }
 
-  // Mobile version - controlled by parent
+  // Controlled version - for external buttons (RecommendHome, Friends page)
   if (!isVisible) return null;
 
   return (
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-[9998] bg-black/40 xl:hidden"
+        className="fixed inset-0 z-[9998] bg-black/40"
         onClick={onClose}
       ></div>
 
       {/* Modal - Top positioned */}
-      <div className="fixed top-20 left-1/2 z-[9999] w-[calc(100%-2rem)] max-w-2xl -translate-x-1/2 rounded-lg bg-white p-6 shadow-xl xl:hidden">
+      <div className="fixed top-20 left-1/2 z-[9999] w-[calc(100%-2rem)] max-w-2xl -translate-x-1/2 rounded-lg bg-white p-6 shadow-xl sm:p-8">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-800">Find Friends</h2>
+          <h2 className="text-xl font-bold text-gray-800 sm:text-2xl">
+            Find Friends
+          </h2>
           <button
             onClick={onClose}
             className="text-gray-400 transition-colors hover:text-gray-600"
           >
-            <i className="fa-solid fa-times text-xl"></i>
+            <i className="fa-solid fa-times text-xl sm:text-2xl"></i>
           </button>
         </div>
 
@@ -330,7 +334,7 @@ const SearchBar = ({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search for friends by username..."
-            className="focus:border-cerulean w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 pl-12 text-base text-gray-900 placeholder-gray-400 focus:outline-none"
+            className="focus:border-cerulean w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 pl-12 text-base text-gray-900 placeholder-gray-400 focus:outline-none sm:py-4"
             autoFocus
           />
           <i className="fa-solid fa-magnifying-glass absolute top-1/2 left-4 -translate-y-1/2 text-gray-400"></i>
