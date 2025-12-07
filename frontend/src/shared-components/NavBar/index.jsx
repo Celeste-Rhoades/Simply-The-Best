@@ -13,6 +13,7 @@ const NavBar = () => {
   const { user, setUser } = useContext(AppContext);
   const [userOpenMenu, setUserOpenMenu] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
 
@@ -25,16 +26,27 @@ const NavBar = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    const response = await apiFetch("DELETE", "/api/auth/account");
+    if (response.ok) {
+      disconnectSocket();
+      setUser(null);
+      navigate(routes.landing);
+    }
+    setShowDeleteModal(false);
+  };
+
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === "Escape" && userOpenMenu) {
-        setUserOpenMenu(false);
+      if (e.key === "Escape") {
+        if (userOpenMenu) setUserOpenMenu(false);
+        if (showDeleteModal) setShowDeleteModal(false);
       }
     };
 
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
-  }, [userOpenMenu]);
+  }, [userOpenMenu, showDeleteModal]);
 
   const username = user === null ? "Loading..." : user?.username || "Guest";
 
@@ -94,8 +106,8 @@ const NavBar = () => {
                     aria-hidden="true"
                   ></div>
                   <div
-                    className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex flex-col rounded-md px-3 py-4 text-base text-stone-800 shadow-md"
-                    style={{ minWidth: "160px" }}
+                    className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex h-auto max-h-96 flex-col overflow-y-auto rounded-md px-3 py-4 text-base text-stone-800 shadow-md"
+                    style={{ minWidth: "288px" }}
                     role="menu"
                     aria-label="User menu"
                   >
@@ -150,7 +162,7 @@ const NavBar = () => {
                     </button>
 
                     <button
-                      className="font-body hover:text-cerulean py-1 text-left"
+                      className="font-body hover:text-cerulean mb-3 py-1 text-left"
                       onClick={() => {
                         setUserOpenMenu(false);
                         logout();
@@ -163,6 +175,24 @@ const NavBar = () => {
                       ></i>
                       Sign out
                     </button>
+
+                    {/* Delete Account - Separate Section */}
+                    <div className="border-t border-stone-300 pt-3">
+                      <button
+                        className="font-body py-1 text-left text-red-600 transition-colors hover:text-red-700"
+                        onClick={() => {
+                          setUserOpenMenu(false);
+                          setShowDeleteModal(true);
+                        }}
+                        role="menuitem"
+                      >
+                        <i
+                          className="fa-solid fa-trash mr-2"
+                          aria-hidden="true"
+                        ></i>
+                        Delete Account
+                      </button>
+                    </div>
                   </div>
                 </>
               )}
@@ -210,7 +240,7 @@ const NavBar = () => {
                     aria-hidden="true"
                   ></div>
                   <div
-                    className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex flex-col rounded-md px-3 py-4 text-lg text-stone-800 shadow-md"
+                    className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex h-auto max-h-96 flex-col overflow-y-auto rounded-md px-3 py-4 text-lg text-stone-800 shadow-md"
                     style={{ minWidth: "160px" }}
                     role="menu"
                     aria-label="Mobile menu"
@@ -285,7 +315,7 @@ const NavBar = () => {
                     <ThemeToggle isMobile />
 
                     <button
-                      className="font-body hover:text-cerulean py-1 text-left"
+                      className="font-body hover:text-cerulean mb-3 py-1 text-left"
                       onClick={() => {
                         setUserOpenMenu(false);
                         logout();
@@ -298,6 +328,24 @@ const NavBar = () => {
                       ></i>
                       <span>Sign out</span>
                     </button>
+
+                    {/* Delete Account - Separate Section */}
+                    <div className="border-t border-stone-300 pt-3">
+                      <button
+                        className="font-body py-1 text-left text-red-600 transition-colors hover:text-red-700"
+                        onClick={() => {
+                          setUserOpenMenu(false);
+                          setShowDeleteModal(true);
+                        }}
+                        role="menuitem"
+                      >
+                        <i
+                          className="fa-solid fa-trash mr-2 w-5"
+                          aria-hidden="true"
+                        ></i>
+                        <span>Delete Account</span>
+                      </button>
+                    </div>
                   </div>
                 </>
               )}
@@ -312,6 +360,40 @@ const NavBar = () => {
         onClose={() => setShowSearchModal(false)}
         mobileOnly={true}
       />
+
+      {/* Delete Account Confirmation Modal */}
+      {showDeleteModal && (
+        <>
+          <div
+            className="fixed inset-0 z-[10000] bg-black/60"
+            onClick={() => setShowDeleteModal(false)}
+          ></div>
+          <div className="fixed top-1/2 left-1/2 z-[10001] w-[90%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 shadow-xl">
+            <h3 className="font-header mb-4 text-xl text-gray-800">
+              Delete Account?
+            </h3>
+            <p className="font-body mb-6 text-gray-600">
+              Are you sure you want to delete your account? This will
+              permanently remove all your recommendations, friends, and data.
+              This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="font-body flex-1 rounded-md bg-gray-500 px-4 py-2 text-white transition-colors hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                className="font-body flex-1 rounded-md bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
+              >
+                Delete Account
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </nav>
   );
 };
