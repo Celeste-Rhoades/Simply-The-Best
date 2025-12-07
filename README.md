@@ -51,17 +51,23 @@ The result is a platform that works exactly how I want it to, and I'm proud of h
 
 ## Screenshots
 
-![Landing Page](screenshots/landingPage.png)
+<img src="screenshots/landingPage.png" alt="Landing Page" width="700">
+
 _Welcome page introducing the platform_
 
-![My Recommendations](screenshots/myRecommends.png)
+---
+
+<img src="screenshots/myRecommends.png" alt="My Recommendations" width="700">
+
 _Manage and organize your personal recommendations_
 
-![Home Feed](screenshots/RecHome.png)
-_Browse recommendations from friends_
+---
 
-![mobile](screenshots/mobileHome.png)
-_Mobile recommendations home_
+### Desktop and Mobile Views
+
+<img src="screenshots/RecHome.png" alt="Desktop View" width="60%"> <img src="screenshots/mobileHome.png" alt="Mobile View" width="35%">
+
+_Fully responsive design across all devices_
 
 ## Tech Stack
 
