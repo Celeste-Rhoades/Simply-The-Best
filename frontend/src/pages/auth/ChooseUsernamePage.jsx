@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { AppContext } from "../../App";
 import FormContainer from "./FormContainer";
 import apiFetch from "../../services/apiFetch";
 import routes from "../../routes";
@@ -9,6 +10,7 @@ const ChooseUsernamePage = () => {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { setUser } = useContext(AppContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,7 +29,9 @@ const ChooseUsernamePage = () => {
       });
 
       if (res.ok) {
-        navigate(routes.home);
+        const data = await res.json();
+        setUser(data.user);
+        navigate(routes.recommendations);
       } else {
         const data = await res.json();
         setError(data.error || "Failed to set username");
