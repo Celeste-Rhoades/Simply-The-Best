@@ -65,7 +65,7 @@ _Manage and organize your personal recommendations_
 
 ### Desktop and Mobile Views
 
-<img src="screenshots/RecHome.png" alt="Desktop View" width="60%"> <img src="screenshots/mobileHome.png" alt="Mobile View" width="35%">
+<img src="screenshots/RecHome.png" alt="Desktop View" height="400"> <img src="screenshots/mobileHome.png" alt="Mobile View" height="400">
 
 _Fully responsive design across all devices_
 
