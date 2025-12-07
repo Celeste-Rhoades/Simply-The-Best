@@ -1,5 +1,11 @@
 import express from "express";
-import { login, logout, signup, getProfile } from "../controller/auth.js";
+import {
+  login,
+  logout,
+  signup,
+  getProfile,
+  deleteAccount,
+} from "../controller/auth.js";
 import { protectRoute } from "../middleware/protectRoute.js";
 import { getUserRecommendations } from "../controller/user.js";
 import passport from "../config/passport.js";
@@ -46,6 +52,8 @@ router.get("/:username/recommendations", protectRoute, getUserRecommendations);
 router.post("/signup", signup);
 router.post("/login", login);
 router.post("/logout", logout);
+
+router.delete("/account", protectRoute, deleteAccount);
 
 // New route for choosing username
 router.post("/choose-username", protectRoute, async (req, res) => {

@@ -1,6 +1,8 @@
 import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
+import Recommend from "../models/Recommend.js";
+import Notification from "../models/Notification.js";
 
 export const signup = async (req, res) => {
   try {
@@ -100,5 +102,48 @@ export const getProfile = async (req, res) => {
   } catch (error) {
     console.log("Error in getMe controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+export const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Delete all user's recommendations
+    await Recommend.deleteMany({ user: userId });
+
+    // Delete all notifications to/from this user
+    await Notification.deleteMany({
+      $or: [{ from: userId }, { to: userId }],
+    });
+
+    // Remove user from all friends' following arrays
+    await User.updateMany(
+      { following: userId },
+      {
+        $pull: {
+          following: userId,
+          pendingRequests: userId,
+          sentRequests: userId,
+        },
+      }
+    );
+
+    // Delete the user
+    await User.findByIdAndDelete(userId);
+
+    // Clear cookies using same options as logout
+    const options = {
+      maxAge: 0,
+      sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
+      secure: process.env.NODE_ENV !== "development",
+    };
+
+    res.cookie("jwt", "", { ...options, httpOnly: true });
+    res.cookie("isLoggedIn", "", options);
+
+    res.status(200).json({ message: "Account deleted successfully" });
+  } catch (error) {
+    console.log("Error in deleteAccount:", error.message);
+    res.status(500).json({ error: error.message });
   }
 };
