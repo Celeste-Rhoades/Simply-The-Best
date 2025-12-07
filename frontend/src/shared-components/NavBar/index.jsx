@@ -107,7 +107,7 @@ const NavBar = () => {
                   ></div>
                   <div
                     className="bg-lightTanGray absolute top-12 right-0 z-[9999] flex h-auto max-h-96 flex-col overflow-y-auto rounded-md px-3 py-4 text-base text-stone-800 shadow-md"
-                    style={{ minWidth: "288px" }}
+                    style={{ minWidth: "290px" }}
                     role="menu"
                     aria-label="User menu"
                   >
