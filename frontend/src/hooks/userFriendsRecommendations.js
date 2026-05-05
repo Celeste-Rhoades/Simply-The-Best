@@ -58,9 +58,9 @@ export const useFriendsRecommendations = () => {
 
   const loadMore = useCallback(() => {
     // Prevent duplicate calls if already loading or nothing left
-    if (isFetchingMore || !hasMore) return;
+    if (isFetchingMore || !hasMore || isLoading) return;
     fetchFriendsRecs(nextCursor);
-  }, [isFetchingMore, hasMore, nextCursor, fetchFriendsRecs]);
+  }, [isFetchingMore, hasMore, isLoading, nextCursor, fetchFriendsRecs]);
 
   const copyRecommendation = useCallback(async (originalId, updatedData) => {
     try {
