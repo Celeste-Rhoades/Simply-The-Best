@@ -43,12 +43,12 @@ export const searchUsers = async (req, res) => {
     const usersWithStatus = users.map(user => {
       // Check if this user is in your following array (you're friends)
       const isFriend = currentUser.following.some(
-        friendId => friendId.toString() === user._id.toString()
+        friendId => friendId.toString() === user._id.toString(),
       );
 
       // Check if you already sent them a request
       const isPendingRequest = currentUser.sentRequests.some(
-        requestId => requestId.toString() === user._id.toString()
+        requestId => requestId.toString() === user._id.toString(),
       );
 
       return {
@@ -104,10 +104,10 @@ export const removeFriend = async (req, res) => {
 
     // Remove from both users' following arrays (bidirectional)
     currentUser.following = currentUser.following.filter(
-      friendId => friendId.toString() !== id
+      friendId => friendId.toString() !== id,
     );
     friendUser.following = friendUser.following.filter(
-      friendId => friendId.toString() !== req.user._id.toString()
+      friendId => friendId.toString() !== req.user._id.toString(),
     );
 
     // Save both user documents
@@ -208,10 +208,10 @@ export const acceptFriendRequest = async (req, res) => {
     }
     // Remove the request from pending arrays
     currentUser.pendingRequests = currentUser.pendingRequests.filter(
-      requestId => requestId.toString() !== id
+      requestId => requestId.toString() !== id,
     );
     requestingUser.sentRequests = requestingUser.sentRequests.filter(
-      requestId => requestId.toString() !== req.user._id.toString()
+      requestId => requestId.toString() !== req.user._id.toString(),
     );
     // Add both users to each other's friends lists
     currentUser.following.push(id);
@@ -277,10 +277,10 @@ export const declineFriendRequest = async (req, res) => {
 
     // Remove the request from arrays (but don't create friendship)
     currentUser.pendingRequests = currentUser.pendingRequests.filter(
-      requestId => requestId.toString() !== id
+      requestId => requestId.toString() !== id,
     );
     requestingUser.sentRequests = requestingUser.sentRequests.filter(
-      requestId => requestId.toString() !== req.user._id.toString()
+      requestId => requestId.toString() !== req.user._id.toString(),
     );
 
     // Save both users and return response
@@ -394,18 +394,18 @@ export const updateUser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-export const getUserRecommendations = async (req, res) => {
-  try {
-    const { username } = req.params;
-    const user = await User.findOne({ username });
-    if (!user) return res.status(404).json({ message: "User not found" });
+// export const getUserRecommendations = async (req, res) => {
+//   try {
+//     const { username } = req.params;
+//     const user = await User.findOne({ username });
+//     if (!user) return res.status(404).json({ message: "User not found" });
 
-    const recommendations = await Recommend.find({ user: user._id });
-    res.status(200).json({ success: true, data: recommendations });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+//     const recommendations = await Recommend.find({ user: user._id });
+//     res.status(200).json({ success: true, data: recommendations });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 export const getProfile = async (req, res) => {
   try {

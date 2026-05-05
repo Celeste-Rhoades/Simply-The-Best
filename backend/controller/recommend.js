@@ -1,18 +1,17 @@
 import Recommend from "../models/Recommend.js";
 import User from "../models/User.js";
-import mongoose, { createConnection } from "mongoose";
 import { io } from "../server.js";
 import { getUserSocketId } from "../socket/socket.js";
 
-export const getRecommendation = async (req, res) => {
-  try {
-    const recommendations = await Recommend.find({});
-    res.status(200).json({ success: true, data: recommendations });
-  } catch (error) {
-    console.log("error in fetching recommendation:", error.message);
-    res.status(500).json({ success: false, message: "Server Error" });
-  }
-};
+// export const getRecommendation = async (req, res) => {
+//   try {
+//     const recommendations = await Recommend.find({});
+//     res.status(200).json({ success: true, data: recommendations });
+//   } catch (error) {
+//     console.log("error in fetching recommendation:", error.message);
+//     res.status(500).json({ success: false, message: "Server Error" });
+//   }
+// };
 
 export const getRecommendationsGroupedByCategory = async (req, res) => {
   try {
@@ -102,14 +101,6 @@ export const updateRecommendation = async (req, res) => {
       return res.status(404).json({ error: "Recommendation not found" });
     }
 
-    // Debug logging for privacy toggle
-    console.log("🔄 Update attempt:");
-    console.log("Recommendation user:", recommendation.user.toString());
-    console.log("Request user:", req.user._id.toString());
-    console.log("Recommendation status:", recommendation.status);
-    console.log("Recommendation recommendedTo:", recommendation.recommendedTo);
-    console.log("Is updating isPrivate?", isPrivate !== undefined);
-
     // Allow editing if:
     // 1. User owns this recommendation (created it)
     // 2. OR recommendation is pending and sent to this user
@@ -161,13 +152,6 @@ export const deleteRecommendation = async (req, res) => {
     if (!recommendation) {
       return res.status(404).json({ error: "Recommendation not found" });
     }
-
-    // Debug logging
-    console.log("🗑️ Delete attempt:");
-    console.log("Recommendation user:", recommendation.user.toString());
-    console.log("Request user:", req.user._id.toString());
-    console.log("Recommendation status:", recommendation.status);
-    console.log("Recommendation recommendedTo:", recommendation.recommendedTo);
 
     // Allow deletion if:
     // 1. User created the recommendation (owns it)
@@ -259,7 +243,7 @@ export const rejectRecommendation = async (req, res) => {
     const recommendation = await Recommend.findOneAndUpdate(
       { _id: id, recommendedTo: req.user._id },
       { status: "rejected" },
-      { new: true }
+      { new: true },
     );
 
     if (!recommendation) {
@@ -274,24 +258,27 @@ export const rejectRecommendation = async (req, res) => {
   }
 };
 
-export const getUsers = async (req, res) => {
-  try {
-    const users = await User.find({}, "username");
-    res.status(200).json({ success: true, data: users });
-  } catch (error) {
-    console.error("Error fetching users:", error.message);
-    res.status(500).json({ success: false, message: "Server Error" });
-  }
-};
+// export const getUsers = async (req, res) => {
+//   try {
+//     const users = await User.find({}, "username");
+//     res.status(200).json({ success: true, data: users });
+//   } catch (error) {
+//     console.error("Error fetching users:", error.message);
+//     res.status(500).json({ success: false, message: "Server Error" });
+//   }
+// };
 
 export const getFriendsRecommendations = async (req, res) => {
   try {
+    const cursor = req.query.cursor;
+    const cursorFilter = cursor ? { createdAt: { $lt: new Date(cursor) } } : {};
+
     // Get current user with friends list
     const currentUser = await User.findById(req.user._id);
 
     // Find recommendations from friends - both created by them AND sent to them that were approved
-    // EXCLUDE private recommendations (isPrivate: true)
     const recommendations = await Recommend.find({
+      ...cursorFilter,
       $or: [
         {
           user: { $in: currentUser.following },
@@ -308,7 +295,8 @@ export const getFriendsRecommendations = async (req, res) => {
       .populate("user", "username")
       .populate("recommendedTo", "username")
       .populate("originalRecommendedBy", "username")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .limit(20);
 
     // Group by the friend (either creator or recipient)
     const groupedByUser = {};
@@ -320,15 +308,14 @@ export const getFriendsRecommendations = async (req, res) => {
       const isRecipient =
         rec.recommendedTo &&
         currentUser.following.some(
-          f => f.toString() === rec.recommendedTo._id.toString()
+          f => f.toString() === rec.recommendedTo._id.toString(),
         );
 
       // Check if friend is the creator
       const isCreator = currentUser.following.some(
-        f => f.toString() === rec.user._id.toString()
+        f => f.toString() === rec.user._id.toString(),
       );
-
-      // IMPORTANT: If recommendation was sent TO a friend and approved, show ONLY in recipient's section
+      //If recommendation was sent TO a friend and approved, show ONLY in recipient's section
       // This prevents duplicates when both sender and recipient are your friends
       if (isRecipient) {
         friendId = rec.recommendedTo._id.toString();
@@ -350,9 +337,16 @@ export const getFriendsRecommendations = async (req, res) => {
       }
     });
 
+    // Send null cursor when there are no more results to load
+    const nextCursor =
+      recommendations.length === 20
+        ? recommendations[recommendations.length - 1].createdAt.toISOString()
+        : null;
+
     res.status(200).json({
       success: true,
       data: groupedByUser,
+      nextCursor,
     });
   } catch (error) {
     console.error("Error fetching friends recommendations:", error.message);
@@ -367,7 +361,7 @@ export const copyRecommendation = async (req, res) => {
 
     // Find original recommendation
     const originalRec = await Recommend.findById(id).populate(
-      "user originalRecommendedBy"
+      "user originalRecommendedBy",
     );
     if (!originalRec) {
       return res

@@ -7,7 +7,7 @@ import {
   deleteAccount,
 } from "../controller/auth.js";
 import { protectRoute } from "../middleware/protectRoute.js";
-import { getUserRecommendations } from "../controller/user.js";
+// import { getUserRecommendations } from "../controller/user.js";
 import passport from "../config/passport.js";
 import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
 import User from "../models/User.js";
@@ -16,7 +16,7 @@ const router = express.Router();
 
 router.get(
   "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  passport.authenticate("google", { scope: ["profile", "email"] }),
 );
 
 router.get(
@@ -43,11 +43,11 @@ router.get(
     } else {
       res.redirect(`${frontendUrl}/recommendations`); // Changed from /home to /recommendations
     }
-  }
+  },
 );
 
 router.get("/myProfile", protectRoute, getProfile);
-router.get("/:username/recommendations", protectRoute, getUserRecommendations);
+// router.get("/:username/recommendations", protectRoute, getUserRecommendations);
 
 router.post("/signup", signup);
 router.post("/login", login);

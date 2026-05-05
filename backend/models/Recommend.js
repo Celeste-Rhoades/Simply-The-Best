@@ -57,6 +57,7 @@ const recommendSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: null,
+      index: true,
     },
 
     status: {
@@ -71,8 +72,9 @@ const recommendSchema = new mongoose.Schema(
   },
   {
     timestamps: true, // createdAt, updatedAt
-  }
+  },
 );
+recommendSchema.index({ user: 1, status: 1 });
 
 const Recommend = mongoose.model("Recommend", recommendSchema);
 

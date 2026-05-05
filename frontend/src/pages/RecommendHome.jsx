@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
@@ -16,41 +16,74 @@ import { useFriendRecommendations } from "../hooks/useFriendRecommendations";
 import routes from "../routes";
 
 const RecommendHome = () => {
+  // Modal visibility state
   const [showForm, setShowForm] = useState(false);
   const [showCopyModal, setShowCopyModal] = useState(false);
-  const [selectedRecommendation, setSelectedRecommendation] = useState(null);
-  const [carouselIndex, setCarouselIndex] = useState({});
-  const [copySuccess, setCopySuccess] = useState("");
-  const { isDarkMode } = useTheme();
-  const navigate = useNavigate();
   const [showSearchModal, setShowSearchModal] = useState(false);
-
   const [showCreateShareModal, setShowCreateShareModal] = useState(false);
-  const [createShareSuccess, setCreateShareSuccess] = useState("");
-
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
+  const [showTitleModal, setShowTitleModal] = useState(false);
+
+  // Selected item state for modals
+  const [selectedRecommendation, setSelectedRecommendation] = useState(null);
   const [selectedDescription, setSelectedDescription] = useState({
     title: "",
     description: "",
   });
-
-  const [showTitleModal, setShowTitleModal] = useState(false);
   const [selectedTitle, setSelectedTitle] = useState("");
 
-  const { friendsRecs, isLoading, error, copyRecommendation } =
-    useFriendsRecommendations();
+  // Success message state
+  const [copySuccess, setCopySuccess] = useState("");
+  const [createShareSuccess, setCreateShareSuccess] = useState("");
 
+  // Carousel index tracked per user
+  const [carouselIndex, setCarouselIndex] = useState({});
+
+  const { isDarkMode } = useTheme();
+  const navigate = useNavigate();
+
+  // Friends recommendations data and pagination controls
+  const {
+    friendsRecs,
+    isLoading,
+    isFetchingMore,
+    hasMore,
+    loadMore,
+    error,
+    copyRecommendation,
+  } = useFriendsRecommendations();
+
+  // Friends list and recommend-to-friend action
   const { recommendToFriend, friends } = useFriendRecommendations();
 
+  // Infinite scroll - load more when user reaches bottom of page
+  useEffect(() => {
+    const handleScroll = () => {
+      // Trigger when user is within 300px of the bottom
+      const nearBottom =
+        window.innerHeight + window.scrollY >= document.body.offsetHeight - 300;
+      if (nearBottom && hasMore && !isFetchingMore) {
+        loadMore();
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasMore, isFetchingMore]);
+
+  // Close the add recommendation modal
   const handleModalClose = () => {
     setShowForm(false);
   };
 
+  // Open copy modal with selected recommendation
   const handleCopyClick = (recommendation) => {
     setSelectedRecommendation(recommendation);
     setShowCopyModal(true);
   };
 
+  // Submit copy and show success message
   const handleCopySubmit = async (originalId, updatedData) => {
     const result = await copyRecommendation(originalId, updatedData);
     if (result.success) {
@@ -62,6 +95,7 @@ const RecommendHome = () => {
     return result;
   };
 
+  // Create a new recommendation and share it with a friend
   const handleCreateAndShare = async (friendId, recommendationData) => {
     const result = await recommendToFriend(friendId, recommendationData);
     if (result.success) {
@@ -74,16 +108,19 @@ const RecommendHome = () => {
     return result;
   };
 
+  // Open description modal with full text
   const handleSeeMore = (title, description) => {
     setSelectedDescription({ title, description });
     setShowDescriptionModal(true);
   };
 
+  // Open title modal with full title text
   const handleSeeTitleMore = (title) => {
     setSelectedTitle(title);
     setShowTitleModal(true);
   };
 
+  // Track carousel position per user section
   const updateCarouselIndex = (userId, newIdx) => {
     setCarouselIndex((prev) => ({
       ...prev,
@@ -91,6 +128,7 @@ const RecommendHome = () => {
     }));
   };
 
+  // Capitalize first letter of each word
   const toTitleCase = (str) => {
     return str.replace(
       /\w\S*/g,
@@ -98,6 +136,7 @@ const RecommendHome = () => {
     );
   };
 
+  // Adjust title margin based on character length
   const getTitleMargin = (title) => {
     const length = title.length;
     if (length > 40) {
@@ -107,6 +146,7 @@ const RecommendHome = () => {
     }
   };
 
+  // Render description text with clickable links
   const renderTextWithLinks = (text) => {
     if (!text) return text;
 
@@ -137,6 +177,7 @@ const RecommendHome = () => {
     });
   };
 
+  // Render individual recommendation card for carousel
   const renderCard = (recommendation) => (
     <div className="flex h-[232px] w-44 flex-col overflow-hidden rounded-lg bg-[#f8ede6] shadow-lg sm:h-[314px] sm:w-64">
       {/* Card header */}
@@ -224,6 +265,7 @@ const RecommendHome = () => {
     >
       <NavBar />
 
+      {/* Success banners */}
       {copySuccess && (
         <div
           className="mx-8 mt-4 rounded bg-green-100 p-3 text-green-700"
@@ -285,7 +327,6 @@ const RecommendHome = () => {
           >
             Add recommendation
           </button>
-
           <button
             className="font-body bg-lightOrange mx-2 rounded-md px-4 py-2 text-white shadow-lg transition-colors hover:bg-[#ff9e66]"
             onClick={() => setShowCreateShareModal(true)}
@@ -298,6 +339,7 @@ const RecommendHome = () => {
       {/* Main content area */}
       <main className="mx-4 mt-8 sm:mx-8">
         {isLoading && Object.keys(friendsRecs).length === 0 ? (
+          // Initial loading state
           <div
             className="font-body flex items-center justify-center py-12"
             role="status"
@@ -310,6 +352,7 @@ const RecommendHome = () => {
             </p>
           </div>
         ) : error ? (
+          // Error state
           <div
             className="font-body border-hotCoralPink text-hotCoralPink rounded border bg-red-100 px-4 py-3"
             role="alert"
@@ -367,10 +410,7 @@ const RecommendHome = () => {
                 </div>
               </div>
               <button
-                onClick={() => {
-                  console.log("Find Friends button clicked!");
-                  setShowSearchModal(true);
-                }}
+                onClick={() => setShowSearchModal(true)}
                 className="font-body bg-cerulean rounded-md px-6 py-3 text-white shadow-lg transition-colors hover:bg-[#0799ba]"
               >
                 <i
@@ -382,6 +422,7 @@ const RecommendHome = () => {
             </div>
           </div>
         ) : Object.keys(friendsRecs).length === 0 ? (
+          // Friends exist but no recommendations yet
           <div className="py-12 text-center">
             <p
               className={`font-body text-lg ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
@@ -390,6 +431,7 @@ const RecommendHome = () => {
             </p>
           </div>
         ) : (
+          // Friends recommendations feed grouped by user
           <div className="font-body">
             {Object.entries(friendsRecs).map(([userId, userdata]) => (
               <Carousel
@@ -403,6 +445,17 @@ const RecommendHome = () => {
                 ariaLabel={`recommendation from ${userdata.username}`}
               />
             ))}
+          </div>
+        )}
+
+        {/* Loading indicator for subsequent pages */}
+        {isFetchingMore && (
+          <div className="py-6 text-center">
+            <p
+              className={`font-body text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+            >
+              Loading more...
+            </p>
           </div>
         )}
       </main>
@@ -422,6 +475,7 @@ const RecommendHome = () => {
         </DialogPanel>
       </Dialog>
 
+      {/* Copy recommendation modal */}
       <CopyRecommendationModal
         isOpen={showCopyModal}
         onClose={() => setShowCopyModal(false)}
@@ -429,6 +483,7 @@ const RecommendHome = () => {
         onCopy={handleCopySubmit}
       />
 
+      {/* Create and share modal */}
       <CreateAndShareModal
         isOpen={showCreateShareModal}
         onClose={() => setShowCreateShareModal(false)}

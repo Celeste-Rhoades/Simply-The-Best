@@ -2,7 +2,7 @@ const routes = {
   landing: "/",
   signIn: "/signin",
   signUp: "/sign-up",
-  chooseUsername: "/choose-username", // Add this
+  chooseUsername: "/choose-username",
   recommendations: "/recommendations",
   myRecommendations: "/my-recommendations",
   friendRequests: "/friend-requests",

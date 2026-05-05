@@ -4,13 +4,13 @@ import { protectRoute } from "../middleware/protectRoute.js";
 import {
   createRecommendation,
   deleteRecommendation,
-  getRecommendation,
+  // getRecommendation,
   updateRecommendation,
   getRecommendationsGroupedByCategory,
   getPendingRecommendations,
   approveRecommendation,
   rejectRecommendation,
-  getUsers,
+  // getUsers,
   getFriendsRecommendations,
   copyRecommendation,
   recommendToFriend,
@@ -20,12 +20,12 @@ import {
 const router = express.Router();
 
 // route to get all recommendations
-router.get("/", getRecommendation);
+// router.get("/", getRecommendation);
 router.get("/grouped", protectRoute, getRecommendationsGroupedByCategory);
 // Route to create a recommendation
 router.post("/", protectRoute, createRecommendation);
 //get users
-router.get("/users", protectRoute, getUsers);
+// router.get("/users", protectRoute, getUsers);
 
 //update recommendation
 router.put("/:id", protectRoute, updateRecommendation);
